@@ -23,7 +23,7 @@
 - [x] Project scaffold and environments
 - [x] Secrets in `.env.local` (+ `.env.example`), `.gitignore` covers them
 - [ ] User puts the token in `.env.local`
-- [ ] EXPA probe (read-only): endpoint, schema field names, "applied" status name, India MC id, LinkedIn field, token reach
+- [x] EXPA probe (read-only): endpoint, schema field names, "applied" status name, India MC id, LinkedIn field, token reach
 - [ ] Re-run probe hours later to check token expiry
 - [ ] Data Schema v1 (verified) in constitution
 

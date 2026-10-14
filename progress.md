@@ -47,3 +47,8 @@
 - **Files:** `package.json`, `package-lock.json`, `tsconfig.json`, `next.config.ts`, `eslint.config.mjs`, `vitest.config.ts`, `AGENTS.md`, `.gitignore`, `.env.example`, `src/app/{layout.tsx,page.tsx,globals.css,favicon.ico}`, `CLAUDE.md`, `findings.md`, `task_plan.md`
 - **Tests:** typecheck OK; lint OK; `vitest run --passWithNoTests` OK (no tests yet); `next build` OK (`/` static). `npm audit --omit=dev`: 0 vulnerabilities.
 - **Errors:** (1) `npm install -D vitest` → ERESOLVE: `@types/node@^20` vs Vitest's `^22 || >=24`. Root cause: generator pins Node 20 types; we run Node 22. Fix: `@types/node@^22`, `engines.node >=22.12`. (2) `tsc --noEmit` → `Cannot find name 'LayoutProps'`. Root cause: Next.js generates that type. Fix: typecheck script runs `next typegen` first. Both logged as constraints in findings.md.
+
+- **Action:** Confirmed `.env.local` exists, is git-ignored and holds a 43-char value (value not read). Wrote and ran `scripts/expa-probe.mjs` (read-only; refuses mutations; prints no personal data).
+- **Files:** `scripts/expa-probe.mjs`, `findings.md`, `task_plan.md`, `progress.md`
+- **Tests:** probe ran OK (exit 0). Results in findings.md.
+- **Errors:** (1) `currentPerson { home_mc }` → "Field 'home_mc' doesn't exist on type 'CurrentPerson'". Fix: read `home_lc.parent`. (2) Full fetch took 298.5 s, so the command exceeded the 300 s shell timeout and finished in the background. Not a bug, but it is the key finding: on-demand fetching is too slow (conflict 15).

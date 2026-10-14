@@ -28,6 +28,8 @@
 | 12 | Search box not in spec; Bardo has one. | **Resolved:** add a search box (user: "absolutely necessary"). |
 | 13 | User proposed Spring Boot (Java) backend + Supabase database instead of Next.js server + no database. | **Resolved:** Next.js only, no database (user agreed). Reason: Vercel's official runtimes are Node.js, Bun, Python, Rust — no Java (vercel.com/docs/functions/runtimes, checked 2026-10-14), so Spring Boot would need a second host; and there is no data of our own to store. |
 | 14 | Tailwind CSS was proposed for styling. | **Resolved:** no Tailwind. Plain CSS files for now; styling decided in a separate conversation. |
+| 15 | Approved design fetches EXPA on page load (15-min cache, no DB). Probe: 2404 applications take ~5 min to fetch. User's mentor suggested a scheduled sync (GitHub Actions) into a database (Supabase) that the site reads. | **Open.** Claude now recommends the sync + database design; awaiting user decision. |
+| 16 | Pool has 2404 "open" applications, incl. 9 closed LCs and possibly years-old applications whose slot dates are past. | **Open.** Ask user: include closed LCs? Include applications whose slot has already ended? |
 
 ## Technical research
 
@@ -134,3 +136,41 @@ _Still unverified (check in Link phase with the real token):_
   patterns); `npm audit fix --force` would make breaking changes, so left as is.
 - `next dev` rewrites `AGENTS.md` only; it never touches `CLAUDE.md` (checked
   `next/dist/server/lib/generate-agent-files.js`).
+
+### EXPA probe results (2026-10-14, `scripts/expa-probe.mjs`, read-only, no personal data printed)
+- **Endpoint:** `https://gis-api.aiesec.org/graphql` with `?access_token=` works (HTTP 200).
+  `https://expa.aiesec.org/graphql` returns HTTP 403. Schema introspection is allowed.
+- **IDs:** India MC = **1585**. Token owner's home LC = India National Office (2340) → token has
+  national reach: applications from **32 LCs** came back (incl. 9 "Closed [...]" LCs).
+- **Status name:** "Applied" in the EXPA UI = **`open`** in the API (`open`: 2404, `applied`: 0).
+  For comparison: matched 11, accepted 11, approved 41 (GTa + GTe, India).
+- **Size: 2404 open GTa/GTe applications from 899 people** (GTa 2117, GTe 287). The user's
+  estimate was "100+". Contradicts the "100+ applicants" assumption.
+- **Speed: fetching all 2404 (25 pages × 100, sequential, full field set) took 298.5 s.**
+  → Fetching on page load is not viable; see conflict 15.
+- **Verified field paths and fill rates (out of 2404):**
+
+  | Our field | EXPA path | Filled |
+  |---|---|---|
+  | cvUrl | `person.cv_url` (also `person.cvs[].url`, 2402) | 2403 |
+  | — | application-level `cv { url }` | 0 (don't use) |
+  | email | `person.email` | 2404 |
+  | phone | `person.contact_detail.phone` (+ `country_code`) | 1802 |
+  | linkedinUrl | `person.linkedin_url` (`contact_detail.linkedin`: only 9) | 1294 |
+  | epManagers | `person.managers { full_name email contact_detail { phone } }` | 1786 (email 1786, phone 1342) |
+  | companyName | `opportunity.organisation.name` (`branch.name` also 2404) | 2404 |
+  | opportunityField | `opportunity.sub_product.name` | 2120 |
+  | startDate / endDate | `slot.start_date` / `slot.end_date` | 2404 / 2404 |
+  | (fallback) | `opportunity.earliest_start_date` | 17 — fallback rarely needed |
+  | homeLc | `person.home_lc { id name }` | 2404 |
+  | programme | `opportunity.programme.short_name_display` | GTa / GTe |
+
+- **Filters available** on `allOpportunityApplication(filters: ApplicationFilter)`:
+  `person_home_mc`, `person_home_lc`, `programmes`, `status`, `statuses`, `created_at`,
+  `experience_start_date`, `sub_products`, `has_managers`, … (full list in probe output).
+- Token expiry: **still unknown.** Re-run `node --env-file=.env.local scripts/expa-probe.mjs x`
+  (step 1 only) a few hours after 2026-10-14 15:05 to check.
+- GitHub repo `ElementZ76/aiesec-in-india-ogt-dashboard` is **public** (API returns 200 without login).
+- GitHub Actions schedule (docs, checked 2026-10-14): shortest interval 5 minutes; runs "can be
+  delayed during periods of high loads"; some may be dropped; in public repos scheduled workflows
+  are disabled after 60 days without repository activity.
