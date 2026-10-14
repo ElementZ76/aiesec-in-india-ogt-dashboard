@@ -42,3 +42,8 @@
 - **Contradictions found and fixed:** constitution still said "DRAFT / not approved"; Tech Stack and A.N.T. sections still provisional; Behavioral Rule 6 ("no code until Blueprint approved") obsolete → replaced with the push rule; Invariant 1 said `.env` but Next.js uses `.env.local`; findings rows 2 and 4 outdated (token owner, search box); conflict 13 still open; task_plan Phase 0/1 boxes unticked.
 - **Files:** `CLAUDE.md`, `findings.md`, `task_plan.md`, `progress.md`
 - **Tests:** none (no code yet). **Errors:** none.
+
+- **Action:** Scaffolded Next.js 16.4 project in `.tmp/scaffold`, merged into the repo root (so it could not overwrite memory files), replaced the default page with a placeholder, set page title, merged `.gitignore`, added `.env.example`, Vitest config, `test` / `typecheck` scripts, `engines.node`.
+- **Files:** `package.json`, `package-lock.json`, `tsconfig.json`, `next.config.ts`, `eslint.config.mjs`, `vitest.config.ts`, `AGENTS.md`, `.gitignore`, `.env.example`, `src/app/{layout.tsx,page.tsx,globals.css,favicon.ico}`, `CLAUDE.md`, `findings.md`, `task_plan.md`
+- **Tests:** typecheck OK; lint OK; `vitest run --passWithNoTests` OK (no tests yet); `next build` OK (`/` static). `npm audit --omit=dev`: 0 vulnerabilities.
+- **Errors:** (1) `npm install -D vitest` → ERESOLVE: `@types/node@^20` vs Vitest's `^22 || >=24`. Root cause: generator pins Node 20 types; we run Node 22. Fix: `@types/node@^22`, `engines.node >=22.12`. (2) `tsc --noEmit` → `Cannot find name 'LayoutProps'`. Root cause: Next.js generates that type. Fix: typecheck script runs `next typegen` first. Both logged as constraints in findings.md.

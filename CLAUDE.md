@@ -32,6 +32,18 @@ Approved by the user 2026-10-14. Versions checked on npm the same day.
 | Spreadsheet export | CSV file, generated in the browser; no extra library |
 | Runtime | Node.js >= 22.12 (local: 22.14) |
 
+**Commands** (run from the project folder):
+
+| Command | What it does |
+|---|---|
+| `npm run dev` | Start the site locally at http://localhost:3000 |
+| `npm test` | Run all automated tests (Vitest) |
+| `npm run typecheck` | Generate Next.js route types, then check all TypeScript |
+| `npm run lint` | Check code style and common mistakes (ESLint) |
+| `npm run build` | Build the production version (what Vercel runs) |
+
+`AGENTS.md` is managed by Next.js (`next dev` rewrites it). Keep it committed; don't hand-edit it.
+
 Rejected: Spring Boot (Java) backend + Supabase. Vercel has no Java runtime, so it needs a second
 host, and there is no data to store yet (findings.md, conflict 13).
 
@@ -144,3 +156,4 @@ Tests live next to the code they test, as `*.test.ts`.
 | 2026-10-14 | Schema v0.3: likely EXPA paths filled in; duration → startDate/endDate; epManager → epManagers list; added programme (GTa/GTe); LinkedIn "Not available" when missing | EXPA research + user answers |
 | 2026-10-14 | Duration = slot dates with opportunity-range fallback; added search box; stats v1 defined; Next.js frontend; no Tailwind | User decisions |
 | 2026-10-14 | Blueprint approved: tech stack table, data flow, PoolApplication shape, endpoint table, final A.N.T. folders; token env var named `EXPA_ACCESS_TOKEN` | User approved Next.js-only, no DB, plain CSS |
+| 2026-10-14 | Added Commands table; `engines.node >= 22.12` in package.json | Project scaffold |

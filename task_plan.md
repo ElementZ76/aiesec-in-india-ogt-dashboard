@@ -20,8 +20,8 @@
 - [x] User approval (2026-10-14)
 
 ## Phase 2 — L: Link
-- [ ] Project scaffold and environments
-- [ ] Secrets in `.env.local` (+ `.env.example`), `.gitignore` covers them
+- [x] Project scaffold and environments
+- [x] Secrets in `.env.local` (+ `.env.example`), `.gitignore` covers them
 - [ ] User puts the token in `.env.local`
 - [ ] EXPA probe (read-only): endpoint, schema field names, "applied" status name, India MC id, LinkedIn field, token reach
 - [ ] Re-run probe hours later to check token expiry
