@@ -1,6 +1,6 @@
 # Task Plan
 
-**Current Phase: 1 — Blueprint (spec received; open questions in findings.md conflicts 3–6)**
+**Current Phase: 1 — Blueprint (spec finalized; next: research)**
 
 ## Phase 0 — Initialization
 - [x] Create `CLAUDE.md`, `task_plan.md`, `findings.md`, `progress.md`, `.tmp/`
@@ -11,7 +11,7 @@
 
 ## Phase 1 — B: Blueprint
 - [x] Receive spec file; cross-check against discovery answers; log conflicts
-- [ ] User resolves open conflicts 3–6
+- [x] User resolves open conflicts 3–6
 - [ ] Study reference site (ogtbardo.vercel.app/cv-pool) and log how it works
 - [ ] Research EXPA API (auth, query shape, fields for phone/CV/LinkedIn/EP manager, pagination, rate limits, token expiry)
 - [ ] Choose tech stack; verify current library versions from docs; log in findings.md
@@ -27,12 +27,10 @@
 
 ## Phase 3 — A: Architect
 ### MVP (bare minimum)
-- [ ] Applicant list: name, phone, email, LinkedIn, CV link, EP manager
-- [ ] Remaining spec fields: company name, region and LC, duration, opportunity field
+- [ ] Application cards (status "applied" only, one per application): name, phone, email, LinkedIn, CV link, EP manager
+- [ ] Remaining spec fields: company name, LC, duration, opportunity field
 ### Full version (this iteration)
 - [ ] Filter by LC
-- [ ] Filter by status
-- [ ] Filter by date
 - [ ] Export to spreadsheet
 - [ ] Statistics
 ### Quality

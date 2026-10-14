@@ -6,13 +6,12 @@
 ## North Star
 
 A public website, hosted on Vercel, showing **one India-wide pool** of every AIESEC in India oGT
-(outgoing Global Talent) applicant, filterable by local committee (LC). For each applicant it
-shows name, phone, email, LinkedIn, CV link and EP manager. Data is read live from EXPA.
+(outgoing Global Talent) application with status **"applied"**, filterable by local committee
+(LC). Each application is one card showing the spec fields. Data is read live from EXPA.
 
-- **Spec:** `spec_file.txt` lists the 10 fields each applicant shows (see Data Schema).
-- **Bare minimum (MVP):** the applicant list with contact info, EP manager and CV link.
-- **Done:** the MVP with a proper UI, plus filters (LC, status, date), spreadsheet export and
-  statistics.
+- **Spec:** `spec_file.txt` lists the 10 fields each card shows (see Data Schema).
+- **Bare minimum (MVP):** the cards with contact info, EP manager and CV link.
+- **Done:** the MVP with a proper UI, plus an LC filter, spreadsheet export and statistics.
 - Functional reference: https://ogtbardo.vercel.app/cv-pool (same function, different look).
 - Expected load: 20–30 users per day; 100+ applicants.
 
@@ -23,40 +22,38 @@ Fixed so far: hosting on **Vercel**; data from the **EXPA API** (believed to be 
 
 ## Data Schema
 
-_Draft v0.1 — fields come from `spec_file.txt` (the spec). Every EXPA source below is
+_Draft v0.2 — fields come from `spec_file.txt` (the spec). Every EXPA source below is
 UNVERIFIED until the EXPA token is tested (Link phase)._
 
-**Open question (see findings.md, conflict 3):** is one row in the pool one *person* or one
-*application*? The spec mixes person fields with job fields (company, duration, opportunity
-field), and one person may apply to several jobs.
+**Unit of the pool = one application = one card.** A person who applied to 3 jobs appears as
+3 cards. Only applications whose status is "applied" are in the pool.
 
 ### Person fields (EP — Exchange Participant)
 
 | Field | Type | Spec item | Source in EXPA | Verified? |
 |---|---|---|---|---|
-| id | string | — (internal) | person id | No |
+| personId | string | — (internal) | person id | No |
 | fullName | string | applicant name | person name | No |
 | email | string | email | person email | No |
 | phone | string | phone | person contact info | No |
 | linkedinUrl | string \| null | link to their linkedin profile | person profile / social links | No |
 | cvUrl | string \| null | cv link | person CV attachment | No |
-| homeRegion | string | region and lc | region the home LC belongs to | No |
-| homeLc | string | region and lc | person's home local committee (LC) | No |
+| homeLc | string | lc | person's home local committee (LC) | No |
 | epManager | string \| null | ep manager | person's assigned EP manager | No |
 
 ### Application / opportunity fields
 
 | Field | Type | Spec item | Source in EXPA | Verified? |
 |---|---|---|---|---|
+| applicationId | string | — (internal; card key) | application id | No |
 | companyName | string \| null | company name | opportunity's host organisation | No |
 | duration | string \| null | duration | opportunity duration (weeks?) | No |
 | opportunityField | string \| null | opportunity field | opportunity's work field / background | No |
-| status | string | — (needed for status filter) | application status | No |
-| createdAt | date | — (needed for date filter) | application or sign-up date | No |
+| status | string | — (internal; query filter only, not shown) | application status; pool keeps only "applied" | No |
 
 ### Computed values
 
-_None yet. Statistics (counts per LC/status) will be defined in the Blueprint._
+_None yet. Statistics will be defined in the Blueprint._
 
 ### API input/output schemas
 
@@ -86,7 +83,9 @@ _Provisional. Folder names depend on the Tech Stack decision. No folders are cre
    AIESEC in India policy). Revisit only if the user asks.
 3. **EXPA is read-only.** The app only runs read queries. It never creates, updates or deletes
    anything on EXPA (no GraphQL mutations).
-4. `.tmp/` is scratch space only. Nothing in it is a deliverable.
+4. The pool contains **only applications with status "applied"**, one card per application.
+   When an application moves to another status in EXPA, it leaves the pool.
+5. `.tmp/` is scratch space only. Nothing in it is a deliverable.
 
 ## Behavioral Rules
 
@@ -105,3 +104,4 @@ _Provisional. Folder names depend on the Tech Stack decision. No folders are cre
 | 2026-10-14 | Created draft constitution | B.L.A.S.T. Protocol 0 |
 | 2026-10-14 | Filled North Star, behavioral rules; added epManager/status/createdAt; invariant 2 → public site; added read-only invariant | Discovery answers |
 | 2026-10-14 | Schema v0.1: added companyName, duration, opportunityField, homeRegion; split person vs application fields | `spec_file.txt` received |
+| 2026-10-14 | Schema v0.2: one card per application; pool = status "applied" only (invariant 4); removed homeRegion, createdAt; status internal only; filters reduced to LC | User answers to conflicts 3–6 |

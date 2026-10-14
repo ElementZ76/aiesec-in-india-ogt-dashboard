@@ -19,3 +19,8 @@
 - **Files:** `CLAUDE.md`, `findings.md`, `task_plan.md`, `progress.md`, `spec_file.txt` (added by user)
 - **Tests:** none (no code yet).
 - **Errors:** none.
+
+- **Action:** Applied user answers to conflicts 3–6: one card per application; pool = "applied" only; removed status/date filters and date field; LC filter only; removed region from spec and schema. Schema → v0.2.
+- **Files:** `CLAUDE.md`, `findings.md`, `task_plan.md`, `progress.md`, `spec_file.txt`
+- **Tests:** none (no code yet).
+- **Errors:** none.

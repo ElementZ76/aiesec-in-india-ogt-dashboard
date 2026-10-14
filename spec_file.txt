@@ -3,7 +3,7 @@ company name
 ep manager
 email
 phone
-region and lc
+lc
 duration
 cv link
 opportunity field
