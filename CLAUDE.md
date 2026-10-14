@@ -9,6 +9,7 @@ A public website, hosted on Vercel, showing **one India-wide pool** of every AIE
 (outgoing Global Talent) applicant, filterable by local committee (LC). For each applicant it
 shows name, phone, email, LinkedIn, CV link and EP manager. Data is read live from EXPA.
 
+- **Spec:** `spec_file.txt` lists the 10 fields each applicant shows (see Data Schema).
 - **Bare minimum (MVP):** the applicant list with contact info, EP manager and CV link.
 - **Done:** the MVP with a proper UI, plus filters (LC, status, date), spreadsheet export and
   statistics.
@@ -22,22 +23,36 @@ Fixed so far: hosting on **Vercel**; data from the **EXPA API** (believed to be 
 
 ## Data Schema
 
-_Draft v0 — every field below is UNVERIFIED until the EXPA token is tested (Link phase)._
+_Draft v0.1 — fields come from `spec_file.txt` (the spec). Every EXPA source below is
+UNVERIFIED until the EXPA token is tested (Link phase)._
 
-### Entity: Applicant (EP — Exchange Participant)
+**Open question (see findings.md, conflict 3):** is one row in the pool one *person* or one
+*application*? The spec mixes person fields with job fields (company, duration, opportunity
+field), and one person may apply to several jobs.
 
-| Field | Type | Source in EXPA | Verified? |
-|---|---|---|---|
-| id | string | EXPA person id | No |
-| fullName | string | person name | No |
-| email | string | person email | No |
-| phone | string | person contact info | No |
-| linkedinUrl | string \| null | person profile / social links | No |
-| cvUrl | string \| null | person CV attachment | No |
-| homeLc | string | person's home local committee (LC) | No |
-| epManager | string \| null | person's assigned EP manager | No |
-| status | string | application/person status (for filter) | No |
-| createdAt | date | sign-up or application date (for filter) | No |
+### Person fields (EP — Exchange Participant)
+
+| Field | Type | Spec item | Source in EXPA | Verified? |
+|---|---|---|---|---|
+| id | string | — (internal) | person id | No |
+| fullName | string | applicant name | person name | No |
+| email | string | email | person email | No |
+| phone | string | phone | person contact info | No |
+| linkedinUrl | string \| null | link to their linkedin profile | person profile / social links | No |
+| cvUrl | string \| null | cv link | person CV attachment | No |
+| homeRegion | string | region and lc | region the home LC belongs to | No |
+| homeLc | string | region and lc | person's home local committee (LC) | No |
+| epManager | string \| null | ep manager | person's assigned EP manager | No |
+
+### Application / opportunity fields
+
+| Field | Type | Spec item | Source in EXPA | Verified? |
+|---|---|---|---|---|
+| companyName | string \| null | company name | opportunity's host organisation | No |
+| duration | string \| null | duration | opportunity duration (weeks?) | No |
+| opportunityField | string \| null | opportunity field | opportunity's work field / background | No |
+| status | string | — (needed for status filter) | application status | No |
+| createdAt | date | — (needed for date filter) | application or sign-up date | No |
 
 ### Computed values
 
@@ -89,3 +104,4 @@ _Provisional. Folder names depend on the Tech Stack decision. No folders are cre
 |---|---|---|
 | 2026-10-14 | Created draft constitution | B.L.A.S.T. Protocol 0 |
 | 2026-10-14 | Filled North Star, behavioral rules; added epManager/status/createdAt; invariant 2 → public site; added read-only invariant | Discovery answers |
+| 2026-10-14 | Schema v0.1: added companyName, duration, opportunityField, homeRegion; split person vs application fields | `spec_file.txt` received |

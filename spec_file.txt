@@ -1,0 +1,10 @@
+applicant name
+company name
+ep manager
+email
+phone
+region and lc
+duration
+cv link
+opportunity field
+link to their linkedin profile 

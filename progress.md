@@ -10,3 +10,12 @@
 - **Files:** `CLAUDE.md`, `findings.md`, `task_plan.md`, `progress.md`
 - **Tests:** none (no code yet).
 - **Errors:** none.
+
+- **Action:** Set up git, linked GitHub remote (ElementZ76/aiesec-in-india-ogt-dashboard), first commit and push.
+- **Files:** `.git/`
+- **Tests:** none. **Errors:** none.
+
+- **Action:** Read `spec_file.txt`; cross-checked against discovery answers; updated schema to v0.1; logged conflicts 3–6.
+- **Files:** `CLAUDE.md`, `findings.md`, `task_plan.md`, `progress.md`, `spec_file.txt` (added by user)
+- **Tests:** none (no code yet).
+- **Errors:** none.
