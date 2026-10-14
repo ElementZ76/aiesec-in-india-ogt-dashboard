@@ -31,9 +31,10 @@
 - [ ] Application cards (status "applied" only, one per application): name, phone, email, LinkedIn, CV link, EP manager
 - [ ] Remaining spec fields: company name, LC, duration, opportunity field
 ### Full version (this iteration)
+- [ ] Search box
 - [ ] Filter by LC
 - [ ] Export to spreadsheet
-- [ ] Statistics
+- [ ] Statistics v1: total, per LC, per work area, GTa vs GTe
 ### Quality
 - [ ] Tools layer (EXPA client, mappers) with tests
 - [ ] Navigation layer (server routes) with tests

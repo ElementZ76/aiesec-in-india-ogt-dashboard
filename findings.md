@@ -22,9 +22,11 @@
 | 6 | Spec says "region and lc"; discovery only mentioned an LC filter. | **Resolved:** LC filter only. Region removed from the spec and schema. |
 | 7 | Token type unknown (browser token may expire in ~2 h). | Partly resolved: token belongs to an MC member, so India-wide reach is expected. Type/expiry still unknown — test in Link phase. |
 | 8 | "Opportunity field" could mean sub-product or academic background. | **Resolved:** the job's work area = `opportunity.sub_product`. |
-| 9 | "Duration" as a category or as dates. | **Resolved:** actual dates. **Open:** use the application's slot dates (the exact period applied for) or the opportunity's overall date range? Proposed: slot dates, falling back to the opportunity range. |
+| 9 | "Duration" as a category or as dates. | **Resolved:** actual dates. Slot dates first, fallback to the opportunity's date range (user confirmed). |
 | 10 | Which programmes are oGT? | **Resolved:** GTa and GTe. |
 | 11 | EXPA may have no LinkedIn field. | **Resolved:** card shows "Not available" when there is no LinkedIn data. |
+| 12 | Search box not in spec; Bardo has one. | **Resolved:** add a search box (user: "absolutely necessary"). |
+| 13 | User proposed Spring Boot (Java) backend + Supabase database instead of Next.js server + no database. | **Open.** Vercel's official runtimes are Node.js, Bun, Python, Rust — no Java (vercel.com/docs/functions/runtimes, checked 2026-10-14), so Spring Boot needs a second host. Claude recommends Next.js only, no DB; awaiting user decision. |
 
 ## Technical research
 

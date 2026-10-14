@@ -33,3 +33,7 @@
 - **Action:** Recorded user answers on token owner (MC member), opportunity field (sub-product), duration (actual dates), programmes (GTa + GTe), LinkedIn fallback. Schema → v0.3.
 - **Files:** `CLAUDE.md`, `findings.md`, `progress.md`
 - **Tests:** none (no code yet). **Errors:** none.
+
+- **Action:** Recorded decisions: slot dates first; stats v1; search box added; Next.js frontend; no Tailwind. Backend/database choice (Spring Boot + Supabase proposed by user) still open.
+- **Files:** `CLAUDE.md`, `findings.md`, `task_plan.md`, `progress.md`
+- **Tests:** none (no code yet). **Errors:** none.

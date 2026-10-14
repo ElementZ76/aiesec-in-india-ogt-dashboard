@@ -11,14 +11,17 @@ A public website, hosted on Vercel, showing **one India-wide pool** of every AIE
 
 - **Spec:** `spec_file.txt` lists the 10 fields each card shows (see Data Schema).
 - **Bare minimum (MVP):** the cards with contact info, EP manager and CV link.
-- **Done:** the MVP with a proper UI, plus an LC filter, spreadsheet export and statistics.
+- **Done:** the MVP with a proper UI, plus a search box, an LC filter, spreadsheet export and
+  statistics (v1: total applications, count per LC, count per work area, GTa vs GTe).
 - Functional reference: https://ogtbardo.vercel.app/cv-pool (same function, different look).
 - Expected load: 20–30 users per day; 100+ applicants.
 
 ## Tech Stack
 
 _Not decided. To be proposed in the Blueprint phase after research, then approved by the user._
-Fixed so far: hosting on **Vercel**; data from the **EXPA API** (believed to be GraphQL, unverified).
+Fixed so far: frontend **Next.js**, hosted on **Vercel**; data from the **EXPA API** (GraphQL).
+**Not Tailwind CSS** (user decision). Styling approach to be decided in a separate conversation.
+Backend and database: under discussion.
 
 ## Data Schema
 
@@ -48,15 +51,16 @@ programmes: **GTa and GTe**. Applicants' home MC = AIESEC in India.
 |---|---|---|---|---|
 | applicationId | string | — (internal; card key) | application id | No |
 | companyName | string \| null | company name | `opportunity.organisation.name` | No |
-| startDate | date \| null | duration (actual dates) | application `slot.start_date`, else `opportunity.earliest_start_date` (to confirm) | No |
-| endDate | date \| null | duration (actual dates) | application `slot.end_date`, else `opportunity.latest_end_date` (to confirm) | No |
+| startDate | date \| null | duration (actual dates) | application `slot.start_date`; fallback `opportunity.earliest_start_date` | No |
+| endDate | date \| null | duration (actual dates) | application `slot.end_date`; fallback `opportunity.latest_end_date` | No |
 | opportunityField | string \| null | opportunity field = the job's work area (sub-product) | `opportunity.sub_product.name` | No |
 | status | string | — (internal; query filter only, not shown) | application `status`; "applied" is probably `open` in the API | No |
 | programme | string | — (internal; query filter only) | `opportunity.programme.short_name_display`; GTa or GTe | No |
 
 ### Computed values
 
-_None yet. Statistics will be defined in the Blueprint._
+Statistics v1 (user-approved 2026-10-14; to be expanded later): total applications in the pool;
+count per LC; count per work area (sub-product); count of GTa vs GTe.
 
 ### API input/output schemas
 
@@ -110,3 +114,4 @@ _Provisional. Folder names depend on the Tech Stack decision. No folders are cre
 | 2026-10-14 | Schema v0.1: added companyName, duration, opportunityField, homeRegion; split person vs application fields | `spec_file.txt` received |
 | 2026-10-14 | Schema v0.2: one card per application; pool = status "applied" only (invariant 4); removed homeRegion, createdAt; status internal only; filters reduced to LC | User answers to conflicts 3–6 |
 | 2026-10-14 | Schema v0.3: likely EXPA paths filled in; duration → startDate/endDate; epManager → epManagers list; added programme (GTa/GTe); LinkedIn "Not available" when missing | EXPA research + user answers |
+| 2026-10-14 | Duration = slot dates with opportunity-range fallback; added search box; stats v1 defined; Next.js frontend; no Tailwind | User decisions |
