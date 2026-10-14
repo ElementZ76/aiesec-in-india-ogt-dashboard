@@ -1,6 +1,6 @@
 # Task Plan
 
-**Current Phase: 1 — Blueprint (spec finalized; next: research)**
+**Current Phase: 1 — Blueprint (research done; next: token questions + tech stack)**
 
 ## Phase 0 — Initialization
 - [x] Create `CLAUDE.md`, `task_plan.md`, `findings.md`, `progress.md`, `.tmp/`
@@ -12,8 +12,9 @@
 ## Phase 1 — B: Blueprint
 - [x] Receive spec file; cross-check against discovery answers; log conflicts
 - [x] User resolves open conflicts 3–6
-- [ ] Study reference site (ogtbardo.vercel.app/cv-pool) and log how it works
-- [ ] Research EXPA API (auth, query shape, fields for phone/CV/LinkedIn/EP manager, pagination, rate limits, token expiry)
+- [x] Study reference site (ogtbardo.vercel.app/cv-pool) and log how it works
+- [x] Research EXPA API from public sources (auth, query shape, candidate fields, pagination, token types)
+- [ ] Confirm EXPA findings against the live API with the real token (Link phase)
 - [ ] Choose tech stack; verify current library versions from docs; log in findings.md
 - [ ] Data Schema v1 in constitution
 - [ ] Implementation plan

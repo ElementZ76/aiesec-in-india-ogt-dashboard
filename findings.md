@@ -23,12 +23,87 @@
 
 ## Technical research
 
-_Unverified beliefs to check in Blueprint/Link:_
-- EXPA exposes a GraphQL API.
-- Personal EXPA tokens may expire. If so, the site breaks until the token is replaced. Must check.
-- Unknown whether the token can read all of India or only one LC.
-- Unknown whether the token can read phone, CV and EP manager fields.
-- Unverified: the EXPA UI shows "Applied", but the API may use a different internal name for that status (possibly "open"). Check during research.
+### Reference site: ogtbardo.vercel.app/cv-pool (studied 2026-10-14 by reading its public JS bundle)
+
+- **Tech:** Create React App single-page app on Vercel; Supabase database; React Router.
+- **The CV Pool is one public page of a larger internal CRM** (leads, follow-ups, team performance,
+  EXPA manager assignment, admin). Only `/cv-pool` is public.
+- **Data source: Bardo's own Supabase `leads` table, NOT live EXPA.** Query: leads where
+  `cv_link` is not null, `status != approved`, `show_in_cvpool = true`, newest first, joined with
+  `managers`. Backgrounds from `backgrounds` / `lead_backgrounds` tables.
+- **Unit:** one card per *person* (lead).
+- **Card:** initials avatar; full name; university • year of study; product badge (GTa/GTe);
+  EP MANAGER box (name, email, phone, copy buttons); desired regions; available start dates;
+  duration (Short/Mid/Long); background tags; "View LinkedIn Profile"; "View CV" + "Download"
+  or "CV not available". **Shows the EP manager's contact, not the EP's own.**
+- **Page:** header (logo, "BARDO Talent Hub", dark/light toggle, Show/Hide Stats) → stats
+  (Total CVs, Universities, Backgrounds; charts: Product Distribution, Duration Distribution,
+  Year of Study) → search (name, email, EP ID, university) → Filters panel (product, year of
+  study, backgrounds, desired regions, countries, duration, EP manager; active-filter count;
+  clear) → "Showing X of Y CVs" → card grid → empty state "No CVs Found" + Clear Filters.
+- **Open/closed switch:** admin can show "CV Pool is Currently Closed". No export on this page.
+- **Security problems (do not copy):** EXPA access token embedded in the public JS bundle
+  (`REACT_APP_EXPA_ACCESS_TOKEN`); open/closed switch and hidden admin login live only in the
+  visitor's browser (localStorage) with credentials hard-coded in public code.
+- **Their EXPA query (used in the internal CRM, not the CV pool):**
+  `allOpportunityApplication(page, per_page, filters: { created_at | experience_start_date: { from, to } })
+  { data { id status created_at experience_start_date slot { start_date end_date title }
+  person { id full_name email contact_detail { phone } home_lc { id name country }
+  managers { id full_name email phone } }
+  opportunity { id title programme { short_name_display } opportunity_duration_type { duration_type }
+  earliest_start_date latest_end_date home_lc { name } home_mc { name } } }
+  paging { total_pages current_page total_items } }`
+  Their mock data uses status `"open"` for an applied application.
+
+### EXPA API (researched 2026-10-14; nothing verified against the live API yet)
+
+Sources: AIESEC Egypt `Universal-Expa-Sync-library` (GitHub, open source), EXPA API changelog
+(changelog.commutatus.com/companies/aiesec/projects/api), AIESEC "Access Token 101" slides,
+Bardo bundle, Pole-Position project description.
+
+- **Endpoint:** `https://gis-api.aiesec.org/graphql` (Egypt library). Bardo calls
+  `https://expa.aiesec.org/graphql` via a proxy. Test both.
+- **Auth:** token sent as `?access_token=<token>` query param, or as the `Authorization` header.
+- **Read query for our pool:** `allOpportunityApplication(filters: {...}, page, per_page)` returns
+  `data` + `paging { current_page total_items total_pages }`. Paged; Egypt library waits 250 ms
+  between pages.
+- **Candidate field mapping (to verify):**
+
+  | Our field | Likely EXPA path |
+  |---|---|
+  | applicationId | `id` |
+  | status | `status` |
+  | fullName | `person.full_name` |
+  | email | `person.email` |
+  | phone | `person.contact_detail.phone` |
+  | homeLc | `person.home_lc.name` |
+  | epManager | `person.managers { full_name email phone }` (a list — can be several) |
+  | cvUrl | `person.cvs { url }` or `person.cv_url` |
+  | linkedinUrl | **not found in any source** |
+  | companyName | `opportunity.organisation.name` (maybe `opportunity.branch.name`) |
+  | opportunityField | `opportunity.sub_product.name`? (meaning unconfirmed with user) |
+  | duration | `opportunity.opportunity_duration_type.duration_type`, or dates (`slot`, `earliest_start_date`/`latest_end_date`) |
+  | product | `opportunity.programme.short_name_display` (GTa / GTe) |
+
+- **Programme ids:** 2 = GT (old), 8 = GTa, 9 = GTe, 7 = GV, 5 = GE.
+- **Filters seen:** `person_home_mc`, `person_home_lc`, `opportunity_home_mc`, `programmes`,
+  `status`, `created_at { from to }`. oGT India ≈ `person_home_mc: <India MC id>` + `programmes: [8, 9]`.
+- **Status naming:** the API's status-count keys are `open, matched, approved, withdrawn, rejected…`
+  and Bardo's mock data uses `open` for an applied application. Strong sign that **"Applied" in
+  the EXPA UI = `open` in the API.** Verify with the real token.
+- **Tokens:**
+  - Proper route: create an OAuth application at `auth.aiesec.org/developers/oauth_applications`;
+    it needs approval; then create an access token there. A token's reach equals the **highest
+    role of the person who owns it** (an LC member sees one LC; MC-level sees all of India).
+  - A token copied from a browser session reportedly **expires in about 2 hours** (Pole-Position
+    project). Unverified. If the user's token is this kind, the live site will break quickly.
+  - Expiry of developer-app tokens: not documented in any source found.
+
+_Still unverified (check in Link phase with the real token):_
+- Which endpoint works; token type and expiry; India-wide vs one-LC reach.
+- Whether CV, phone, EP manager and LinkedIn are readable; exact field names (use GraphQL schema
+  introspection — a read-only "describe yourself" query).
+- That "applied" = `open`; the India MC id.
 
 ## Constraints
 - EXPA token stays server-side (Invariant 1). Exposing it would let anyone act on EXPA as the token owner.

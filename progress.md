@@ -24,3 +24,8 @@
 - **Files:** `CLAUDE.md`, `findings.md`, `task_plan.md`, `progress.md`, `spec_file.txt`
 - **Tests:** none (no code yet).
 - **Errors:** none.
+
+- **Action:** Studied Bardo CV pool (read its public JS bundle; did not use its exposed EXPA token). Researched EXPA API from public sources. Logged both in findings.md.
+- **Files:** `findings.md`, `task_plan.md`, `progress.md`
+- **Tests:** none (no code yet).
+- **Errors:** none. Note: WebFetch can't render the Bardo page (JavaScript-only); used its JS bundle instead.
