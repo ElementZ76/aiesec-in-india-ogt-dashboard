@@ -20,6 +20,11 @@
 | 4 | Spec has company name, but early-stage applicants have no company yet. Which applicants belong in the pool (signed up, applied, accepted, approved…)? | **Resolved:** only applications with status "applied". |
 | 5 | Discovery asked for status and date filters; the spec doesn't list status or date fields. | **Resolved:** user said remove them. Status/date filters dropped; date field dropped. Status kept internally only to select "applied" applications. |
 | 6 | Spec says "region and lc"; discovery only mentioned an LC filter. | **Resolved:** LC filter only. Region removed from the spec and schema. |
+| 7 | Token type unknown (browser token may expire in ~2 h). | Partly resolved: token belongs to an MC member, so India-wide reach is expected. Type/expiry still unknown — test in Link phase. |
+| 8 | "Opportunity field" could mean sub-product or academic background. | **Resolved:** the job's work area = `opportunity.sub_product`. |
+| 9 | "Duration" as a category or as dates. | **Resolved:** actual dates. **Open:** use the application's slot dates (the exact period applied for) or the opportunity's overall date range? Proposed: slot dates, falling back to the opportunity range. |
+| 10 | Which programmes are oGT? | **Resolved:** GTa and GTe. |
+| 11 | EXPA may have no LinkedIn field. | **Resolved:** card shows "Not available" when there is no LinkedIn data. |
 
 ## Technical research
 
