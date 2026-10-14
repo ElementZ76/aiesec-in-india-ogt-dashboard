@@ -37,3 +37,8 @@
 - **Action:** Recorded decisions: slot dates first; stats v1; search box added; Next.js frontend; no Tailwind. Backend/database choice (Spring Boot + Supabase proposed by user) still open.
 - **Files:** `CLAUDE.md`, `findings.md`, `task_plan.md`, `progress.md`
 - **Tests:** none (no code yet). **Errors:** none.
+
+- **Action:** Blueprint approved (Next.js only, no DB, plain CSS). Wrote tech stack, data flow, PoolApplication shape, endpoint table and final folder layout into the constitution. Phase-boundary review of all four memory files.
+- **Contradictions found and fixed:** constitution still said "DRAFT / not approved"; Tech Stack and A.N.T. sections still provisional; Behavioral Rule 6 ("no code until Blueprint approved") obsolete → replaced with the push rule; Invariant 1 said `.env` but Next.js uses `.env.local`; findings rows 2 and 4 outdated (token owner, search box); conflict 13 still open; task_plan Phase 0/1 boxes unticked.
+- **Files:** `CLAUDE.md`, `findings.md`, `task_plan.md`, `progress.md`
+- **Tests:** none (no code yet). **Errors:** none.

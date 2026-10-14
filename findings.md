@@ -5,9 +5,9 @@
 | # | Question | Answer |
 |---|---|---|
 | 1 | North Star | One India-wide pool of oGT applicants with an LC filter. Public site, no login. |
-| 2 | Integrations / keys | EXPA API. User believes the key is a personal EXPA access token; was told it's GraphQL. |
+| 2 | Integrations / keys | EXPA API (GraphQL). Token belongs to an MC member; type (browser vs developer app) unknown. |
 | 3 | Source of truth | Data lives on EXPA. Spec: `spec_file.txt` (received 2026-10-14; region removed same day) — 10 fields: applicant name, company name, EP manager, email, phone, LC, duration, CV link, opportunity field, LinkedIn link. |
-| 4 | Delivery payload | Vercel. 20–30 users/day, 100+ applicants. MVP: list + contact info + EP manager + CV link. Done: proper UI + LC filter + spreadsheet export + statistics (status/date filters dropped later, see conflict 5). Notes on applicants → later. |
+| 4 | Delivery payload | Vercel. 20–30 users/day, 100+ applicants. MVP: list + contact info + EP manager + CV link. Done: proper UI + search box + LC filter + spreadsheet export + statistics (status/date filters dropped later, see conflict 5). Notes on applicants → later. |
 | 5 | Behavioral rules | Claude decides technical choices but gets approval before every change. Plain language, no over-explaining. Never push data to EXPA. Commit to git after each change. |
 
 ## Conflicts and resolutions
@@ -26,7 +26,8 @@
 | 10 | Which programmes are oGT? | **Resolved:** GTa and GTe. |
 | 11 | EXPA may have no LinkedIn field. | **Resolved:** card shows "Not available" when there is no LinkedIn data. |
 | 12 | Search box not in spec; Bardo has one. | **Resolved:** add a search box (user: "absolutely necessary"). |
-| 13 | User proposed Spring Boot (Java) backend + Supabase database instead of Next.js server + no database. | **Open.** Vercel's official runtimes are Node.js, Bun, Python, Rust — no Java (vercel.com/docs/functions/runtimes, checked 2026-10-14), so Spring Boot needs a second host. Claude recommends Next.js only, no DB; awaiting user decision. |
+| 13 | User proposed Spring Boot (Java) backend + Supabase database instead of Next.js server + no database. | **Resolved:** Next.js only, no database (user agreed). Reason: Vercel's official runtimes are Node.js, Bun, Python, Rust — no Java (vercel.com/docs/functions/runtimes, checked 2026-10-14), so Spring Boot would need a second host; and there is no data of our own to store. |
+| 14 | Tailwind CSS was proposed for styling. | **Resolved:** no Tailwind. Plain CSS files for now; styling decided in a separate conversation. |
 
 ## Technical research
 
@@ -116,3 +117,5 @@ _Still unverified (check in Link phase with the real token):_
 - EXPA token stays server-side (Invariant 1). Exposing it would let anyone act on EXPA as the token owner.
 - Read-only access to EXPA (Invariant 3).
 - Public site: anyone with the link can see applicant data (accepted by user).
+- Tech versions on npm (2026-10-14): next 16.4.0, react 19.3.0, vitest 5.0.4 (needs Node ^22.12),
+  typescript 7.0.2 (use whatever create-next-app pins). Local Node 22.14.0, npm 11.12.1.
