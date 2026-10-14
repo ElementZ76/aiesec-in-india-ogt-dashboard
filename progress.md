@@ -52,3 +52,7 @@
 - **Files:** `scripts/expa-probe.mjs`, `findings.md`, `task_plan.md`, `progress.md`
 - **Tests:** probe ran OK (exit 0). Results in findings.md.
 - **Errors:** (1) `currentPerson { home_mc }` → "Field 'home_mc' doesn't exist on type 'CurrentPerson'". Fix: read `home_lc.parent`. (2) Full fetch took 298.5 s, so the command exceeded the 300 s shell timeout and finished in the background. Not a bug, but it is the key finding: on-demand fetching is too slow (conflict 15).
+
+- **Action:** User chose sync + database design, 15-min refresh, hide closed LCs and ended slots. Ran `expa-probe.mjs size` (read-only): light fetch takes 4–13 s; 945 applications remain after the rules. Checked Supabase key types and free-plan limits.
+- **Files:** `scripts/expa-probe.mjs` (added `size` step), `findings.md`, `progress.md`
+- **Tests:** probe OK (exit 0). **Errors:** none.

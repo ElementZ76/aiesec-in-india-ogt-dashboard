@@ -28,8 +28,8 @@
 | 12 | Search box not in spec; Bardo has one. | **Resolved:** add a search box (user: "absolutely necessary"). |
 | 13 | User proposed Spring Boot (Java) backend + Supabase database instead of Next.js server + no database. | **Resolved:** Next.js only, no database (user agreed). Reason: Vercel's official runtimes are Node.js, Bun, Python, Rust — no Java (vercel.com/docs/functions/runtimes, checked 2026-10-14), so Spring Boot would need a second host; and there is no data of our own to store. |
 | 14 | Tailwind CSS was proposed for styling. | **Resolved:** no Tailwind. Plain CSS files for now; styling decided in a separate conversation. |
-| 15 | Approved design fetches EXPA on page load (15-min cache, no DB). Probe: 2404 applications take ~5 min to fetch. User's mentor suggested a scheduled sync (GitHub Actions) into a database (Supabase) that the site reads. | **Open.** Claude now recommends the sync + database design; awaiting user decision. |
-| 16 | Pool has 2404 "open" applications, incl. 9 closed LCs and possibly years-old applications whose slot dates are past. | **Open.** Ask user: include closed LCs? Include applications whose slot has already ended? |
+| 15 | Approved design fetches EXPA on page load (15-min cache, no DB). Probe: 2404 applications take ~5 min to fetch. User's mentor suggested a scheduled sync (GitHub Actions) into a database (Supabase) that the site reads. | **Resolved:** switch to sync + database (user, 2026-10-14). Refresh every **15 minutes**. Detailed plan pending approval. |
+| 16 | Pool has 2404 "open" applications, incl. 9 closed LCs and possibly years-old applications whose slot dates are past. | **Resolved:** hide all closed LCs and all applications whose slot has already ended (user, 2026-10-14). |
 
 ## Technical research
 
@@ -174,3 +174,21 @@ _Still unverified (check in Link phase with the real token):_
 - GitHub Actions schedule (docs, checked 2026-10-14): shortest interval 5 minutes; runs "can be
   delayed during periods of high loads"; some may be dropped; in public repos scheduled workflows
   are disabled after 60 days without repository activity.
+
+### Speed / size test (2026-10-14 15:22 IST, `expa-probe.mjs size`, light fields only)
+- Light query (`id slot { end_date } person { home_lc { id name } }`) for all 2404:
+  12.9 s (100/page, one at a time); 6.5 s (500/page); **4.2 s (100/page, 5 at a time)**.
+  → The 298 s earlier was caused by the heavy nested fields (managers, CVs, contact), not the
+  number of rows.
+- After the user's rules: 98 in closed LCs, 1425 with an ended slot → **945 applications left,
+  in 24 LCs** (incl. "India National Office").
+- Closed LCs are recognisable by a name starting with `Closed [` (e.g. `Closed [Jodhpur]`).
+- Token still worked at 15:21 IST (pasted ~15:05) — too early to judge expiry.
+
+### Supabase (checked 2026-10-14)
+- `@supabase/supabase-js` latest 2.117.3 (needs Node >= 22).
+- New API keys: `sb_publishable_...` (low privilege, obeys Row Level Security) and
+  `sb_secret_...` (server only, bypasses RLS). Legacy `anon` / `service_role` keys are deprecated
+  by end of 2026 → use the new keys.
+- Free plan (third-party summaries, verify on supabase.com/pricing): 500 MB database, 2 active
+  projects, projects **pause after 7 days of inactivity** (a 15-min sync keeps it active).

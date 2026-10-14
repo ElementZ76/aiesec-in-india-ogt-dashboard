@@ -147,6 +147,34 @@ async function stepPool() {
   console.log(`application CV is one of the person's CVs: ${sameCv}/${apps.filter((a) => a.cv?.url).length}`);
 }
 
+// Light fetch: measures speed with few fields and parallel pages, and counts what is left
+// after hiding closed LCs and ended slots.
+async function stepSize() {
+  const mcId = 1585; // India (step 3)
+  const fields = "id slot { end_date } person { home_lc { id name } }";
+  const today = new Date().toISOString().slice(0, 10);
+  for (const [perPage, parallel] of [[100, 1], [500, 1], [100, 5]]) {
+    const query = `query($f: ApplicationFilter, $p: Int) { allOpportunityApplication(filters: $f, page: $p, per_page: ${perPage}) {
+      paging { total_pages } data { ${fields} } } }`;
+    const f = { person_home_mc: [mcId], programmes: OGT_PROGRAMMES, status: "open" };
+    const started = Date.now();
+    const first = await gql(query, { f, p: 1 });
+    const d = first.json?.data?.allOpportunityApplication;
+    if (!d) { console.log(`per_page ${perPage}: failed: ${errorsOf(first) || `HTTP ${first.status}`}`); continue; }
+    const apps = [...d.data];
+    const pages = Array.from({ length: d.paging.total_pages - 1 }, (_, i) => i + 2);
+    for (let i = 0; i < pages.length; i += parallel) {
+      const batch = await Promise.all(pages.slice(i, i + parallel).map((p) => gql(query, { f, p })));
+      for (const r of batch) apps.push(...(r.json?.data?.allOpportunityApplication?.data ?? []));
+    }
+    const secs = ((Date.now() - started) / 1000).toFixed(1);
+    const kept = apps.filter((a) => !/^closed\b/i.test(a.person?.home_lc?.name ?? "") && (!a.slot?.end_date || a.slot.end_date >= today));
+    const closed = apps.filter((a) => /^closed\b/i.test(a.person?.home_lc?.name ?? "")).length;
+    const ended = apps.filter((a) => a.slot?.end_date && a.slot.end_date < today).length;
+    console.log(`per_page ${perPage}, ${parallel} at a time: ${apps.length} fetched in ${secs} s | closed-LC: ${closed} | slot ended: ${ended} | left: ${kept.length} in ${new Set(kept.map((a) => a.person?.home_lc?.id)).size} LCs`);
+  }
+}
+
 process.on("unhandledRejection", (e) => {
   console.error("Probe failed:", e?.message ?? e);
   process.exit(1);
@@ -156,3 +184,4 @@ const step = process.argv[2] ?? "all";
 await stepEndpoints();
 if (step === "all" || step === "schema") await stepSchema();
 if (step === "all" || step === "pool") await stepPool();
+if (step === "size") await stepSize();
