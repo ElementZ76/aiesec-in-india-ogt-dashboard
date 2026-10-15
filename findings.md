@@ -225,7 +225,8 @@ _Checked by the probe on 2026-10-14 (see below), except token expiry:_
   stale > 1 h), "Built by Praveen" → linkedin.com/in/praveen-pr190705 (right).
 - Behaviour: newest application first (needs application `created_at`); stats follow the LC filter
   (not search); search covers name, email, company, work area, LC, EP manager; CSV exports the
-  current search + LC result; next 24 cards load automatically near the bottom.
+  current search + LC result; 12 cards first, then a "Load more applications" button adds 12
+  per click (user, 2026-10-15; replaced auto-loading).
 - Corners: concentric radii (inner = outer − padding), `corner-shape: squircle` where supported.
 - **Performance constraints (measured with headless Chrome, CPU 4× slower):** no masks or
   cursor-tracking effects on cards; blur only on the navbar; never render all ~945 cards at once.
