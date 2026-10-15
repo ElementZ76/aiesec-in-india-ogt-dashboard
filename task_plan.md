@@ -63,7 +63,7 @@
 ## Phase 5 — T: Trigger
 - [ ] Final integration test
 - [ ] Deploy to Vercel (env: SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY)
-- [ ] README
+- [x] README (first version 2026-10-15; update after the website and deploy)
 - [ ] Maintenance Log updated
 
 ## Phase 2+ (later, not in this iteration)
