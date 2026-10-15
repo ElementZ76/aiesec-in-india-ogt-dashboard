@@ -208,3 +208,29 @@ _Checked by the probe on 2026-10-14 (see below), except token expiry:_
   runner; may need approval for a dev dependency); keep-alive method for the 60-day schedule
   pause.
 - User pulled the UI conversation forward (2026-10-15): it happens before the Supabase setup.
+
+### Token expiry check (2026-10-15 22:18 IST)
+- Token pasted ~2026-10-14 15:05 IST still works ~31 hours later → it is **not** the ~2-hour
+  browser-session kind. Exact lifetime still unknown; the sync's safety brake + GitHub failure email
+  will reveal expiry. Re-check before the deadline.
+
+### UI direction (2026-10-15, mockup `.tmp/ui-mockup.html`, v8; to be written into the constitution on sign-off)
+- Audience: AIESEC members. Look: AIESEC brand, Apple "Liquid Glass"-style glassmorphism, Lato font,
+  dark mode by default with a light/dark switch (remembered per browser).
+- Colours: AIESEC blue `#037EF3`; GTa (oGT) `#0A8EA0`; GTe `#F85A40`. Buttons use `#0366D6` and
+  small text uses lighter/darker shades so every text pair meets WCAG AA (4.5:1), measured.
+- Layout: floating pill navbar (AIESEC in India · Statistics · Applications · theme · Export CSV);
+  title; Statistics (4 cards: total, GTa vs GTe ring, top LCs / LC rank, top work areas; breakdown
+  panel); sticky search + LC filter; 3 / 2 / 1 card columns; footer: last updated (left, amber if
+  stale > 1 h), "Built by Praveen" → linkedin.com/in/praveen-pr190705 (right).
+- Behaviour: newest application first (needs application `created_at`); stats follow the LC filter
+  (not search); search covers name, email, company, work area, LC, EP manager; CSV exports the
+  current search + LC result; next 24 cards load automatically near the bottom.
+- Corners: concentric radii (inner = outer − padding), `corner-shape: squircle` where supported.
+- **Performance constraints (measured with headless Chrome, CPU 4× slower):** no masks or
+  cursor-tracking effects on cards; blur only on the navbar; never render all ~945 cards at once.
+  `content-visibility: auto` was tested and **rejected**: fast scrolling fell to ~1 frame/s.
+  Keystroke→screen went from ~340 ms to ~165 ms (phone).
+- Responsive audit 320–1920 px: no sideways scroll, no tap target < 24 px (44 px on touch screens),
+  no text < 12 px, sticky bars cover 19% of a phone screen (was 34%), first card at 572 px on a
+  phone (was 1267 px).

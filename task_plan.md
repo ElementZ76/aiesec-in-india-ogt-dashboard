@@ -1,6 +1,6 @@
 # Task Plan
 
-**Current Phase: 2 — Link.** Next: UI conversation (pulled forward by the user, 2026-10-15), then Supabase setup.
+**Current Phase: 2 — Link.** Deadline: **everything incl. testing done by 2026-10-20**. Next: UI sign-off, then Supabase setup.
 
 ## Phase 0 — Initialization
 - [x] Create `CLAUDE.md`, `task_plan.md`, `findings.md`, `progress.md`, `.tmp/`
@@ -24,10 +24,10 @@
 - [x] Secrets in `.env.local` (+ `.env.example`), `.gitignore` covers them
 - [x] User puts the token in `.env.local`
 - [x] EXPA probe (read-only): endpoint, schema field names, "applied" status name, India MC id, LinkedIn field, token reach
-- [ ] Re-run probe hours later to check token expiry
+- [x] Re-run probe hours later to check token expiry (works after ~31 h, 2026-10-15)
 - [x] Data Schema v1 (verified) in constitution (2026-10-15; `person.full_name` still to confirm)
 - [x] Sync + database plan approved; constitution rewritten (2026-10-15)
-- [ ] UI conversation (layout, card design, paging for ~945 cards) — see Phase 4
+- [x] UI conversation (layout, card design, paging for ~945 cards) — mockup v8; awaiting final sign-off
 - [ ] User creates Supabase project (free, Mumbai); adds URL + publishable + secret keys to `.env.local`
 - [ ] Install `@supabase/supabase-js` (approved); write `supabase/schema.sql`; user runs it in the SQL editor
 - [ ] Connection test: write one row, read it back, delete it

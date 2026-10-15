@@ -63,3 +63,8 @@
 - **Contradictions found and fixed:** constitution described on-page-load fetching, no database, token on Vercel, schema "unverified"; task_plan had "user puts token in .env.local" unticked (done 2026-10-14) and a "15-min cache" page item; findings said "nothing verified" and "LinkedIn not found" in the old research section, constraint said token is "server-side" (now: sync job only), scaffold note mentioned the 15-min page cache.
 - **Files:** `CLAUDE.md`, `findings.md`, `task_plan.md`, `progress.md`, `.env.example`
 - **Tests:** none (no code changed). **Errors:** none.
+
+- **Action:** UI conversation: mockups v1–v8 in `.tmp/ui-mockup.html` (scratch, not committed). Measured contrast (WCAG), performance and responsiveness with headless Chrome via the DevTools protocol (script in the session scratchpad). Applied performance and responsive fixes. Re-checked the EXPA token (still works after ~31 h).
+- **Files:** `findings.md`, `task_plan.md`, `progress.md`
+- **Tests:** contrast check all ≥ 4.5:1; responsive audit 320–1920 px clean; perf: keystroke→paint ~2× faster than v6.
+- **Errors:** (1) Chrome extension not connected → used headless Chrome instead. (2) Headless Chrome exited with code 21 → root cause: relative `--user-data-dir`; fix: absolute path. (3) `content-visibility: auto` collapsed fast scrolling to ~1 fps → reverted; logged as a constraint. (4) 320 px sideways scroll → root cause: `1fr` grid column and `<select>` min-content width; fix: `minmax(0, 1fr)` and `min-width: 0`.
