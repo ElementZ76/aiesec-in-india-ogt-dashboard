@@ -71,3 +71,7 @@
 - **Action:** User approved the UI (mockup v10). Checked EXPA `created_at` (read-only introspection + 100-row sample: DateTime, all filled). Wrote UI Spec + `applied_at` into the constitution; deadline in status line.
 - **Files:** `CLAUDE.md`, `findings.md`, `task_plan.md`, `progress.md`
 - **Tests:** none (no code). **Errors:** none.
+- **Action:** User created Supabase + Vercel accounts. Checked `.env.local` shape without printing values: keys OK; `SUPABASE_URL` ends in `/rest/v1/` (must be removed). Copied approved mockup to `docs/design/ui-mockup.html`. Installed `@supabase/supabase-js` 2.118.0. Wrote `supabase/schema.sql` (tables, RLS, least-privilege grants: anon reads applications + sync_runs.status/finished_at only) and `scripts/db-check.mjs`.
+- **Files:** `package.json`, `package-lock.json`, `supabase/schema.sql`, `scripts/db-check.mjs`, `docs/design/ui-mockup.html`, `CLAUDE.md`, `task_plan.md`, `progress.md`
+- **Tests:** eslint OK; typecheck OK; `npm audit --omit=dev` 0 vulnerabilities. db-check not run yet (needs SQL applied).
+- **Errors:** none.

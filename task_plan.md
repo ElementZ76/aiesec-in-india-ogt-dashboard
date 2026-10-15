@@ -28,9 +28,11 @@
 - [x] Data Schema v1 (verified) in constitution (2026-10-15; `person.full_name` still to confirm)
 - [x] Sync + database plan approved; constitution rewritten (2026-10-15)
 - [x] UI conversation — mockup v10 approved 2026-10-15; UI Spec in constitution
-- [ ] User creates Supabase project (free, Mumbai); adds URL + publishable + secret keys to `.env.local`
-- [ ] Install `@supabase/supabase-js` (approved); write `supabase/schema.sql`; user runs it in the SQL editor
-- [ ] Connection test: write one row, read it back, delete it
+- [x] User creates Supabase project (free, Mumbai); adds URL + publishable + secret keys to `.env.local` (URL needs `/rest/v1/` removed)
+- [x] User creates Vercel account (Hobby)
+- [x] Install `@supabase/supabase-js` 2.118.0; write `supabase/schema.sql`
+- [ ] User runs `supabase/schema.sql` in the SQL editor
+- [ ] Connection test: `scripts/db-check.mjs` (written; run after the SQL)
 - [ ] GitHub secrets: EXPA_ACCESS_TOKEN, SUPABASE_URL, SUPABASE_SECRET_KEY
 
 ## Phase 3 — A: Architect

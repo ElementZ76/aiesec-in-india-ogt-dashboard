@@ -33,7 +33,7 @@ npm on those days.
 | Tests | Vitest |
 | Data source | EXPA GraphQL API (`https://gis-api.aiesec.org/graphql`), **read-only**, called **only by the sync job** |
 | Sync job | A script run by GitHub Actions every 15 minutes (cron `*/15 * * * *`) plus a manual "Run workflow" button |
-| Database | Supabase (hosted Postgres), free plan, Mumbai region. Client library `@supabase/supabase-js` 2.117.x (approved 2026-10-15) |
+| Database | Supabase (hosted Postgres), free plan, Mumbai region. Client library `@supabase/supabase-js` 2.118.x (approved 2026-10-15; 2.117 was current when proposed) |
 | Spreadsheet export | CSV file, generated in the browser; no extra library |
 | Runtime | Node.js >= 22.12 (local: 22.14) |
 
@@ -46,6 +46,8 @@ npm on those days.
 | `npm run typecheck` | Generate Next.js route types, then check all TypeScript |
 | `npm run lint` | Check code style and common mistakes (ESLint) |
 | `npm run build` | Build the production version (what Vercel runs) |
+
+| `node --env-file=.env.local scripts/db-check.mjs` | Check the database connection and access rules (write with the secret key, read-only with the publishable key) |
 
 Sync commands (dry run, real run) are added here when the sync job is built.
 
@@ -135,8 +137,8 @@ No public JSON API in v1. The sync job is not an endpoint; it is the GitHub Acti
 
 ## UI Spec
 
-Approved by the user 2026-10-15. Visual reference: the mockup (v10) `.tmp/ui-mockup.html`
-(scratch; details in findings.md "UI direction"). Further visual changes are expected after the
+Approved by the user 2026-10-15. Visual reference: `docs/design/ui-mockup.html` (mockup v10; open it
+in a browser; details in findings.md "UI direction"). Further visual changes are expected after the
 site is connected to the database.
 
 - **Audience:** AIESEC members (EP managers, oGT team).
@@ -178,6 +180,7 @@ site is connected to the database.
 | Tools | Deterministic, testable units | `src/lib/expa/` (read-only EXPA client, query, mapper); `src/lib/pool/` (pool rules, search, LC filter, stats, CSV); `src/lib/db/` (database read and write helpers) |
 | (UI pieces) | Visual components used by pages | `src/components/` |
 | (Database setup) | SQL that creates the tables and access rules; pasted into Supabase's SQL editor | `supabase/schema.sql` |
+| (Design reference) | Approved UI mockup with sample data (not used by the site) | `docs/design/ui-mockup.html` |
 | (Checks) | One-off scripts, e.g. the EXPA probe | `scripts/` |
 
 Tests live next to the code they test, as `*.test.ts`.
@@ -234,3 +237,4 @@ Tests live next to the code they test, as `*.test.ts`.
 | 2026-10-14 | Added Commands table; `engines.node >= 22.12` in package.json | Project scaffold |
 | 2026-10-15 | **Architecture → sync + database.** Added sync job (GitHub Actions, 15 min) and Supabase; website reads the database only; token moves to the sync job. Schema v1 with verified EXPA paths; tables `applications` and `sync_runs`. Invariants rewritten: 1 (token), new 2 (website never calls EXPA), new 3 (only sync writes; RLS), 6 (pool rules: closed LCs and ended slots hidden, India National Office shown, ends-today shown), new 7 (safety brake). A.N.T. folders updated. | Probe: full fetch took 298 s; mentor's suggestion; user approved the plan 2026-10-15 |
 | 2026-10-15 | Added UI Spec; schema: `applied_at` (EXPA `created_at`, verified) + `appliedAt`; deadline 2026-10-20 in status | User approved the UI mockup; chose newest-first order, 12 + load more, LinkedIn "Not available" text |
+| 2026-10-15 | Added `supabase/schema.sql` (tables, RLS, least-privilege grants), `scripts/db-check.mjs`, design reference in `docs/design/`; supabase-js 2.118.x | Link phase: Supabase project created by user |
