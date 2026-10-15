@@ -245,3 +245,19 @@ _Checked by the probe on 2026-10-14 (see below), except token expiry:_
   only (e.g. `status = 'success'` order by `finished_at` desc limit 1), never by `id`.
 - `.env.local` `SUPABASE_URL` must be the bare project URL (`https://<id>.supabase.co`); the
   dashboard's Data API URL ends in `/rest/v1/`, which supabase-js adds itself. db-check validates this.
+
+### Sync job results (2026-10-15)
+- Full fetch with all fields, 5 pages in parallel: **~17 s** (was 298 s one page at a time).
+- Dry run: EXPA total 2399 = fetched 2399; 11 invalid; 98 closed LC; 1350 slot ended; **940 kept**.
+- **EXPA's `status: "open"` filter leaks:** 2388 open, 8 rejected, 3 withdrawn → the mapper
+  re-checks `status === "open"` (logged in the SOP).
+- **Phone placeholder:** 54 records have phone = "deleted phone number" → treated as no phone.
+- Formats: `slot.end_date` plain `YYYY-MM-DD`; `created_at` ISO UTC; `country_code` like `+91`
+  (672 empty); 15 phones already start with `+`.
+- Kept rows filled: name 940, email 940, phone 694, LinkedIn 496, CV 940, EP manager 440,
+  company 940, work area 810, dates 940. (`person.full_name` verified: 940/940.)
+- **Constraint:** this package is CommonJS, so scripts run by `tsx` cannot use top-level `await`
+  (esbuild "Top-level await is currently not supported with the cjs output format"). Wrap in
+  `main()`.
+- First real runs: 2 × success (upserted 940, deleted 0, second run identical). Website key sees
+  940 rows in 24 LCs, 0 closed-LC rows.

@@ -31,6 +31,7 @@ npm on those days.
 | Language | TypeScript (website and sync job) |
 | Styling | Plain CSS files for now. **Not Tailwind** (user decision). Final styling decided in a separate conversation. |
 | Tests | Vitest |
+| Running TypeScript scripts | `tsx` 4.23.x, dev only (approved 2026-10-15) |
 | Data source | EXPA GraphQL API (`https://gis-api.aiesec.org/graphql`), **read-only**, called **only by the sync job** |
 | Sync job | A script run by GitHub Actions every 15 minutes (cron `*/15 * * * *`) plus a manual "Run workflow" button |
 | Database | Supabase (hosted Postgres), free plan, Mumbai region. Client library `@supabase/supabase-js` 2.118.x (approved 2026-10-15; 2.117 was current when proposed) |
@@ -49,7 +50,9 @@ npm on those days.
 
 | `node --env-file=.env.local scripts/db-check.mjs` | Check the database connection and access rules (write with the secret key, read-only with the publishable key) |
 
-Sync commands (dry run, real run) are added here when the sync job is built.
+| `npm run sync -- --dry-run` | Fetch from EXPA and check everything, **write nothing**; prints counts only |
+| `npm run sync` | Real sync run (what GitHub Actions runs every 15 minutes) |
+| `npm run sync -- --force` | Real run that skips the "less than half of the last run" brake. Only after a person has checked the drop is real |
 
 `AGENTS.md` is managed by Next.js (`next dev` rewrites it). Keep it committed; don't hand-edit it.
 
@@ -176,8 +179,8 @@ site is connected to the database.
 | Layer | Role | Location |
 |---|---|---|
 | Architecture | SOPs in Markdown: goals, inputs, logic, edge cases | `docs/sops/` (`sync.md`, `pool-page.md`) |
-| Navigation | Orchestration: decides what to fetch, write and show | `src/app/` (the page); `scripts/sync.ts` (sync entry point); `.github/workflows/sync.yml` (schedule) |
-| Tools | Deterministic, testable units | `src/lib/expa/` (read-only EXPA client, query, mapper); `src/lib/pool/` (pool rules, search, LC filter, stats, CSV); `src/lib/db/` (database read and write helpers) |
+| Navigation | Orchestration: decides what to fetch, write and show | `src/app/` (the page); `src/lib/sync/run.ts` (one sync run); `scripts/sync.ts` (sync entry point); `.github/workflows/sync.yml` (schedule) |
+| Tools | Deterministic, testable units | `src/lib/expa/` (read-only EXPA client, query, mapper); `src/lib/pool/` (dates, pool rules, search, LC filter, stats, CSV); `src/lib/sync/` (safety brake, delete diff); `src/lib/db/` (row types; `sync-store.ts` = writes, sync job only) |
 | (UI pieces) | Visual components used by pages | `src/components/` |
 | (Database setup) | SQL that creates the tables and access rules; pasted into Supabase's SQL editor | `supabase/schema.sql` |
 | (Design reference) | Approved UI mockup with sample data (not used by the site) | `docs/design/ui-mockup.html` |
@@ -238,3 +241,4 @@ Tests live next to the code they test, as `*.test.ts`.
 | 2026-10-15 | **Architecture → sync + database.** Added sync job (GitHub Actions, 15 min) and Supabase; website reads the database only; token moves to the sync job. Schema v1 with verified EXPA paths; tables `applications` and `sync_runs`. Invariants rewritten: 1 (token), new 2 (website never calls EXPA), new 3 (only sync writes; RLS), 6 (pool rules: closed LCs and ended slots hidden, India National Office shown, ends-today shown), new 7 (safety brake). A.N.T. folders updated. | Probe: full fetch took 298 s; mentor's suggestion; user approved the plan 2026-10-15 |
 | 2026-10-15 | Added UI Spec; schema: `applied_at` (EXPA `created_at`, verified) + `appliedAt`; deadline 2026-10-20 in status | User approved the UI mockup; chose newest-first order, 12 + load more, LinkedIn "Not available" text |
 | 2026-10-15 | Added `supabase/schema.sql` (tables, RLS, least-privilege grants), `scripts/db-check.mjs`, design reference in `docs/design/`; supabase-js 2.118.x | Link phase: Supabase project created by user |
+| 2026-10-15 | Sync job built (`scripts/sync.ts`, `src/lib/{expa,pool,sync,db}`); Commands + A.N.T. updated; `tsx` added | Approved sync build plan; SOP `docs/sops/sync.md` |

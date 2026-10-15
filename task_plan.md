@@ -45,11 +45,11 @@
 - [ ] Export to spreadsheet
 - [ ] Statistics v1: total, per LC, per work area, GTa vs GTe
 ### Quality
-- [ ] Tools layer: EXPA client + mapper, pool rules, database helpers, with tests
-- [ ] Sync job: dry run, safety brake, upsert + delete, `sync_runs` log, with tests
+- [x] Tools layer: EXPA client + mapper, pool rules, database helpers, with tests (49 tests)
+- [x] Sync job: dry run, safety brake, upsert + delete, `sync_runs` log, with tests — first real run 2026-10-15: 940 rows
 - [ ] GitHub Actions workflow (every 15 min + manual) and keep-alive; watch first scheduled run
 - [ ] Navigation layer: `/` page reads Supabase (5-min cache) with tests
-- [ ] SOPs written for each workflow
+- [ ] SOPs written for each workflow (`sync.md` done; `pool-page.md` to do)
 - [ ] Full test suite run and logged
 
 ## Phase 4 — S: Stylize
