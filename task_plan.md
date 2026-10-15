@@ -33,7 +33,7 @@
 - [x] Install `@supabase/supabase-js` 2.118.0; write `supabase/schema.sql`
 - [x] User runs `supabase/schema.sql` in the SQL editor
 - [x] Connection test: `scripts/db-check.mjs` — all 7 checks pass (2026-10-15)
-- [ ] GitHub secrets: EXPA_ACCESS_TOKEN, SUPABASE_URL, SUPABASE_SECRET_KEY
+- [x] GitHub secrets: EXPA_ACCESS_TOKEN, SUPABASE_URL, SUPABASE_SECRET_KEY (user, 2026-10-15)
 
 ## Phase 3 — A: Architect
 ### MVP (bare minimum)
@@ -47,7 +47,8 @@
 ### Quality
 - [x] Tools layer: EXPA client + mapper, pool rules, database helpers, with tests (49 tests)
 - [x] Sync job: dry run, safety brake, upsert + delete, `sync_runs` log, with tests — first real run 2026-10-15: 940 rows
-- [ ] GitHub Actions workflow (every 15 min + manual) and keep-alive; watch first scheduled run
+- [x] GitHub Actions workflow (every 15 min + manual) and keep-alive — `.github/workflows/sync.yml`
+- [ ] Watch the first scheduled run succeed
 - [ ] Navigation layer: `/` page reads Supabase (5-min cache) with tests
 - [ ] SOPs written for each workflow (`sync.md` done; `pool-page.md` to do)
 - [ ] Full test suite run and logged

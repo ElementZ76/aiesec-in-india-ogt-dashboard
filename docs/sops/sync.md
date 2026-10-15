@@ -63,6 +63,8 @@ that passes the pool rules, one row each, and nothing else. Never damage good da
 | Upsert succeeds but delete fails | `failed`; stale rows stay until the next good run deletes them |
 | First run ever | No previous success → only the "kept = 0" and count checks apply |
 | Two runs at once | Prevented by the GitHub workflow's concurrency group |
+| GitHub pauses the schedule (60 days without repo activity) | Monthly keep-alive job re-enables it via the API (undocumented method); the site's amber "Last updated" shows if it fails. Fix: Actions tab → this workflow → Enable. |
+| Who gets failure emails | The GitHub user who last changed the `cron` line (GitHub docs) |
 
 ## Output rules
 

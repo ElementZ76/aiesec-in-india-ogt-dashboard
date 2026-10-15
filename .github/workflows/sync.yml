@@ -1,0 +1,67 @@
+# Sync job: copies the oGT pool from EXPA (read-only) into Supabase every 15 minutes.
+# Rules: docs/sops/sync.md and CLAUDE.md (invariants 1, 3, 5, 6, 7).
+# Logs are public (public repo): the sync prints counts only, never personal data or secrets.
+name: Sync EXPA to Supabase
+
+on:
+  schedule:
+    # Every 15 minutes, off the top of the hour (GitHub is busiest at :00, which delays runs).
+    - cron: "7,22,37,52 * * * *"
+    # Keep-alive, 1st of each month (see the keepalive job below).
+    - cron: "17 3 1 * *"
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: "normal = real run · dry-run = check only, writes nothing · force = skip the 'less than half of last run' brake (only after checking the drop is real)"
+        type: choice
+        options: [normal, dry-run, force]
+        default: normal
+
+# Least privilege: the sync only needs to read the code.
+permissions:
+  contents: read
+
+# Never run two syncs at the same time; a new one waits for the running one.
+concurrency:
+  group: sync
+  cancel-in-progress: false
+
+jobs:
+  sync:
+    if: github.event_name == 'workflow_dispatch' || github.event.schedule == '7,22,37,52 * * * *'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci --no-audit --no-fund
+      - name: Run sync
+        env:
+          EXPA_ACCESS_TOKEN: ${{ secrets.EXPA_ACCESS_TOKEN }}
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SECRET_KEY: ${{ secrets.SUPABASE_SECRET_KEY }}
+          MODE: ${{ inputs.mode || 'normal' }}
+        run: |
+          case "$MODE" in
+            dry-run) npm run sync -- --dry-run ;;
+            force)   npm run sync -- --force ;;
+            *)       npm run sync ;;
+          esac
+
+  # GitHub pauses scheduled workflows in public repos after 60 days without repository activity.
+  # Re-enabling the workflow through GitHub's API once a month is a common way to avoid that
+  # (not documented by GitHub). If it ever pauses anyway, the website's "Last updated" turns amber.
+  keepalive:
+    if: github.event.schedule == '17 3 1 * *'
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
+    permissions:
+      actions: write
+    steps:
+      - name: Re-enable this workflow
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh api -X PUT "repos/${{ github.repository }}/actions/workflows/sync.yml/enable"

@@ -82,3 +82,7 @@
 - **Files:** above + tests `*.test.ts` (5 files), `package.json`, `package-lock.json`, `CLAUDE.md`, `findings.md`, `task_plan.md`, `progress.md`
 - **Tests:** vitest 5 files / 49 tests pass; typecheck OK; lint OK; dry run OK (17 s); real runs: success ×2, 940 rows, website key sees 940 rows / 24 LCs / 0 closed.
 - **Errors:** (1) `tsx` → "Top-level await is currently not supported with the cjs output format". Root cause: package is CommonJS. Fix: `main()` wrapper; constraint logged. (2) Data: 11 non-open records despite the status filter, 54 "deleted phone number" placeholders → mapper re-checks status; digit-free phones → null; test added; SOP updated.
+- **Action:** Added `.github/workflows/sync.yml` (approved). User added the 3 repository secrets.
+- **Files:** `.github/workflows/sync.yml`, `CLAUDE.md`, `docs/sops/sync.md`, `findings.md`, `task_plan.md`, `progress.md`
+- **Tests:** YAML parses (jobs: sync, keepalive). First GitHub run pending.
+- **Errors:** none.

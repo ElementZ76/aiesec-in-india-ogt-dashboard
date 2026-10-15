@@ -33,7 +33,7 @@ npm on those days.
 | Tests | Vitest |
 | Running TypeScript scripts | `tsx` 4.23.x, dev only (approved 2026-10-15) |
 | Data source | EXPA GraphQL API (`https://gis-api.aiesec.org/graphql`), **read-only**, called **only by the sync job** |
-| Sync job | A script run by GitHub Actions every 15 minutes (cron `*/15 * * * *`) plus a manual "Run workflow" button |
+| Sync job | A script run by GitHub Actions every 15 minutes (cron `7,22,37,52 * * * *`, off the busy top of the hour) plus a manual "Run workflow" button (normal / dry-run / force). Actions pinned to commit SHAs. Monthly keep-alive job. |
 | Database | Supabase (hosted Postgres), free plan, Mumbai region. Client library `@supabase/supabase-js` 2.118.x (approved 2026-10-15; 2.117 was current when proposed) |
 | Spreadsheet export | CSV file, generated in the browser; no extra library |
 | Runtime | Node.js >= 22.12 (local: 22.14) |
@@ -242,3 +242,4 @@ Tests live next to the code they test, as `*.test.ts`.
 | 2026-10-15 | Added UI Spec; schema: `applied_at` (EXPA `created_at`, verified) + `appliedAt`; deadline 2026-10-20 in status | User approved the UI mockup; chose newest-first order, 12 + load more, LinkedIn "Not available" text |
 | 2026-10-15 | Added `supabase/schema.sql` (tables, RLS, least-privilege grants), `scripts/db-check.mjs`, design reference in `docs/design/`; supabase-js 2.118.x | Link phase: Supabase project created by user |
 | 2026-10-15 | Sync job built (`scripts/sync.ts`, `src/lib/{expa,pool,sync,db}`); Commands + A.N.T. updated; `tsx` added | Approved sync build plan; SOP `docs/sops/sync.md` |
+| 2026-10-15 | Added `.github/workflows/sync.yml` (15-min schedule, manual modes, no overlap, 10-min limit, pinned actions, keep-alive) | Approved; user added the 3 GitHub secrets |

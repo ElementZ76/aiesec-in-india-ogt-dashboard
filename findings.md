@@ -261,3 +261,9 @@ _Checked by the probe on 2026-10-14 (see below), except token expiry:_
   `main()`.
 - First real runs: 2 × success (upserted 940, deleted 0, second run identical). Website key sees
   940 rows in 24 LCs, 0 closed-LC rows.
+
+### GitHub Actions (checked 2026-10-15)
+- Latest: `actions/checkout` v7.0.1 (SHA 3d3c42e…), `actions/setup-node` v7.1.0 (SHA 949feb2…); pinned by SHA.
+- Docs: scheduled workflows in public repos are disabled after 60 days without "repository
+  activity" (not defined); a commit changing the cron line re-activates them; failure
+  notifications go to "the user who last modified the cron syntax in the workflow file".
