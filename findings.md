@@ -237,3 +237,11 @@ _Checked by the probe on 2026-10-14 (see below), except token expiry:_
   phone (was 1267 px).
 - Approved 2026-10-15 (mockup v10). Missing LinkedIn shows as the text "Not available" in the
   Applicant section (user; replaced the greyed-icon idea). LinkedIn is a text row again.
+
+### Supabase setup (2026-10-15)
+- `supabase/schema.sql` applied by the user; `scripts/db-check.mjs`: all 7 access checks pass.
+- **Constraint:** Postgres column privileges also cover columns used in filters and sorting. The
+  website key may only read `sync_runs.status` and `finished_at`, so it must filter/sort by those
+  only (e.g. `status = 'success'` order by `finished_at` desc limit 1), never by `id`.
+- `.env.local` `SUPABASE_URL` must be the bare project URL (`https://<id>.supabase.co`); the
+  dashboard's Data API URL ends in `/rest/v1/`, which supabase-js adds itself. db-check validates this.

@@ -51,8 +51,10 @@ check("secret key can write sync_runs", !ins.error, ins.error?.message ?? "");
 const id = ins.data?.id;
 
 if (id) {
-  // 4. Website key sees the "Last updated" columns...
-  const last = await website.from("sync_runs").select("status, finished_at").eq("id", id);
+  // 4. Website key sees the "Last updated" columns, using only those columns, as the site will.
+  //    (Filtering or sorting by any other column, e.g. id, counts as reading it and is refused.)
+  const last = await website.from("sync_runs").select("status, finished_at")
+    .eq("status", "failed").order("finished_at", { ascending: false }).limit(1);
   check("website key can read sync_runs status + finished_at", !last.error && last.data?.length === 1, last.error?.message ?? "");
 
   // 5. ...but not the internal message column.

@@ -75,3 +75,6 @@
 - **Files:** `package.json`, `package-lock.json`, `supabase/schema.sql`, `scripts/db-check.mjs`, `docs/design/ui-mockup.html`, `CLAUDE.md`, `task_plan.md`, `progress.md`
 - **Tests:** eslint OK; typecheck OK; `npm audit --omit=dev` 0 vulnerabilities. db-check not run yet (needs SQL applied).
 - **Errors:** none.
+- **Action:** User applied `supabase/schema.sql` and fixed `SUPABASE_URL`. Ran `scripts/db-check.mjs`.
+- **Tests:** 6/7 passed, then 7/7 after fixing the test.
+- **Errors:** (1) db-check refused to run: `SUPABASE_URL` still ended in `/rest/v1/` (file not saved) → user fixed. (2) "permission denied for table sync_runs" when the website key filtered by `id`. Root cause: column privileges apply to WHERE/ORDER BY columns too; the grant was right, the test was wrong. Fix: test queries by `status` + `finished_at` like the real site. Logged as a constraint in findings.md.

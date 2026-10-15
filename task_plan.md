@@ -31,8 +31,8 @@
 - [x] User creates Supabase project (free, Mumbai); adds URL + publishable + secret keys to `.env.local` (URL needs `/rest/v1/` removed)
 - [x] User creates Vercel account (Hobby)
 - [x] Install `@supabase/supabase-js` 2.118.0; write `supabase/schema.sql`
-- [ ] User runs `supabase/schema.sql` in the SQL editor
-- [ ] Connection test: `scripts/db-check.mjs` (written; run after the SQL)
+- [x] User runs `supabase/schema.sql` in the SQL editor
+- [x] Connection test: `scripts/db-check.mjs` — all 7 checks pass (2026-10-15)
 - [ ] GitHub secrets: EXPA_ACCESS_TOKEN, SUPABASE_URL, SUPABASE_SECRET_KEY
 
 ## Phase 3 — A: Architect
