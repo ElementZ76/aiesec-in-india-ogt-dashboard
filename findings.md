@@ -223,7 +223,7 @@ _Checked by the probe on 2026-10-14 (see below), except token expiry:_
   title; Statistics (4 cards: total, GTa vs GTe ring, top LCs / LC rank, top work areas; breakdown
   panel); sticky search + LC filter; 3 / 2 / 1 card columns; footer: last updated (left, amber if
   stale > 1 h), "Built by Praveen" → linkedin.com/in/praveen-pr190705 (right).
-- Behaviour: newest application first (needs application `created_at`); stats follow the LC filter
+- Behaviour: newest application first (application `created_at`, verified 2026-10-15: DateTime, UTC, 100/100 filled); stats follow the LC filter
   (not search); search covers name, email, company, work area, LC, EP manager; CSV exports the
   current search + LC result; 12 cards first, then a "Load more applications" button adds 12
   per click (user, 2026-10-15; replaced auto-loading).
@@ -235,3 +235,5 @@ _Checked by the probe on 2026-10-14 (see below), except token expiry:_
 - Responsive audit 320–1920 px: no sideways scroll, no tap target < 24 px (44 px on touch screens),
   no text < 12 px, sticky bars cover 19% of a phone screen (was 34%), first card at 572 px on a
   phone (was 1267 px).
+- Approved 2026-10-15 (mockup v10). Missing LinkedIn shows as the text "Not available" in the
+  Applicant section (user; replaced the greyed-icon idea). LinkedIn is a text row again.

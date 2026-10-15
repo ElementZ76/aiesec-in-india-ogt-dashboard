@@ -1,6 +1,6 @@
 # Task Plan
 
-**Current Phase: 2 — Link.** Deadline: **everything incl. testing done by 2026-10-20**. Next: UI sign-off, then Supabase setup.
+**Current Phase: 2 — Link.** Deadline: **everything incl. testing done by 2026-10-20**. Next: Supabase setup (user creating Supabase + Vercel accounts 2026-10-15).
 
 ## Phase 0 — Initialization
 - [x] Create `CLAUDE.md`, `task_plan.md`, `findings.md`, `progress.md`, `.tmp/`
@@ -27,7 +27,7 @@
 - [x] Re-run probe hours later to check token expiry (works after ~31 h, 2026-10-15)
 - [x] Data Schema v1 (verified) in constitution (2026-10-15; `person.full_name` still to confirm)
 - [x] Sync + database plan approved; constitution rewritten (2026-10-15)
-- [x] UI conversation (layout, card design, paging for ~945 cards) — mockup v8; awaiting final sign-off
+- [x] UI conversation — mockup v10 approved 2026-10-15; UI Spec in constitution
 - [ ] User creates Supabase project (free, Mumbai); adds URL + publishable + secret keys to `.env.local`
 - [ ] Install `@supabase/supabase-js` (approved); write `supabase/schema.sql`; user runs it in the SQL editor
 - [ ] Connection test: write one row, read it back, delete it
@@ -51,7 +51,7 @@
 - [ ] Full test suite run and logged
 
 ## Phase 4 — S: Stylize
-- [ ] UI/UX direction agreed with user (conversation starts 2026-10-15)
+- [x] UI/UX direction agreed with user (approved 2026-10-15; more tweaks after DB is connected)
 - [ ] Empty / loading / error states
 - [ ] Responsive layout
 - [ ] User feedback collected

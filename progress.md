@@ -68,3 +68,6 @@
 - **Files:** `findings.md`, `task_plan.md`, `progress.md`
 - **Tests:** contrast check all ≥ 4.5:1; responsive audit 320–1920 px clean; perf: keystroke→paint ~2× faster than v6.
 - **Errors:** (1) Chrome extension not connected → used headless Chrome instead. (2) Headless Chrome exited with code 21 → root cause: relative `--user-data-dir`; fix: absolute path. (3) `content-visibility: auto` collapsed fast scrolling to ~1 fps → reverted; logged as a constraint. (4) 320 px sideways scroll → root cause: `1fr` grid column and `<select>` min-content width; fix: `minmax(0, 1fr)` and `min-width: 0`.
+- **Action:** User approved the UI (mockup v10). Checked EXPA `created_at` (read-only introspection + 100-row sample: DateTime, all filled). Wrote UI Spec + `applied_at` into the constitution; deadline in status line.
+- **Files:** `CLAUDE.md`, `findings.md`, `task_plan.md`, `progress.md`
+- **Tests:** none (no code). **Errors:** none.

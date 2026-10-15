@@ -2,7 +2,8 @@
 
 > **This file is LAW.** If code and this file disagree, the code is wrong or this file must be
 > updated first (with a Maintenance Log row). Status: **Blueprint approved 2026-10-14; sync +
-> database design approved 2026-10-15.** Data Schema v1 (EXPA paths verified by the probe).
+> database design approved 2026-10-15; UI approved 2026-10-15.** Data Schema v1 (EXPA paths verified by the probe).
+> **Deadline: everything, including testing, done by 2026-10-20.**
 
 ## North Star
 
@@ -86,6 +87,7 @@ page, per_page)` → `data { ... }` + `paging { total_items total_pages }`.
 | company_name | text, null | company name | `opportunity.organisation.name` |
 | opportunity_field | text, null | opportunity field (the job's work area) | `opportunity.sub_product.name` |
 | programme | text, `GTa` or `GTe` | — (stats only) | `opportunity.programme.short_name_display` |
+| applied_at | timestamptz | — (sort order; "Applied on" date on the card) | `created_at` (UTC; filled 100/100 in a sample, checked 2026-10-15). Shown as a date in India time. |
 | start_date | date, null | duration (actual dates) | `slot.start_date`; fallback `opportunity.earliest_start_date` |
 | end_date | date, null | duration (actual dates) | `slot.end_date`; fallback `opportunity.latest_end_date` |
 | synced_at | timestamptz | — (internal) | time the sync wrote the row |
@@ -114,12 +116,13 @@ EXPA → sync job (GitHub Actions, every 15 min) → Supabase → website server
    (Invariant 7) can stop it before any write.
 2. **Website server:** on `/`, reads all `applications` rows and the latest successful
    `sync_runs` row from Supabase, cached for up to 5 minutes, and sends them with the page.
-3. **Browser:** search, LC filter, statistics and CSV export all run on that list.
+3. **Browser:** search, LC filter, statistics and CSV export all run on that list (rules in UI Spec).
 
 `PoolApplication` (what the server hands to the page; camelCase of the table columns):
 `{ applicationId, personId, fullName, email, phone|null, linkedinUrl|null, cvUrl|null, homeLcId,
 homeLc, epManagers: [{ name, email|null, phone|null }], companyName|null, opportunityField|null,
-programme: "GTa"|"GTe", startDate|null, endDate|null }` — dates as `YYYY-MM-DD` strings.
+programme: "GTa"|"GTe", startDate|null, endDate|null, appliedAt }` — start/end dates as `YYYY-MM-DD`
+strings; `appliedAt` as an ISO timestamp.
 
 ### Endpoint table
 
@@ -129,6 +132,42 @@ programme: "GTa"|"GTe", startDate|null, endDate|null }` — dates as `YYYY-MM-DD
 
 No public JSON API in v1. The sync job is not an endpoint; it is the GitHub Actions workflow
 `.github/workflows/sync.yml`.
+
+## UI Spec
+
+Approved by the user 2026-10-15. Visual reference: the mockup (v10) `.tmp/ui-mockup.html`
+(scratch; details in findings.md "UI direction"). Further visual changes are expected after the
+site is connected to the database.
+
+- **Audience:** AIESEC members (EP managers, oGT team).
+- **Look:** AIESEC brand with Apple "Liquid Glass"-style glass panels; Lato font (400/700/900);
+  **dark mode by default**, light/dark switch remembered per browser.
+- **Colours:** AIESEC blue `#037EF3`; GTa `#0A8EA0`; GTe `#F85A40`. Every text/background pair must
+  meet WCAG AA contrast (4.5:1); use deeper/lighter shades for small text (e.g. buttons `#0366D6`).
+- **Corners:** concentric (inner radius = outer radius − padding); capsules for free-standing controls.
+- **Page:** floating pill navbar (AIESEC in India · Statistics · Applications · theme switch ·
+  Export CSV) → title "oGT CV Pool" → Statistics → sticky search + LC filter → cards → footer
+  ("Last updated …" left; "Built by Praveen" → https://www.linkedin.com/in/praveen-pr190705/ right).
+- **Statistics:** 4 cards (total + LC/work-area counts; GTa vs GTe ring; top 3 LCs, or the selected
+  LC's rank; top 3 work areas) and a Breakdown panel (all LCs, all work areas). They follow the
+  **LC filter**, not the search box.
+- **Cards:** one per application, **newest application first** (`applied_at`). Shows name, LC,
+  GTa/GTe badge, company, work area, start–end dates (+ weeks), applicant email and phone (with
+  copy buttons), LinkedIn (**"Not available" as text when missing**), EP manager(s) with copy
+  buttons for email/phone ("No EP manager assigned" when none), View CV ("CV not available" when
+  missing), applied date. 3 / 2 / 1 columns (desktop / tablet / phone).
+- **Paging:** 12 cards first, then a **"Load more applications"** button adds 12 per click. Never
+  render the whole pool at once. A new search or filter starts again at 12.
+- **Search:** name, email, company, work area, LC, EP manager name. "Clear" shows only when a
+  search or filter is active.
+- **CSV export:** the applications matching the current search + LC filter, all spec fields.
+- **Stale data:** if the last successful sync is more than 1 hour old, "Last updated" turns amber
+  and says the data may be out of date.
+- **Performance rules (measured 2026-10-15):** background blur only on the navbar; no masks or
+  cursor-tracking effects on cards; animate only `transform`/`opacity` where possible; do not use
+  `content-visibility: auto` on cards (made fast scrolling collapse).
+- **Accessibility / responsive:** no sideways scrolling from 320 px to 1920 px; tap targets ≥ 24 px
+  (44 px on touch screens); no text under 12 px; respect "reduce motion".
 
 ## A.N.T. Architecture Mapping
 
@@ -194,3 +233,4 @@ Tests live next to the code they test, as `*.test.ts`.
 | 2026-10-14 | Blueprint approved: tech stack table, data flow, PoolApplication shape, endpoint table, final A.N.T. folders; token env var named `EXPA_ACCESS_TOKEN` | User approved Next.js-only, no DB, plain CSS |
 | 2026-10-14 | Added Commands table; `engines.node >= 22.12` in package.json | Project scaffold |
 | 2026-10-15 | **Architecture → sync + database.** Added sync job (GitHub Actions, 15 min) and Supabase; website reads the database only; token moves to the sync job. Schema v1 with verified EXPA paths; tables `applications` and `sync_runs`. Invariants rewritten: 1 (token), new 2 (website never calls EXPA), new 3 (only sync writes; RLS), 6 (pool rules: closed LCs and ended slots hidden, India National Office shown, ends-today shown), new 7 (safety brake). A.N.T. folders updated. | Probe: full fetch took 298 s; mentor's suggestion; user approved the plan 2026-10-15 |
+| 2026-10-15 | Added UI Spec; schema: `applied_at` (EXPA `created_at`, verified) + `appliedAt`; deadline 2026-10-20 in status | User approved the UI mockup; chose newest-first order, 12 + load more, LinkedIn "Not available" text |
