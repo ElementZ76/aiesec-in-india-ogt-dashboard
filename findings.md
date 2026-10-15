@@ -28,8 +28,10 @@
 | 12 | Search box not in spec; Bardo has one. | **Resolved:** add a search box (user: "absolutely necessary"). |
 | 13 | User proposed Spring Boot (Java) backend + Supabase database instead of Next.js server + no database. | **Resolved:** Next.js only, no database (user agreed). Reason: Vercel's official runtimes are Node.js, Bun, Python, Rust — no Java (vercel.com/docs/functions/runtimes, checked 2026-10-14), so Spring Boot would need a second host; and there is no data of our own to store. |
 | 14 | Tailwind CSS was proposed for styling. | **Resolved:** no Tailwind. Plain CSS files for now; styling decided in a separate conversation. |
-| 15 | Approved design fetches EXPA on page load (15-min cache, no DB). Probe: 2404 applications take ~5 min to fetch. User's mentor suggested a scheduled sync (GitHub Actions) into a database (Supabase) that the site reads. | **Resolved:** switch to sync + database (user, 2026-10-14). Refresh every **15 minutes**. Detailed plan pending approval. |
+| 15 | Approved design fetches EXPA on page load (15-min cache, no DB). Probe: 2404 applications take ~5 min to fetch. User's mentor suggested a scheduled sync (GitHub Actions) into a database (Supabase) that the site reads. | **Resolved:** switch to sync + database (user, 2026-10-14). Refresh every **15 minutes**. Detailed plan approved 2026-10-15; written into the constitution. |
 | 16 | Pool has 2404 "open" applications, incl. 9 closed LCs and possibly years-old applications whose slot dates are past. | **Resolved:** hide all closed LCs and all applications whose slot has already ended (user, 2026-10-14). |
+| 17 | "India National Office" appears as an LC (183 of 2404 applications). Show it? | **Resolved:** yes, shown in the pool and as an LC filter option (user, 2026-10-15). |
+| 18 | Does a slot ending today still count as active? | **Resolved:** yes; it disappears from the next day, India time (user, 2026-10-15). |
 
 ## Technical research
 
@@ -65,7 +67,10 @@
   paging { total_pages current_page total_items } }`
   Their mock data uses status `"open"` for an applied application.
 
-### EXPA API (researched 2026-10-14; nothing verified against the live API yet)
+### EXPA API (researched 2026-10-14, before the token arrived)
+
+_Superseded by "EXPA probe results" below where they differ (e.g. LinkedIn **was** found:
+`person.linkedin_url`). Kept for the record._
 
 Sources: AIESEC Egypt `Universal-Expa-Sync-library` (GitHub, open source), EXPA API changelog
 (changelog.commutatus.com/companies/aiesec/projects/api), AIESEC "Access Token 101" slides,
@@ -109,14 +114,14 @@ Bardo bundle, Pole-Position project description.
     project). Unverified. If the user's token is this kind, the live site will break quickly.
   - Expiry of developer-app tokens: not documented in any source found.
 
-_Still unverified (check in Link phase with the real token):_
+_Checked by the probe on 2026-10-14 (see below), except token expiry:_
 - Which endpoint works; token type and expiry; India-wide vs one-LC reach.
 - Whether CV, phone, EP manager and LinkedIn are readable; exact field names (use GraphQL schema
   introspection — a read-only "describe yourself" query).
 - That "applied" = `open`; the India MC id.
 
 ## Constraints
-- EXPA token stays server-side (Invariant 1). Exposing it would let anyone act on EXPA as the token owner.
+- EXPA token stays with the sync job only (Invariant 1). Exposing it would let anyone act on EXPA as the token owner.
 - Read-only access to EXPA (Invariant 3).
 - Public site: anyone with the link can see applicant data (accepted by user).
 - Tech versions on npm (2026-10-14): next 16.4.0, react 19.3.0, vitest 5.0.4 (needs Node ^22.12),
@@ -124,8 +129,8 @@ _Still unverified (check in Link phase with the real token):_
 
 ### Project scaffold (2026-10-14)
 - Generated with `create-next-app@16.4.0` (TypeScript, App Router, `src/`, ESLint, no Tailwind).
-  It enables `cacheComponents: true` by default in `next.config.ts` → the 15-min cache can use the
-  `"use cache"` directive. Read `node_modules/next/dist/docs/` before using caching APIs.
+  It enables `cacheComponents: true` by default in `next.config.ts` → the website's short cache of
+  the database read can use the `"use cache"` directive. Read `node_modules/next/dist/docs/` before using caching APIs.
 - **Constraint:** `@types/node` must match the Node runtime (22). The generator pins `^20`, which
   blocks Vitest 5 (needs `@types/node` `^22 || >=24`). Fixed by `@types/node@^22`; `engines.node`
   set to `>=22.12` so Vercel also uses Node 22+.
@@ -192,3 +197,14 @@ _Still unverified (check in Link phase with the real token):_
   by end of 2026 → use the new keys.
 - Free plan (third-party summaries, verify on supabase.com/pricing): 500 MB database, 2 active
   projects, projects **pause after 7 days of inactivity** (a 15-min sync keeps it active).
+
+### Sync + database plan (approved 2026-10-15)
+- Full design in the constitution (Tech Stack, Data Schema, Invariants 1–3, 6, 7).
+- **Assumptions made by Claude (tell the user if they change):** website caches the database read
+  for up to 5 minutes, so data can be up to ~20 minutes old; safety brake threshold = "less than
+  half of the last successful run".
+- **To verify when building:** `person.full_name` (probe did not check it); who GitHub emails when a
+  scheduled run fails; how the sync script runs TypeScript (Node 22.14 locally needs a flag or a
+  runner; may need approval for a dev dependency); keep-alive method for the 60-day schedule
+  pause.
+- User pulled the UI conversation forward (2026-10-15): it happens before the Supabase setup.

@@ -56,3 +56,10 @@
 - **Action:** User chose sync + database design, 15-min refresh, hide closed LCs and ended slots. Ran `expa-probe.mjs size` (read-only): light fetch takes 4–13 s; 945 applications remain after the rules. Checked Supabase key types and free-plan limits.
 - **Files:** `scripts/expa-probe.mjs` (added `size` step), `findings.md`, `progress.md`
 - **Tests:** probe OK (exit 0). **Errors:** none.
+
+## 2026-10-15
+
+- **Action:** User approved the sync + database plan and the new library; India National Office shown; slot ending today still shown. Rewrote the constitution (stack, schema v1, data flow, invariants, A.N.T. folders). Phase-boundary review of all four memory files. Added Supabase variables to `.env.example`.
+- **Contradictions found and fixed:** constitution described on-page-load fetching, no database, token on Vercel, schema "unverified"; task_plan had "user puts token in .env.local" unticked (done 2026-10-14) and a "15-min cache" page item; findings said "nothing verified" and "LinkedIn not found" in the old research section, constraint said token is "server-side" (now: sync job only), scaffold note mentioned the 15-min page cache.
+- **Files:** `CLAUDE.md`, `findings.md`, `task_plan.md`, `progress.md`, `.env.example`
+- **Tests:** none (no code changed). **Errors:** none.

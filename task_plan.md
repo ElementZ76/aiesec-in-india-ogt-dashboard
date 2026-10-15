@@ -1,6 +1,6 @@
 # Task Plan
 
-**Current Phase: 2 — Link (project scaffold, then EXPA connection test)**
+**Current Phase: 2 — Link.** Next: UI conversation (pulled forward by the user, 2026-10-15), then Supabase setup.
 
 ## Phase 0 — Initialization
 - [x] Create `CLAUDE.md`, `task_plan.md`, `findings.md`, `progress.md`, `.tmp/`
@@ -22,10 +22,16 @@
 ## Phase 2 — L: Link
 - [x] Project scaffold and environments
 - [x] Secrets in `.env.local` (+ `.env.example`), `.gitignore` covers them
-- [ ] User puts the token in `.env.local`
+- [x] User puts the token in `.env.local`
 - [x] EXPA probe (read-only): endpoint, schema field names, "applied" status name, India MC id, LinkedIn field, token reach
 - [ ] Re-run probe hours later to check token expiry
-- [ ] Data Schema v1 (verified) in constitution
+- [x] Data Schema v1 (verified) in constitution (2026-10-15; `person.full_name` still to confirm)
+- [x] Sync + database plan approved; constitution rewritten (2026-10-15)
+- [ ] UI conversation (layout, card design, paging for ~945 cards) — see Phase 4
+- [ ] User creates Supabase project (free, Mumbai); adds URL + publishable + secret keys to `.env.local`
+- [ ] Install `@supabase/supabase-js` (approved); write `supabase/schema.sql`; user runs it in the SQL editor
+- [ ] Connection test: write one row, read it back, delete it
+- [ ] GitHub secrets: EXPA_ACCESS_TOKEN, SUPABASE_URL, SUPABASE_SECRET_KEY
 
 ## Phase 3 — A: Architect
 ### MVP (bare minimum)
@@ -37,20 +43,22 @@
 - [ ] Export to spreadsheet
 - [ ] Statistics v1: total, per LC, per work area, GTa vs GTe
 ### Quality
-- [ ] Tools layer (EXPA client, mappers) with tests
-- [ ] Navigation layer (`/` page, 15-min cache) with tests
+- [ ] Tools layer: EXPA client + mapper, pool rules, database helpers, with tests
+- [ ] Sync job: dry run, safety brake, upsert + delete, `sync_runs` log, with tests
+- [ ] GitHub Actions workflow (every 15 min + manual) and keep-alive; watch first scheduled run
+- [ ] Navigation layer: `/` page reads Supabase (5-min cache) with tests
 - [ ] SOPs written for each workflow
 - [ ] Full test suite run and logged
 
 ## Phase 4 — S: Stylize
-- [ ] UI/UX direction agreed with user
+- [ ] UI/UX direction agreed with user (conversation starts 2026-10-15)
 - [ ] Empty / loading / error states
 - [ ] Responsive layout
 - [ ] User feedback collected
 
 ## Phase 5 — T: Trigger
 - [ ] Final integration test
-- [ ] Deploy to Vercel
+- [ ] Deploy to Vercel (env: SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY)
 - [ ] README
 - [ ] Maintenance Log updated
 

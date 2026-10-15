@@ -1,34 +1,38 @@
 # Project Constitution — AIESEC in India oGT CV Pool
 
 > **This file is LAW.** If code and this file disagree, the code is wrong or this file must be
-> updated first (with a Maintenance Log row). Status: **Blueprint approved 2026-10-14.** Data Schema stays v0.x until verified against EXPA.
+> updated first (with a Maintenance Log row). Status: **Blueprint approved 2026-10-14; sync +
+> database design approved 2026-10-15.** Data Schema v1 (EXPA paths verified by the probe).
 
 ## North Star
 
-A public website, hosted on Vercel, showing **one India-wide pool** of every AIESEC in India oGT
-(outgoing Global Talent) application with status **"applied"**, filterable by local committee
-(LC). Each application is one card showing the spec fields. Data is read live from EXPA.
+A public website, hosted on Vercel, showing **one India-wide pool** of AIESEC in India oGT
+(outgoing Global Talent) applications with status **"applied"**, filterable by local committee
+(LC). Each application is one card showing the spec fields. A sync job copies the data from
+EXPA into our database every 15 minutes; the website reads only that database.
 
 - **Spec:** `spec_file.txt` lists the 10 fields each card shows (see Data Schema).
 - **Bare minimum (MVP):** the cards with contact info, EP manager and CV link.
 - **Done:** the MVP with a proper UI, plus a search box, an LC filter, spreadsheet export and
   statistics (v1: total applications, count per LC, count per work area, GTa vs GTe).
 - Functional reference: https://ogtbardo.vercel.app/cv-pool (same function, different look).
-- Expected load: 20–30 users per day; 100+ applicants.
+- Expected load: 20–30 users per day. Pool size: **about 945 applications in 24 LCs**
+  (measured 2026-10-14; 2404 before the hide rules in Invariant 6).
 
 ## Tech Stack
 
-Approved by the user 2026-10-14. Versions checked on npm the same day.
+Approved by the user 2026-10-14 (website) and 2026-10-15 (sync + database). Versions checked on
+npm on those days.
 
 | Part | Choice |
 |---|---|
-| Framework (front end **and** server) | Next.js 16 (App Router), React 19 |
-| Language | TypeScript |
+| Website (front end **and** server) | Next.js 16 (App Router), React 19, hosted on Vercel |
+| Language | TypeScript (website and sync job) |
 | Styling | Plain CSS files for now. **Not Tailwind** (user decision). Final styling decided in a separate conversation. |
 | Tests | Vitest |
-| Hosting | Vercel |
-| Data | EXPA GraphQL API, read-only, cached on the server for 15 minutes |
-| Database | **None** in this iteration (no data of our own to store). Revisit if notes/history come back. |
+| Data source | EXPA GraphQL API (`https://gis-api.aiesec.org/graphql`), **read-only**, called **only by the sync job** |
+| Sync job | A script run by GitHub Actions every 15 minutes (cron `*/15 * * * *`) plus a manual "Run workflow" button |
+| Database | Supabase (hosted Postgres), free plan, Mumbai region. Client library `@supabase/supabase-js` 2.117.x (approved 2026-10-15) |
 | Spreadsheet export | CSV file, generated in the browser; no extra library |
 | Runtime | Node.js >= 22.12 (local: 22.14) |
 
@@ -42,98 +46,130 @@ Approved by the user 2026-10-14. Versions checked on npm the same day.
 | `npm run lint` | Check code style and common mistakes (ESLint) |
 | `npm run build` | Build the production version (what Vercel runs) |
 
+Sync commands (dry run, real run) are added here when the sync job is built.
+
 `AGENTS.md` is managed by Next.js (`next dev` rewrites it). Keep it committed; don't hand-edit it.
 
-Rejected: Spring Boot (Java) backend + Supabase. Vercel has no Java runtime, so it needs a second
-host, and there is no data to store yet (findings.md, conflict 13).
+Rejected:
+- Spring Boot (Java) backend. Vercel has no Java runtime, so it needs a second host
+  (findings.md, conflict 13).
+- Fetching EXPA when a visitor opens the page. A full fetch took 298 s (findings.md, conflict 15).
 
 ## Data Schema
 
-_Draft v0.3 — fields come from `spec_file.txt` (the spec). Every EXPA source below is
-UNVERIFIED until the EXPA token is tested (Link phase)._
+_v1 — fields come from `spec_file.txt` (the spec). EXPA paths verified by
+`scripts/expa-probe.mjs` on 2026-10-14 unless marked otherwise._
 
 **Unit of the pool = one application = one card.** A person who applied to 3 jobs appears as
-3 cards. Only applications whose status is "applied" are in the pool, and only for oGT
-programmes: **GTa and GTe**. Applicants' home MC = AIESEC in India.
+3 cards. Which applications are in the pool: see Invariant 6.
 
-### Person fields (EP — Exchange Participant)
+### EXPA query (sync job only)
 
-| Field | Type | Spec item | Source in EXPA | Verified? |
-|---|---|---|---|---|
-| personId | string | — (internal) | person id | No |
-| fullName | string | applicant name | person name | No |
-| email | string | email | person email | No |
-| phone | string | phone | person contact info | No |
-| linkedinUrl | string \| null | link to their linkedin profile | not found in any source yet; card shows "Not available" when null | No |
-| cvUrl | string \| null | cv link | `person.cvs { url }` or `person.cv_url` | No |
-| homeLc | string | lc | person's home local committee (LC) | No |
-| epManagers | list of { name, email, phone } | ep manager | `person.managers` (can be several) | No |
+`allOpportunityApplication(filters: { person_home_mc: [1585], programmes: [8, 9], status: "open" },
+page, per_page)` → `data { ... }` + `paging { total_items total_pages }`.
+1585 = India. 8 = GTa, 9 = GTe. `open` is the API name for "Applied" in the EXPA UI.
 
-### Application / opportunity fields
+### Table `applications` (one row = one card)
 
-| Field | Type | Spec item | Source in EXPA | Verified? |
-|---|---|---|---|---|
-| applicationId | string | — (internal; card key) | application id | No |
-| companyName | string \| null | company name | `opportunity.organisation.name` | No |
-| startDate | date \| null | duration (actual dates) | application `slot.start_date`; fallback `opportunity.earliest_start_date` | No |
-| endDate | date \| null | duration (actual dates) | application `slot.end_date`; fallback `opportunity.latest_end_date` | No |
-| opportunityField | string \| null | opportunity field = the job's work area (sub-product) | `opportunity.sub_product.name` | No |
-| status | string | — (internal; query filter only, not shown) | application `status`; "applied" is probably `open` in the API | No |
-| programme | string | — (internal; query filter only) | `opportunity.programme.short_name_display`; GTa or GTe | No |
+| Column | Type | Spec item | Source in EXPA |
+|---|---|---|---|
+| application_id | text, primary key | — (internal; card key) | `id` |
+| person_id | text | — (internal) | `person.id` |
+| full_name | text | applicant name | `person.full_name` (not yet checked by the probe; confirm in the sync dry run) |
+| email | text | email | `person.email` |
+| phone | text, null | phone | `person.contact_detail.country_code` + `phone` |
+| linkedin_url | text, null | link to their linkedin profile | `person.linkedin_url`; card shows "Not available" when null |
+| cv_url | text, null | cv link | `person.cv_url` (not the application-level `cv`, which is always empty) |
+| home_lc_id | text | — (internal; LC filter key) | `person.home_lc.id` |
+| home_lc | text | lc | `person.home_lc.name` |
+| ep_managers | jsonb: list of `{ name, email, phone }` | ep manager | `person.managers { full_name email contact_detail { phone } }`; can be empty or several |
+| company_name | text, null | company name | `opportunity.organisation.name` |
+| opportunity_field | text, null | opportunity field (the job's work area) | `opportunity.sub_product.name` |
+| programme | text, `GTa` or `GTe` | — (stats only) | `opportunity.programme.short_name_display` |
+| start_date | date, null | duration (actual dates) | `slot.start_date`; fallback `opportunity.earliest_start_date` |
+| end_date | date, null | duration (actual dates) | `slot.end_date`; fallback `opportunity.latest_end_date` |
+| synced_at | timestamptz | — (internal) | time the sync wrote the row |
+
+### Table `sync_runs` (one row per sync run)
+
+`id` (number), `started_at`, `finished_at`, `status` (`success` / `failed` / `blocked`),
+`fetched_count` (from EXPA), `kept_count` (after the pool rules), `upserted_count`,
+`deleted_count`, `message` (short reason when not `success`; never contains a secret).
+The website shows "Last updated" = `finished_at` of the latest `success` run.
 
 ### Computed values
 
 Statistics v1 (user-approved 2026-10-14; to be expanded later): total applications in the pool;
-count per LC; count per work area (sub-product); count of GTa vs GTe.
+count per LC; count per work area (sub-product); count of GTa vs GTe. Computed in the browser.
 
-### API input/output schemas
+### Data flow
 
-**Data flow:** browser asks for `/` → server fetches all pool applications from EXPA (all
-pages, cached 15 min) → server maps them to `PoolApplication[]` → page is sent with that list →
-search, LC filter, statistics and CSV export all run in the browser on that list.
+```
+EXPA → sync job (GitHub Actions, every 15 min) → Supabase → website server (Vercel) → browser
+```
 
-`PoolApplication` (what the server hands to the page; exact EXPA query written after Link phase):
-`{ applicationId, personId, fullName, email, phone, linkedinUrl|null, cvUrl|null, homeLc,
-epManagers: [{ name, email|null, phone|null }], companyName|null, opportunityField|null,
+1. **Sync job:** fetches all pool applications from EXPA (pages fetched in parallel) → applies
+   the pool rules (Invariant 6) → upserts the kept rows (adds new ones, updates changed ones) →
+   deletes rows no longer in EXPA's result → writes a `sync_runs` row. The safety brake
+   (Invariant 7) can stop it before any write.
+2. **Website server:** on `/`, reads all `applications` rows and the latest successful
+   `sync_runs` row from Supabase, cached for up to 5 minutes, and sends them with the page.
+3. **Browser:** search, LC filter, statistics and CSV export all run on that list.
+
+`PoolApplication` (what the server hands to the page; camelCase of the table columns):
+`{ applicationId, personId, fullName, email, phone|null, linkedinUrl|null, cvUrl|null, homeLcId,
+homeLc, epManagers: [{ name, email|null, phone|null }], companyName|null, opportunityField|null,
 programme: "GTa"|"GTe", startDate|null, endDate|null }` — dates as `YYYY-MM-DD` strings.
-
-**EXPA request (server only):** `POST` to the EXPA GraphQL endpoint with the token;
-`allOpportunityApplication(filters: { status, programmes: [8, 9], person_home_mc: <India id> },
-page, per_page)` — names to be verified.
 
 ### Endpoint table
 
 | Method | Path | Purpose | Auth | Input | Output |
 |---|---|---|---|---|---|
-| GET | `/` | The CV pool page (cards, search, LC filter, stats, export) | none (public) | — | HTML page with `PoolApplication[]` |
+| GET | `/` | The CV pool page (cards, search, LC filter, stats, export, "Last updated") | none (public) | — | HTML page with `PoolApplication[]` |
 
-No public JSON API in v1. The EXPA call happens only inside the server.
+No public JSON API in v1. The sync job is not an endpoint; it is the GitHub Actions workflow
+`.github/workflows/sync.yml`.
 
 ## A.N.T. Architecture Mapping
 
 | Layer | Role | Location |
 |---|---|---|
-| Architecture | SOPs in Markdown: goals, inputs, logic, edge cases | `docs/sops/` |
-| Navigation | Pages and orchestration (decides what to fetch and show) | `src/app/` |
-| Tools | Deterministic, testable units | `src/lib/expa/` (read-only EXPA client, query, mapper) and `src/lib/pool/` (search, LC filter, stats, CSV) |
+| Architecture | SOPs in Markdown: goals, inputs, logic, edge cases | `docs/sops/` (`sync.md`, `pool-page.md`) |
+| Navigation | Orchestration: decides what to fetch, write and show | `src/app/` (the page); `scripts/sync.ts` (sync entry point); `.github/workflows/sync.yml` (schedule) |
+| Tools | Deterministic, testable units | `src/lib/expa/` (read-only EXPA client, query, mapper); `src/lib/pool/` (pool rules, search, LC filter, stats, CSV); `src/lib/db/` (database read and write helpers) |
 | (UI pieces) | Visual components used by pages | `src/components/` |
-| (Checks) | One-off scripts, e.g. the Link-phase EXPA probe | `scripts/` |
+| (Database setup) | SQL that creates the tables and access rules; pasted into Supabase's SQL editor | `supabase/schema.sql` |
+| (Checks) | One-off scripts, e.g. the EXPA probe | `scripts/` |
 
 Tests live next to the code they test, as `*.test.ts`.
 
 ## Architectural Invariants
 
-1. The EXPA access token lives only on the server, in the environment variable
-   `EXPA_ACCESS_TOKEN` (`.env.local` locally, Vercel settings in production). It must never have
-   a `NEXT_PUBLIC_` prefix (that prefix sends a variable to the browser). It is never sent to the browser, logged, or committed.
-2. The site is **public, with no login** (user decision, 2026-10-14; data privacy is covered by
+1. **The EXPA token lives only with the sync job:** the GitHub secret `EXPA_ACCESS_TOKEN` and the
+   local `.env.local`. It is never put on Vercel, never given a `NEXT_PUBLIC_` prefix (that
+   prefix sends a variable to the browser), and never logged or committed.
+2. **The website never calls EXPA.** It reads only from Supabase.
+3. **Only the sync job writes to the database.** It uses `SUPABASE_SECRET_KEY` (GitHub secret and
+   `.env.local` only). The website uses `SUPABASE_PUBLISHABLE_KEY`, which Row Level Security
+   (RLS, the database's per-table access rules) limits to reading. RLS is on for every table.
+   Neither key gets a `NEXT_PUBLIC_` prefix; the browser never talks to Supabase directly.
+4. The site is **public, with no login** (user decision, 2026-10-14; data privacy is covered by
    AIESEC in India policy). Revisit only if the user asks.
-3. **EXPA is read-only.** The app only runs read queries. It never creates, updates or deletes
+5. **EXPA is read-only.** The project only runs read queries. It never creates, updates or deletes
    anything on EXPA (no GraphQL mutations).
-4. The pool contains **only applications with status "applied"** for **GTa and GTe** opportunities,
-   from applicants whose home MC is AIESEC in India, one card per application.
-   When an application moves to another status in EXPA, it leaves the pool.
-5. `.tmp/` is scratch space only. Nothing in it is a deliverable.
+6. **Pool rules.** An application is in the pool only if all of these hold:
+   - EXPA status `open` ("Applied"), programme GTa or GTe, applicant's home MC = India (1585);
+   - the applicant's home LC is not closed (closed LCs have a name starting with `Closed [`);
+     "India National Office" counts as an LC and is shown (user, 2026-10-15);
+   - the slot has not ended: `end_date` is today or later, with "today" in India time
+     (Asia/Kolkata). A slot ending today is still shown (user, 2026-10-15). An application with
+     no end date at all is kept (none exist as of 2026-10-14).
+   One card per application. When an application stops matching, the next sync deletes it.
+7. **Safety brake.** The sync job writes nothing and deletes nothing, and records a `blocked` or
+   `failed` run, if: any EXPA request fails; the number fetched differs from EXPA's
+   `total_items`; or the kept count is 0 or less than half of the last successful run's. The
+   site then keeps showing the last good data.
+8. `.tmp/` is scratch space only. Nothing in it is a deliverable.
 
 ## Behavioral Rules
 
@@ -141,7 +177,7 @@ Tests live next to the code they test, as `*.test.ts`.
    approval **before** making it.
 2. Explain in plain, non-technical language. The user is new to building apps. Don't over-explain.
 3. Never guess business logic or requirements. Ask.
-4. Never push data to EXPA (see Invariant 3).
+4. Never push data to EXPA (see Invariant 5).
 5. Commit to git after each approved change.
 6. Push to GitHub at the end of each finished, approved task.
 
@@ -157,3 +193,4 @@ Tests live next to the code they test, as `*.test.ts`.
 | 2026-10-14 | Duration = slot dates with opportunity-range fallback; added search box; stats v1 defined; Next.js frontend; no Tailwind | User decisions |
 | 2026-10-14 | Blueprint approved: tech stack table, data flow, PoolApplication shape, endpoint table, final A.N.T. folders; token env var named `EXPA_ACCESS_TOKEN` | User approved Next.js-only, no DB, plain CSS |
 | 2026-10-14 | Added Commands table; `engines.node >= 22.12` in package.json | Project scaffold |
+| 2026-10-15 | **Architecture → sync + database.** Added sync job (GitHub Actions, 15 min) and Supabase; website reads the database only; token moves to the sync job. Schema v1 with verified EXPA paths; tables `applications` and `sync_runs`. Invariants rewritten: 1 (token), new 2 (website never calls EXPA), new 3 (only sync writes; RLS), 6 (pool rules: closed LCs and ended slots hidden, India National Office shown, ends-today shown), new 7 (safety brake). A.N.T. folders updated. | Probe: full fetch took 298 s; mentor's suggestion; user approved the plan 2026-10-15 |
