@@ -48,7 +48,8 @@
 - [x] Tools layer: EXPA client + mapper, pool rules, database helpers, with tests (49 tests)
 - [x] Sync job: dry run, safety brake, upsert + delete, `sync_runs` log, with tests — first real run 2026-10-15: 940 rows
 - [x] GitHub Actions workflow (every 15 min + manual) and keep-alive — `.github/workflows/sync.yml`
-- [ ] Watch the first scheduled run succeed
+- [x] First GitHub run (manual, run #1, 2026-10-15 23:31 IST): success, 940 kept, ~70 s
+- [ ] Confirm the first *scheduled* run fires and succeeds
 - [ ] Navigation layer: `/` page reads Supabase (5-min cache) with tests
 - [ ] SOPs written for each workflow (`sync.md` done; `pool-page.md` to do)
 - [ ] Full test suite run and logged

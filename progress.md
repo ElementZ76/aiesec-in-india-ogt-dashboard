@@ -86,3 +86,5 @@
 - **Files:** `.github/workflows/sync.yml`, `CLAUDE.md`, `docs/sops/sync.md`, `findings.md`, `task_plan.md`, `progress.md`
 - **Tests:** YAML parses (jobs: sync, keepalive). First GitHub run pending.
 - **Errors:** none.
+- **Action:** User triggered the workflow manually (run #1): success in ~70 s; `sync_runs` shows success (kept 940, upserted 940, deleted 0); website key sees 940 rows.
+- **Tests:** GitHub Actions run #1 green. **Errors:** none.
