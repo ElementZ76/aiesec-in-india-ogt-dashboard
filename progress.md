@@ -103,3 +103,7 @@
 - **Files:** `supabase/scheduler.sql`, `.github/workflows/sync.yml`, `CLAUDE.md`, `docs/sops/sync.md`, `README.md`, `task_plan.md`, `progress.md`
 - **Tests:** workflow YAML parses (jobs sync, keepalive; schedules 45 * * * * and 17 3 1 * *). SQL not run yet: the user creates the token, adds it in Vault, then runs the file.
 - **Errors:** none.
+- **Action (2026-10-16):** Fixed a strip above the navbar (user report, screenshot). Root cause: CSS margin collapsing; the navbar's 14 px top margin passed through `<body>`, so the body (solid background) started 14 px down and the background glow showed above it. Fix: `body { display: flow-root }`.
+- **Files:** `src/app/globals.css`, `progress.md`
+- **Tests:** headless check on the dev server: body top 0, navbar top 14, screenshot shows no strip.
+- **Errors:** none. Note: because the body background is solid, the colour glow (`body::before`) is hidden everywhere, also in the approved mockup.
