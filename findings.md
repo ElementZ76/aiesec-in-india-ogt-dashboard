@@ -283,3 +283,7 @@ _Checked by the probe on 2026-10-14 (see below), except token expiry:_
   test checks the BOM instead.
 - Headless scroll fps on this laptop is noisy (4–21 fps for the same page); compare against the mockup in
   the same session, never against old numbers.
+- **Phone formats (2026-10-16):** EP manager country codes can be "India (+91)", sometimes with invisible
+  direction marks around the number; some numbers keep the national trunk 0 after the code. Handled in
+  `formatPhone` (see SOP `sync.md` step 2).
+- **Constraint:** in this Git Bash, heredocs lose backslashes; write escape-heavy scripts with the file tool.

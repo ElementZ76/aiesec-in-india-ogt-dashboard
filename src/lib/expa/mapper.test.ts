@@ -119,6 +119,19 @@ describe("formatPhone", () => {
     expect(formatPhone("+44 20 7946 0958", "+91")).toBe("+44 20 7946 0958");
     expect(formatPhone("9876543210", null)).toBe("9876543210");
   });
+  it("drops the trunk 0 after a country code, except for Italy", () => {
+    expect(formatPhone("09876543210", "+91")).toBe("+91 9876543210");
+    expect(formatPhone("0 98765 43210", "91")).toBe("+91 98765 43210");
+    expect(formatPhone("015112345678", "+49")).toBe("+49 15112345678");
+    expect(formatPhone("0612345678", "+39")).toBe("+39 0612345678");
+    expect(formatPhone("09876543210", null)).toBe("09876543210"); // no code: keep as typed
+  });
+  it("reads codes like 'India (+91)' and removes invisible characters", () => {
+    expect(formatPhone("9876543210", "India (+91)")).toBe("+91 9876543210");
+    expect(formatPhone("\u202a9876543210\u202c", "India (+91)")).toBe("+91 9876543210");
+    expect(formatPhone("9876543210", "0")).toBe("9876543210"); // code of zeros = no code
+    expect(formatPhone("9876543210", "India")).toBe("9876543210");
+  });
   it("returns null for no number, or a placeholder without digits", () => {
     expect(formatPhone(" ", "+91")).toBeNull();
     expect(formatPhone("deleted phone number", "+91")).toBeNull();

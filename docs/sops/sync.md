@@ -32,6 +32,11 @@ that passes the pool rules, one row each, and nothing else. Never damage good da
    - Name missing → `"(name not on EXPA)"`.
    - Phone = country code + number (`+91 98…`); unchanged if the number already starts with `+`.
      A value with no digits (EXPA writes "deleted phone number") counts as no phone.
+     Invisible text-direction characters (U+200E/F, U+202A–E, U+2066–9) are removed first.
+     The country code is the last group of digits in EXPA's value, which can be `+91`, `91` or
+     `India (+91)` (52 of 1,183 phones on 2026-10-16). A code of only zeros counts as no code.
+     The national trunk 0 is dropped after a country code (`+91 0987…` → `+91 987…`; 21 phones,
+     India and Germany), except for Italy (`+39`), where the 0 is part of the number.
    - EXPA's `status: "open"` filter also returns some rejected/withdrawn records (11 of 2,399 on
      2026-10-15), so the status is checked again here.
    - URLs (CV, LinkedIn) are kept only if they are `http`/`https`. A LinkedIn value without a

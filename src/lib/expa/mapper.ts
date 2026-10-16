@@ -27,16 +27,23 @@ export function safeUrl(value: string | null | undefined, { allowBareLinkedIn = 
   }
 }
 
+// Invisible left-to-right / right-to-left marks that some EXPA phone values contain.
+const INVISIBLE = /[\u200e\u200f\u202a-\u202e\u2066-\u2069]/g;
+
 /**
  * "+91 9876543210" from country code + number; a number that already starts with + is kept.
  * Values without any digit (EXPA uses "deleted phone number") count as no phone.
+ * EXPA's country code can be "+91", "91" or "India (+91)": the last group of digits is used.
+ * The national trunk 0 is dropped after the code ("+91 09876…" → "+91 9876…"), except for Italy.
  */
 export function formatPhone(phone: string | null | undefined, countryCode: string | null | undefined): string | null {
-  const number = text(phone);
+  const number = text(phone?.replace(INVISIBLE, ""));
   if (!number || !/\d/.test(number)) return null;
   if (number.startsWith("+")) return number;
-  const code = text(countryCode)?.replace(/^\+/, "");
-  return code ? `+${code} ${number}` : number;
+  const code = /(\d{1,4})\D*$/.exec(countryCode?.replace(INVISIBLE, "") ?? "")?.[1].replace(/^0+/, "");
+  if (!code) return number;
+  const national = code === "39" ? number : number.replace(/^(?:0[\s-]*)+(?=\d)/, "");
+  return `+${code} ${national}`;
 }
 
 function managers(raw: RawApplication): EpManager[] {
