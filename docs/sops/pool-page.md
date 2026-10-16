@@ -38,18 +38,24 @@ and CSV export, fast on phones and laptops, using only data the sync job wrote t
    work area, LC and EP manager names. Leading/trailing spaces ignored. Search text is built once
    per card, not on every key press. Typing is kept smooth with `useDeferredValue`.
 4. **LC filter**: by `homeLcId`; options sorted by LC name, each with its count. Statistics follow
-   the LC filter only; cards and CSV follow search + LC.
+   the LC filter only; cards and CSV follow search + LC + work area.
+4a. **Work-area filter** (`workAreaOptions`, `filterPool` in `search.ts`): by `opportunityField`;
+   a missing work area has the key `NO_FIELD`. Options: the work areas present in the
+   LC-filtered list, A–Z, each with its count there, "Not specified" last. Its label is
+   "Not specified (GTe)" when every application without a work area is GTe, otherwise
+   "Not specified". A selected work area that has no cards in the chosen LC stays in the list
+   with (0), so the dropdown never shows a value that isn't an option.
 5. **Statistics** (`src/lib/pool/stats.ts`), for the LC-filtered list:
    total, number of LCs, number of work areas, GTa vs GTe (count and GTa %), top 3 LCs, or the
    selected LC's rank among all LCs (ties: same count → ordered by name) and its share of the
    whole pool; top 3 work areas. A missing work area counts as "Not specified".
-   Breakdown panel: all LCs (whole pool; click one to filter, click again to clear) and all work
-   areas (filtered list).
-6. **Cards**: 12 first; "Load more applications" adds 12. A new search or LC choice goes back
-   to 12. Dates: plain dates shown as "15 Oct 2026"; "Applied" date in India time. Weeks =
+   Breakdown panel: all LCs (whole pool) and all work areas (LC-filtered list). Clicking a row
+   filters by it; clicking the selected row again clears that filter.
+6. **Cards**: 12 first; "Load more applications" adds 12. A new search, LC or work-area choice
+   goes back to 12. Dates: plain dates shown as "15 Oct 2026"; "Applied" date in India time. Weeks =
    (end − start) / 7 days, rounded. Copy buttons copy email / phone; if the browser blocks copying,
    a message says so.
-7. **CSV export** (`src/lib/pool/csv.ts`): the cards matching search + LC (all of them, not just
+7. **CSV export** (`src/lib/pool/csv.ts`): the cards matching search + LC + work area (all of them, not just
    the 12 shown). Columns: Applicant name, Company name, EP manager, Email, Phone, LC, Start date,
    End date, CV link, Opportunity field, LinkedIn, Programme, Applied on. Several EP managers are
    joined with "; ". UTF-8 with a byte-order mark (so Excel shows Indian names correctly),
@@ -79,6 +85,8 @@ and CSV export, fast on phones and laptops, using only data the sync job wrote t
 | Start or end date missing | "—" in its place; no weeks badge |
 | Search with no letters (only spaces) | treated as no search |
 | Selected LC disappears after a refresh | filter shows 0 matches; "Clear" resets it |
+| LC changed to one without the selected work area | work-area option shows (0), 0 matches, "Clear filters" |
+| A GTa application without a work area appears | label switches from "Not specified (GTe)" to "Not specified" |
 | `localStorage` blocked (private mode) | theme still works for the visit; just not remembered |
 | Visitor in another time zone | all dates shown in India time / as stored, never shifted |
 

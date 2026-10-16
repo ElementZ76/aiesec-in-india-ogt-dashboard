@@ -333,7 +333,7 @@ button.bar-row:active { transform: scale(.97); }
 .field .chev { left: auto; right: 15px; }
 .field option { background: var(--bg); color: var(--text); }
 .search { flex: 1 1 320px; min-width: 0; }
-.lc { flex: 0 1 270px; min-width: 0; }
+.lc, .area { flex: 0 1 250px; min-width: 0; }
 .field select { text-overflow: ellipsis; white-space: nowrap; }
 .field input, .field select { min-width: 0; }
 .clear { height: 46px; animation: pop .45s var(--spring); }
@@ -457,9 +457,7 @@ footer .stale { color: var(--warn); font-weight: 700; }
 @media (max-width: 760px) {
   :root { --nav-h: 60px; --nav-top: 10px; }
   .breakdown { grid-template-columns: 1fr; }
-  .controls-inner { flex-wrap: nowrap; gap: 8px; }
-  .search { flex: 1 1 50%; }
-  .lc { flex: 1 1 50%; }
+  .controls-inner { gap: 8px; }
   .field input, .field select { padding-left: 38px; }
   .field svg { left: 13px; }
   .field select { padding-right: 30px; }
@@ -493,4 +491,13 @@ footer .stale { color: var(--warn); font-weight: 700; }
   .logo { min-height: 44px; }
   .row .val { padding: 12px 0; }
   footer a { padding: 12px 0; }
+}
+
+/* Search bar with 3 fields (work-area filter, 2026-10-16): below 900px, two rows.
+   Row 1: search (+ Clear). Row 2: LC and work area side by side. */
+@media (max-width: 900px) {
+  .search { order: 1; flex: 1 1 calc(100% - 56px); }
+  .clear { order: 2; width: 46px; padding: 0; flex: none; }
+  .clear-label { display: none; }
+  .lc, .area { order: 3; flex: 1 1 calc(50% - 5px); }
 }

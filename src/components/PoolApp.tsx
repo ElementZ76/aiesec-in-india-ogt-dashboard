@@ -3,7 +3,7 @@
 import { useCallback, useDeferredValue, useEffect, useMemo, useRef, useState } from "react";
 import { toCsv } from "@/lib/pool/csv";
 import { formatIndiaDateTime, isStale } from "@/lib/pool/format";
-import { filterPool, indexPool, lcOptions } from "@/lib/pool/search";
+import { filterPool, indexPool, lcOptions, workAreaOptions } from "@/lib/pool/search";
 import { computeStats } from "@/lib/pool/stats";
 import type { PoolApplication } from "@/lib/pool/types";
 import { AppCard, type Notify } from "./AppCard";
@@ -38,6 +38,7 @@ function Toast({ toast }: { toast: { id: number; text: string; ok: boolean; show
 export function PoolApp({ applications, lastUpdated }: { applications: PoolApplication[]; lastUpdated: string | null }) {
   const [query, setQuery] = useState("");
   const [lcId, setLcId] = useState("");
+  const [field, setField] = useState(""); // work area; "" = all
   const [shown, setShown] = useState(PAGE);
   const [animate, setAnimate] = useState(true);
   const [toast, setToast] = useState({ id: 0, text: "", ok: true, show: false });
@@ -48,12 +49,17 @@ export function PoolApp({ applications, lastUpdated }: { applications: PoolAppli
   const deferredQuery = useDeferredValue(query);
   const index = useMemo(() => indexPool(applications), [applications]);
   const options = useMemo(() => lcOptions(applications), [applications]);
-  const matches = useMemo(() => filterPool(index, deferredQuery, lcId), [index, deferredQuery, lcId]);
+  const lcList = useMemo(() => (lcId ? applications.filter((a) => a.homeLcId === lcId) : applications), [applications, lcId]);
+  const fieldOpts = useMemo(() => workAreaOptions(lcList, field), [lcList, field]);
+  const matches = useMemo(
+    () => filterPool(index, { query: deferredQuery, lcId, field }),
+    [index, deferredQuery, lcId, field],
+  );
   const stats = useMemo(() => computeStats(applications, lcId), [applications, lcId]);
   const lcName = options.find((o) => o.id === lcId)?.name ?? "";
   const visible = matches.slice(0, shown);
   const left = Math.max(0, matches.length - shown);
-  const active = query.trim() !== "" || lcId !== "";
+  const active = query.trim() !== "" || lcId !== "" || field !== "";
 
   const notify: Notify = useCallback((text, ok = true) => {
     setToast((t) => ({ id: t.id + 1, text, ok, show: true }));
@@ -74,13 +80,24 @@ export function PoolApp({ applications, lastUpdated }: { applications: PoolAppli
     setShown(PAGE);
     setAnimate(true);
   }, []);
+  const chooseField = useCallback((id: string) => {
+    setField(id);
+    setShown(PAGE);
+    setAnimate(true);
+  }, []);
+  const pickFieldFromBreakdown = useCallback((id: string) => {
+    setField((cur) => (cur === id ? "" : id));
+    setShown(PAGE);
+    setAnimate(true);
+  }, []);
   function clearAll() {
     setQuery("");
+    setField("");
     chooseLc("");
   }
 
   function exportCsv() {
-    const rows = filterPool(index, query, lcId); // exactly what the filters say right now
+    const rows = filterPool(index, { query, lcId, field }); // exactly what the filters say right now
     const blob = new Blob([toCsv(rows)], { type: "text/csv;charset=utf-8" });
     const url = URL.createObjectURL(blob);
     const a = Object.assign(document.createElement("a"), { href: url, download: "ogt-cv-pool.csv" });
@@ -114,7 +131,14 @@ export function PoolApp({ applications, lastUpdated }: { applications: PoolAppli
           <h1>oGT <span>CV Pool</span></h1>
         </section>
 
-        <StatsSection stats={stats} lcId={lcId} lcName={lcName} onPickLc={pickLcFromBreakdown} />
+        <StatsSection
+          stats={stats}
+          lcId={lcId}
+          lcName={lcName}
+          field={field}
+          onPickLc={pickLcFromBreakdown}
+          onPickField={pickFieldFromBreakdown}
+        />
 
         <section id="applications" aria-label="Applications">
           <div className="controls" ref={controls}>
@@ -157,6 +181,24 @@ export function PoolApp({ applications, lastUpdated }: { applications: PoolAppli
                   <path d="m6 9 6 6 6-6" />
                 </svg>
               </label>
+              <label className="field area">
+                <span className="sr">Filter by work area</span>
+                <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                  <rect x="3" y="7" width="18" height="13" rx="2" />
+                  <path d="M9 7V5a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2" />
+                </svg>
+                <select value={field} onChange={(e) => chooseField(e.target.value)}>
+                  <option value="">All work areas ({lcList.length})</option>
+                  {fieldOpts.map((o) => (
+                    <option key={o.id} value={o.id}>
+                      {o.name} ({o.count})
+                    </option>
+                  ))}
+                </select>
+                <svg className="chev" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" aria-hidden="true">
+                  <path d="m6 9 6 6 6-6" />
+                </svg>
+              </label>
               {active ? (
                 <button className="btn btn-glass clear" onClick={clearAll} aria-label="Clear search and LC filter">
                   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round" aria-hidden="true">
@@ -172,7 +214,7 @@ export function PoolApp({ applications, lastUpdated }: { applications: PoolAppli
             Showing <b>{visible.length}</b> of <b>{matches.length}</b> {plural(matches.length)} · newest first
           </div>
 
-          <div className="grid" key={lcId}>
+          <div className="grid" key={`${lcId}|${field}`}>
             {visible.length ? (
               visible.map((a, i) => <AppCard key={a.applicationId} app={a} index={i} animate={animate} notify={notify} />)
             ) : applications.length ? (

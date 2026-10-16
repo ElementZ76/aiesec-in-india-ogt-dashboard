@@ -151,11 +151,12 @@ site is connected to the database.
   meet WCAG AA contrast (4.5:1); use deeper/lighter shades for small text (e.g. buttons `#0366D6`).
 - **Corners:** concentric (inner radius = outer radius − padding); capsules for free-standing controls.
 - **Page:** floating pill navbar (AIESEC in India · Statistics · Applications · theme switch ·
-  Export CSV) → title "oGT CV Pool" → Statistics → sticky search + LC filter → cards → footer
+  Export CSV) → title "oGT CV Pool" → Statistics → sticky search + LC filter + work-area filter → cards → footer
   ("Last updated …" left; "Built by Praveen" → https://www.linkedin.com/in/praveen-pr190705/ right).
 - **Statistics:** 4 cards (total + LC/work-area counts; GTa vs GTe ring; top 3 LCs, or the selected
-  LC's rank; top 3 work areas) and a Breakdown panel (all LCs, all work areas). They follow the
-  **LC filter**, not the search box.
+  LC's rank; top 3 work areas) and a Breakdown panel (all LCs, all work areas; clicking a row
+  filters by that LC / work area, clicking it again clears it). They follow the **LC filter**
+  only, not the search box or the work-area filter (user, 2026-10-16).
 - **Cards:** one per application, **newest application first** (`applied_at`). Shows name, LC,
   GTa/GTe badge, company, work area, start–end dates (+ weeks), applicant email and phone (with
   copy buttons), LinkedIn (**"Not available" as text when missing**), EP manager(s) with copy
@@ -164,8 +165,13 @@ site is connected to the database.
 - **Paging:** 12 cards first, then a **"Load more applications"** button adds 12 per click. Never
   render the whole pool at once. A new search or filter starts again at 12.
 - **Search:** name, email, company, work area, LC, EP manager name. "Clear" shows only when a
-  search or filter is active.
-- **CSV export:** the applications matching the current search + LC filter, all spec fields.
+  search or filter is active, and resets all three.
+- **Work-area filter** (user, 2026-10-16): dropdown "All work areas", options A–Z with counts within
+  the selected LC, "Not specified" last; labelled "Not specified (GTe)" while every application
+  without a work area is GTe. Combines with search and LC. Phones: search on its own row, LC and
+  work area side by side below.
+- **CSV export:** the applications matching the current search + LC + work-area filters, all spec
+  fields.
 - **Stale data:** if the last successful sync is more than 1 hour old, "Last updated" turns amber
   and says the data may be out of date.
 - **Performance rules (measured 2026-10-15):** background blur only on the navbar; no masks or
@@ -248,3 +254,4 @@ Tests live next to the code they test, as `*.test.ts`.
 | 2026-10-15 | Added `.github/workflows/sync.yml` (15-min schedule, manual modes, no overlap, 10-min limit, pinned actions, keep-alive) | Approved; user added the 3 GitHub secrets |
 | 2026-10-16 | Website built: `src/app/{layout,page,error}.tsx`, `src/components/`, `src/lib/db/read.ts`, `src/lib/pool/{types,search,stats,csv,format}.ts`; SOP `docs/sops/pool-page.md`. Cache: `stale 300 / revalidate 300 / expire 3600`. CSV formula guard. Touch targets 44 px on touch screens (fixes the mockup's 34–43 px controls) | Approved website build plan |
 | 2026-10-16 | Sync trigger → Supabase Cron calling GitHub's workflow-dispatch API every 15 min (`supabase/scheduler.sql`); GitHub schedule becomes an hourly backup; Invariant 1 covers the new GitHub trigger token (Supabase Vault only) | GitHub's schedule ran every 2–5 h instead of 15 min; user approved |
+| 2026-10-16 | Added the work-area filter (dropdown + clickable Breakdown rows); statistics still follow the LC filter only; "Not specified (GTe)" label | User request: filter by work field; user chose filter over sort |

@@ -91,10 +91,13 @@ interface Props {
   stats: PoolStats;
   lcId: string;
   lcName: string;
+  /** Selected work area ("" = all); only highlights its Breakdown row, the stats ignore it. */
+  field: string;
   onPickLc: (lcId: string) => void;
+  onPickField: (field: string) => void;
 }
 
-export const StatsSection = memo(function StatsSection({ stats, lcId, lcName, onPickLc }: Props) {
+export const StatsSection = memo(function StatsSection({ stats, lcId, lcName, field, onPickLc, onPickField }: Props) {
   const [open, setOpen] = useState(false);
   const [opened, setOpened] = useState(0); // replays the bar animation each time it opens
   const share = stats.total ? stats.gta / stats.total : 0;
@@ -210,8 +213,8 @@ export const StatsSection = memo(function StatsSection({ stats, lcId, lcName, on
               <Bars rows={stats.perLc} selected={lcId} onPick={onPickLc} />
             </div>
             <div className="panel glass">
-              <h3>Applications per work area{lcId ? <em> · {lcName}</em> : null}</h3>
-              <Bars rows={stats.perField} />
+              <h3>Applications per work area{lcId ? <em> · {lcName}</em> : null} <em>· click one to filter</em></h3>
+              <Bars rows={stats.perField} selected={field} onPick={onPickField} />
             </div>
           </div>
         </div>

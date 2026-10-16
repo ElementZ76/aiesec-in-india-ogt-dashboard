@@ -1,4 +1,5 @@
 // Statistics v1 (CLAUDE.md "Computed values"; docs/sops/pool-page.md step 5).
+import { fieldKey } from "./search";
 import type { PoolApplication } from "./types";
 
 export const NOT_SPECIFIED = "Not specified";
@@ -22,10 +23,8 @@ export function countBy(apps: PoolApplication[], pick: (a: PoolApplication) => [
 }
 
 const lcOf = (a: PoolApplication): [string, string] => [a.homeLcId, a.homeLc];
-const fieldOf = (a: PoolApplication): [string, string] => {
-  const f = a.opportunityField ?? NOT_SPECIFIED;
-  return [f, f];
-};
+// Same keys as the work-area filter, so a Breakdown row can select it.
+const fieldOf = (a: PoolApplication): [string, string] => [fieldKey(a), a.opportunityField ?? NOT_SPECIFIED];
 
 export interface PoolStats {
   total: number;

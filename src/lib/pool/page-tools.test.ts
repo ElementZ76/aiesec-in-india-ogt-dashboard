@@ -5,7 +5,7 @@ import { CSV_COLUMNS, csvCell, toCsv } from "./csv";
 import {
   formatDate, formatIndiaDate, formatIndiaDateTime, initials, isStale, telHref, weeksBetween,
 } from "./format";
-import { filterPool, indexPool, lcOptions } from "./search";
+import { NO_FIELD, filterPool, indexPool, lcOptions, workAreaOptions } from "./search";
 import { NOT_SPECIFIED, computeStats } from "./stats";
 import type { PoolApplication } from "./types";
 
@@ -71,23 +71,50 @@ describe("format", () => {
 describe("search", () => {
   const index = indexPool(POOL);
   const ids = (list: PoolApplication[]) => list.map((a) => a.applicationId);
+  const f = (query: string, lcId = "", field = "") => filterPool(index, { query, lcId, field });
 
   it("finds by name, email, company, work area, LC and EP manager, any case", () => {
-    expect(ids(filterPool(index, "ROHAN", ""))).toEqual(["2"]);
-    expect(ids(filterPool(index, "contoso", ""))).toEqual(["3"]);
-    expect(ids(filterPool(index, "finance", ""))).toEqual(["3"]);
-    expect(ids(filterPool(index, "delhi", ""))).toEqual(["2", "3"]);
-    expect(ids(filterPool(index, "neha", ""))).toEqual(["1", "3", "4"]);
-    expect(ids(filterPool(index, "priya@", ""))).toEqual(["1", "2", "3", "4"]); // same email in fixture
+    expect(ids(f("ROHAN", ""))).toEqual(["2"]);
+    expect(ids(f("contoso", ""))).toEqual(["3"]);
+    expect(ids(f("finance", ""))).toEqual(["3"]);
+    expect(ids(f("delhi", ""))).toEqual(["2", "3"]);
+    expect(ids(f("neha", ""))).toEqual(["1", "3", "4"]);
+    expect(ids(f("priya@", ""))).toEqual(["1", "2", "3", "4"]); // same email in fixture
   });
   it("combines search and LC, ignores surrounding spaces, keeps order", () => {
-    expect(ids(filterPool(index, "  neha ", "20"))).toEqual(["3"]);
-    expect(ids(filterPool(index, "   ", ""))).toEqual(["1", "2", "3", "4"]);
-    expect(ids(filterPool(index, "", "30"))).toEqual(["4"]);
-    expect(filterPool(index, "nobody", "")).toEqual([]);
+    expect(ids(f("  neha ", "20"))).toEqual(["3"]);
+    expect(ids(f("   ", ""))).toEqual(["1", "2", "3", "4"]);
+    expect(ids(f("", "30"))).toEqual(["4"]);
+    expect(f("nobody", "")).toEqual([]);
   });
   it("does not match across two fields", () => {
-    expect(filterPool(index, "sharma priya", "")).toEqual([]);
+    expect(f("sharma priya", "")).toEqual([]);
+  });
+  it("filters by work area, alone and with LC and search", () => {
+    expect(ids(f("", "", "Marketing"))).toEqual(["1", "4"]);
+    expect(ids(f("", "", NO_FIELD))).toEqual(["2"]);
+    expect(ids(f("", "20", "Finance"))).toEqual(["3"]);
+    expect(ids(f("karan", "", "Marketing"))).toEqual(["4"]);
+    expect(f("", "30", "Finance")).toEqual([]);
+  });
+  it("lists work areas A-Z with counts, 'Not specified' last", () => {
+    expect(workAreaOptions(POOL)).toEqual([
+      { id: "Finance", name: "Finance", count: 1 },
+      { id: "Marketing", name: "Marketing", count: 2 },
+      { id: NO_FIELD, name: "Not specified (GTe)", count: 1 },
+    ]);
+  });
+  it("says (GTe) only while every application without a work area is GTe", () => {
+    const withGta = [...POOL, app({ applicationId: "5", opportunityField: null, programme: "GTa" })];
+    expect(workAreaOptions(withGta).at(-1)).toEqual({ id: NO_FIELD, name: "Not specified", count: 2 });
+  });
+  it("keeps a selected work area that is missing from the list, with 0", () => {
+    const bengaluru = POOL.filter((a) => a.homeLcId === "30");
+    expect(workAreaOptions(bengaluru, "Finance")).toEqual([
+      { id: "Finance", name: "Finance", count: 0 },
+      { id: "Marketing", name: "Marketing", count: 1 },
+    ]);
+    expect(workAreaOptions(bengaluru, NO_FIELD).at(-1)).toEqual({ id: NO_FIELD, name: "Not specified", count: 0 });
   });
   it("lists LCs by name with counts", () => {
     expect(lcOptions(POOL)).toEqual([
@@ -104,6 +131,7 @@ describe("stats", () => {
     expect(s).toMatchObject({ total: 4, lcCount: 3, fieldCount: 3, gta: 3, gte: 1, gtaPercent: 75, selected: null });
     expect(s.perLc.map((c) => [c.label, c.count])).toEqual([["Delhi IIT", 2], ["Bengaluru", 1], ["Mumbai", 1]]);
     expect(s.perField.map((c) => [c.label, c.count])).toEqual([["Marketing", 2], ["Finance", 1], [NOT_SPECIFIED, 1]]);
+    expect(s.perField.find((c) => c.label === NOT_SPECIFIED)?.key).toBe(NO_FIELD); // same key as the filter
   });
   it("follows the LC filter, with the LC's rank among all LCs", () => {
     const s = computeStats(POOL, "20");

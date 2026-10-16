@@ -56,6 +56,9 @@
 - [x] SOPs written for each workflow (`sync.md`, `pool-page.md`)
 - [x] Full test suite run and logged (66 tests, 2026-10-16)
 
+### Additional features (user, 2026-10-16)
+- [x] Work-area filter (dropdown + clickable Breakdown rows)
+
 ## Phase 4 — S: Stylize
 - [x] UI/UX direction agreed with user (approved 2026-10-15; more tweaks after DB is connected)
 - [x] Empty / loading / error states (pool empty, no match, database error)
