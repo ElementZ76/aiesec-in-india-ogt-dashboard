@@ -50,7 +50,8 @@
 - [x] GitHub Actions workflow (every 15 min + manual) and keep-alive — `.github/workflows/sync.yml`
 - [x] First GitHub run (manual, run #1, 2026-10-15 23:31 IST): success, 940 kept, ~70 s
 - [x] Confirm the first *scheduled* run fires and succeeds (4 scheduled runs green by 2026-10-16 06:28 UTC)
-- [ ] Scheduled runs are sparse (4 in ~12 h instead of ~48): decide on a reliable trigger
+- [x] Scheduled runs are sparse (4 in ~12 h instead of ~48): decided on Supabase Cron trigger (`supabase/scheduler.sql`)
+- [ ] User sets up the token + Vault secret and runs `supabase/scheduler.sql`; confirm dispatch runs every 15 min
 - [x] Navigation layer: `/` page reads Supabase (5-min cache) with tests
 - [x] SOPs written for each workflow (`sync.md`, `pool-page.md`)
 - [x] Full test suite run and logged (66 tests, 2026-10-16)

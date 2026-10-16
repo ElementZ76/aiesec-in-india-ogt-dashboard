@@ -33,7 +33,7 @@ npm on those days.
 | Tests | Vitest |
 | Running TypeScript scripts | `tsx` 4.23.x, dev only (approved 2026-10-15) |
 | Data source | EXPA GraphQL API (`https://gis-api.aiesec.org/graphql`), **read-only**, called **only by the sync job** |
-| Sync job | A script run by GitHub Actions every 15 minutes (cron `7,22,37,52 * * * *`, off the busy top of the hour) plus a manual "Run workflow" button (normal / dry-run / force). Actions pinned to commit SHAs. Monthly keep-alive job. |
+| Sync job | A script run by GitHub Actions. **Started every 15 minutes by Supabase Cron** (pg_cron + pg_net call GitHub's "run workflow" API at minutes 7, 22, 37, 52 UTC; `supabase/scheduler.sql`), because GitHub's own schedule ran only every 2–5 h. GitHub's schedule stays as an hourly backup (cron `45 * * * *`). Manual "Run workflow" button (normal / dry-run / force). Actions pinned to commit SHAs. Monthly keep-alive job. |
 | Database | Supabase (hosted Postgres), free plan, Mumbai region. Client library `@supabase/supabase-js` 2.118.x (approved 2026-10-15; 2.117 was current when proposed) |
 | Spreadsheet export | CSV file, generated in the browser; no extra library |
 | Runtime | Node.js >= 22.12 (local: 22.14) |
@@ -112,7 +112,7 @@ count per LC; count per work area (sub-product); count of GTa vs GTe. Computed i
 ### Data flow
 
 ```
-EXPA → sync job (GitHub Actions, every 15 min) → Supabase → website server (Vercel) → browser
+Supabase Cron (every 15 min) → starts the sync job (GitHub Actions) → EXPA → Supabase → website server (Vercel) → browser
 ```
 
 1. **Sync job:** fetches all pool applications from EXPA (pages fetched in parallel) → applies
@@ -179,7 +179,7 @@ site is connected to the database.
 | Layer | Role | Location |
 |---|---|---|
 | Architecture | SOPs in Markdown: goals, inputs, logic, edge cases | `docs/sops/` (`sync.md`, `pool-page.md`) |
-| Navigation | Orchestration: decides what to fetch, write and show | `src/app/` (the page); `src/lib/sync/run.ts` (one sync run); `scripts/sync.ts` (sync entry point); `.github/workflows/sync.yml` (schedule) |
+| Navigation | Orchestration: decides what to fetch, write and show | `src/app/` (the page); `src/lib/sync/run.ts` (one sync run); `scripts/sync.ts` (sync entry point); `.github/workflows/sync.yml` (the job + hourly backup schedule); `supabase/scheduler.sql` (15-minute trigger) |
 | Tools | Deterministic, testable units | `src/lib/expa/` (read-only EXPA client, query, mapper); `src/lib/pool/` (dates, pool rules, search, LC filter, stats, CSV); `src/lib/sync/` (safety brake, delete diff); `src/lib/db/` (row types; `read.ts` = the website's cached read-only access; `sync-store.ts` = writes, sync job only) |
 | (UI pieces) | Visual components used by pages | `src/components/` |
 | (Database setup) | SQL that creates the tables and access rules; pasted into Supabase's SQL editor | `supabase/schema.sql` |
@@ -193,6 +193,9 @@ Tests live next to the code they test, as `*.test.ts`.
 1. **The EXPA token lives only with the sync job:** the GitHub secret `EXPA_ACCESS_TOKEN` and the
    local `.env.local`. It is never put on Vercel, never given a `NEXT_PUBLIC_` prefix (that
    prefix sends a variable to the browser), and never logged or committed.
+   The **GitHub trigger token** (fine-grained, this repo only, Actions read/write, nothing else)
+   lives only in Supabase Vault as `github_dispatch_token`. It is never committed, never pasted
+   into chat, and never stored in a saved SQL snippet.
 2. **The website never calls EXPA.** It reads only from Supabase.
 3. **Only the sync job writes to the database.** It uses `SUPABASE_SECRET_KEY` (GitHub secret and
    `.env.local` only). The website uses `SUPABASE_PUBLISHABLE_KEY`, which Row Level Security
@@ -244,3 +247,4 @@ Tests live next to the code they test, as `*.test.ts`.
 | 2026-10-15 | Sync job built (`scripts/sync.ts`, `src/lib/{expa,pool,sync,db}`); Commands + A.N.T. updated; `tsx` added | Approved sync build plan; SOP `docs/sops/sync.md` |
 | 2026-10-15 | Added `.github/workflows/sync.yml` (15-min schedule, manual modes, no overlap, 10-min limit, pinned actions, keep-alive) | Approved; user added the 3 GitHub secrets |
 | 2026-10-16 | Website built: `src/app/{layout,page,error}.tsx`, `src/components/`, `src/lib/db/read.ts`, `src/lib/pool/{types,search,stats,csv,format}.ts`; SOP `docs/sops/pool-page.md`. Cache: `stale 300 / revalidate 300 / expire 3600`. CSV formula guard. Touch targets 44 px on touch screens (fixes the mockup's 34–43 px controls) | Approved website build plan |
+| 2026-10-16 | Sync trigger → Supabase Cron calling GitHub's workflow-dispatch API every 15 min (`supabase/scheduler.sql`); GitHub schedule becomes an hourly backup; Invariant 1 covers the new GitHub trigger token (Supabase Vault only) | GitHub's schedule ran every 2–5 h instead of 15 min; user approved |

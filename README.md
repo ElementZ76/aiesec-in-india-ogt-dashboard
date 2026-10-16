@@ -4,8 +4,8 @@ A public, India-wide pool of every **applied** outgoing Global Talent applicatio
 **GTe**) from AIESEC in India, built for AIESEC members (EP managers and the oGT team) to find
 candidates and their CVs quickly.
 
-Data comes from **EXPA**, AIESEC's global platform. A scheduled sync job copies it every
-15 minutes into a database, and the website reads from that database, so pages load fast and
+Data comes from **EXPA**, AIESEC's global platform. A sync job, started every 15 minutes by
+Supabase Cron, copies it into a database, and the website reads from that database, so pages load fast and
 EXPA is never queried by visitors.
 
 > **Status (October 2026):** the sync job, database and website are built (about 930 applications
@@ -60,7 +60,7 @@ EXPA is never queried by visitors.
 
 ```
 EXPA (read-only)
-   │   GitHub Actions, every 15 minutes
+   │   GitHub Actions, started every 15 minutes by Supabase Cron
    ▼
 Sync job ── pool rules ── safety brake
    │   secret key (write)
@@ -90,7 +90,7 @@ Next.js website on Vercel  ──►  visitors' browsers (search, filter, stats,
 | Styling | Plain CSS, Lato font |
 | Database | [Supabase](https://supabase.com) (Postgres), free plan, Mumbai region |
 | Data source | EXPA GraphQL API (`gis-api.aiesec.org`), read-only |
-| Scheduled sync | GitHub Actions |
+| Scheduled sync | GitHub Actions, started by Supabase Cron (pg_cron + pg_net) |
 | Hosting | [Vercel](https://vercel.com) |
 | Tests | [Vitest](https://vitest.dev) |
 | Runtime | Node.js 22.12 or newer |
@@ -100,7 +100,7 @@ Next.js website on Vercel  ──►  visitors' browsers (search, filter, stats,
 ## Project structure
 
 ```
-.github/workflows/sync.yml   Scheduled sync (every 15 min) + manual run button
+.github/workflows/sync.yml   The sync job (hourly backup schedule + manual run button)
 docs/
   design/ui-mockup.html      Approved UI design (sample data; open in a browser)
   sops/sync.md               Rules and edge cases of the sync job
@@ -118,6 +118,7 @@ src/
     sync/                    One sync run, safety brake, delete list
     db/                      Table types, the website's cached reader, the sync job's writer
 supabase/schema.sql          Tables, Row Level Security and permissions
+supabase/scheduler.sql       Supabase Cron job that starts the sync every 15 minutes
 CLAUDE.md                    Project constitution: rules, schema, decisions
 ```
 

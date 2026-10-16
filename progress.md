@@ -99,3 +99,7 @@
 - **Files:** `docs/sops/sync.md`, `src/lib/expa/mapper.ts`, `src/lib/expa/mapper.test.ts`, `progress.md`, `findings.md`
 - **Tests:** vitest 68 pass; dry run OK (fetched 2386, kept 927, brake ok). Existing rows are corrected by the next real sync.
 - **Errors:** Bash heredocs in this shell drop backslashes (`\u200e` became a real invisible character) -> escape-heavy edits go through a script file written with the file tool.
+- **Action (2026-10-16):** Scheduler (user-approved): checked Supabase docs (pg_net `net.http_post` signature, Vault, Cron) and GitHub docs (workflow dispatch needs fine-grained "Actions: write"; answers 200). Wrote `supabase/scheduler.sql` (job `trigger-expa-sync` at 7/22/37/52 UTC + weekly history cleanup + checks + undo). GitHub schedule changed to an hourly backup (`45 * * * *`). Constitution (Tech Stack, data flow, A.N.T., Invariant 1), SOP `sync.md` (Trigger section, edge cases) and README updated.
+- **Files:** `supabase/scheduler.sql`, `.github/workflows/sync.yml`, `CLAUDE.md`, `docs/sops/sync.md`, `README.md`, `task_plan.md`, `progress.md`
+- **Tests:** workflow YAML parses (jobs sync, keepalive; schedules 45 * * * * and 17 3 1 * *). SQL not run yet: the user creates the token, adds it in Vault, then runs the file.
+- **Errors:** none.

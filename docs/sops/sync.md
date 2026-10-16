@@ -67,7 +67,9 @@ that passes the pool rules, one row each, and nothing else. Never damage good da
 | Large legitimate drop (e.g. many slots end) | `blocked`; a person checks, then runs with `--force` |
 | Upsert succeeds but delete fails | `failed`; stale rows stay until the next good run deletes them |
 | First run ever | No previous success → only the "kept = 0" and count checks apply |
-| Two runs at once | Prevented by the GitHub workflow's concurrency group |
+| Two runs at once | Prevented by the GitHub workflow's concurrency group. If a third start arrives while one runs and one waits, GitHub cancels the waiting one (shows as "cancelled"; harmless) |
+| Supabase Cron trigger stops (GitHub token expired or revoked, Supabase paused) | GitHub's hourly backup schedule keeps the data at most a few hours old; "Last updated" turns amber after 1 h. Check `net._http_response` (status 401 = token problem); make a new token and update the Vault secret |
+| Supabase free project paused for inactivity (Supabase's free-plan rule) | Unverified whether the cron job counts as activity. If paused: restore it in the Supabase dashboard; until then the site shows its error page and syncs fail (red runs, email) |
 | GitHub pauses the schedule (60 days without repo activity) | Monthly keep-alive job re-enables it via the API (undocumented method); the site's amber "Last updated" shows if it fails. Fix: Actions tab → this workflow → Enable. |
 | Who gets failure emails | The GitHub user who last changed the `cron` line (GitHub docs) |
 
@@ -78,3 +80,17 @@ that passes the pool rules, one row each, and nothing else. Never damage good da
 - Any text that could contain the token is redacted before it is printed or stored.
 - Dry run prints: fetched / total, kept, dropped per reason, field fill counts, would-upsert,
   would-delete. It never writes.
+
+## Trigger (how a run starts)
+
+1. **Every 15 minutes (main):** Supabase Cron job `trigger-expa-sync` (minutes 7, 22, 37, 52, UTC)
+   sends `POST https://api.github.com/repos/ElementZ76/aiesec-in-india-ogt-dashboard/actions/workflows/sync.yml/dispatches`
+   with body `{"ref": "main", "inputs": {"mode": "normal"}}` and the Vault secret
+   `github_dispatch_token` as the bearer token. GitHub answers 200 and starts a normal run.
+   SQL: `supabase/scheduler.sql`.
+2. **Hourly backup:** GitHub's own schedule (`45 * * * *`), best effort.
+3. **By hand:** Actions → Sync EXPA to Supabase → Run workflow.
+
+Check it is working: GitHub Actions shows `workflow_dispatch` runs about every 15 minutes, and in
+Supabase `select status_code, created from net._http_response order by created desc limit 5;`
+shows 200s. Supabase keeps those responses for 6 hours.

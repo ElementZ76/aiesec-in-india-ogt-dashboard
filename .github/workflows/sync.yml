@@ -5,8 +5,9 @@ name: Sync EXPA to Supabase
 
 on:
   schedule:
-    # Every 15 minutes, off the top of the hour (GitHub is busiest at :00, which delays runs).
-    - cron: "7,22,37,52 * * * *"
+    # Hourly backup only. The main trigger is Supabase Cron every 15 minutes (supabase/scheduler.sql),
+    # because GitHub's schedule ran only every 2-5 hours. Off the top of the hour (busiest at :00).
+    - cron: "45 * * * *"
     # Keep-alive, 1st of each month (see the keepalive job below).
     - cron: "17 3 1 * *"
   workflow_dispatch:
@@ -28,7 +29,7 @@ concurrency:
 
 jobs:
   sync:
-    if: github.event_name == 'workflow_dispatch' || github.event.schedule == '7,22,37,52 * * * *'
+    if: github.event_name == 'workflow_dispatch' || github.event.schedule == '45 * * * *'
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
