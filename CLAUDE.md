@@ -180,7 +180,7 @@ site is connected to the database.
 |---|---|---|
 | Architecture | SOPs in Markdown: goals, inputs, logic, edge cases | `docs/sops/` (`sync.md`, `pool-page.md`) |
 | Navigation | Orchestration: decides what to fetch, write and show | `src/app/` (the page); `src/lib/sync/run.ts` (one sync run); `scripts/sync.ts` (sync entry point); `.github/workflows/sync.yml` (schedule) |
-| Tools | Deterministic, testable units | `src/lib/expa/` (read-only EXPA client, query, mapper); `src/lib/pool/` (dates, pool rules, search, LC filter, stats, CSV); `src/lib/sync/` (safety brake, delete diff); `src/lib/db/` (row types; `sync-store.ts` = writes, sync job only) |
+| Tools | Deterministic, testable units | `src/lib/expa/` (read-only EXPA client, query, mapper); `src/lib/pool/` (dates, pool rules, search, LC filter, stats, CSV); `src/lib/sync/` (safety brake, delete diff); `src/lib/db/` (row types; `read.ts` = the website's cached read-only access; `sync-store.ts` = writes, sync job only) |
 | (UI pieces) | Visual components used by pages | `src/components/` |
 | (Database setup) | SQL that creates the tables and access rules; pasted into Supabase's SQL editor | `supabase/schema.sql` |
 | (Design reference) | Approved UI mockup with sample data (not used by the site) | `docs/design/ui-mockup.html` |
@@ -243,3 +243,4 @@ Tests live next to the code they test, as `*.test.ts`.
 | 2026-10-15 | Added `supabase/schema.sql` (tables, RLS, least-privilege grants), `scripts/db-check.mjs`, design reference in `docs/design/`; supabase-js 2.118.x | Link phase: Supabase project created by user |
 | 2026-10-15 | Sync job built (`scripts/sync.ts`, `src/lib/{expa,pool,sync,db}`); Commands + A.N.T. updated; `tsx` added | Approved sync build plan; SOP `docs/sops/sync.md` |
 | 2026-10-15 | Added `.github/workflows/sync.yml` (15-min schedule, manual modes, no overlap, 10-min limit, pinned actions, keep-alive) | Approved; user added the 3 GitHub secrets |
+| 2026-10-16 | Website built: `src/app/{layout,page,error}.tsx`, `src/components/`, `src/lib/db/read.ts`, `src/lib/pool/{types,search,stats,csv,format}.ts`; SOP `docs/sops/pool-page.md`. Cache: `stale 300 / revalidate 300 / expire 3600`. CSV formula guard. Touch targets 44 px on touch screens (fixes the mockup's 34–43 px controls) | Approved website build plan |

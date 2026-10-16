@@ -267,3 +267,19 @@ _Checked by the probe on 2026-10-14 (see below), except token expiry:_
 - Docs: scheduled workflows in public repos are disabled after 60 days without "repository
   activity" (not defined); a commit changing the cron line re-activates them; failure
   notifications go to "the user who last modified the cron syntax in the workflow file".
+
+### Website build (2026-10-16)
+- **Scheduled runs are sparse.** First scheduled run ~3 h after the push; then 2–5 h apart (4 runs in ~12 h,
+  all green). GitHub docs: scheduled runs "can be delayed during periods of high loads" and "some queued
+  jobs may be dropped". So 15-minute freshness is not guaranteed by the schedule alone.
+- Next.js 16: `error.tsx` gets `retry` (not `reset`). With `cacheComponents`, a `"use cache"` read is
+  prerendered at build time, so **the build needs the Supabase variables** (Vercel: at build too).
+- `cacheLife`: `expire` under 5 min would drop the data out of the prerender; chosen 300/300/3600.
+- Page weight: 803 KB HTML uncompressed (the pool is sent once as data), **105 KB gzipped**.
+- Data: many applicant emails are EXPA relay addresses (`p_<hash>@inbound.aiesec.org`), not personal
+  addresses. Some phones look like `+91 09840717421` (trunk 0 kept after the country code) → `tel:` link
+  may not dial; possible mapper fix (needs approval).
+- `Blob.text()` drops a UTF-8 byte-order mark when decoding, so a browser-side check can't see it; the unit
+  test checks the BOM instead.
+- Headless scroll fps on this laptop is noisy (4–21 fps for the same page); compare against the mockup in
+  the same session, never against old numbers.

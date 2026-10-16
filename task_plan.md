@@ -1,6 +1,6 @@
 # Task Plan
 
-**Current Phase: 2 — Link.** Deadline: **everything incl. testing done by 2026-10-20**. Next: Supabase setup (user creating Supabase + Vercel accounts 2026-10-15).
+**Current Phase: 4 — Stylize (user review).** Deadline: **everything incl. testing done by 2026-10-20**. Next: user reviews the site; decide on the sync trigger (scheduled runs are sparse); Vercel deploy.
 
 ## Phase 0 — Initialization
 - [x] Create `CLAUDE.md`, `task_plan.md`, `findings.md`, `progress.md`, `.tmp/`
@@ -37,27 +37,28 @@
 
 ## Phase 3 — A: Architect
 ### MVP (bare minimum)
-- [ ] Application cards (status "applied" only, one per application): name, phone, email, LinkedIn, CV link, EP manager
-- [ ] Remaining spec fields: company name, LC, duration, opportunity field
+- [x] Application cards (status "applied" only, one per application): name, phone, email, LinkedIn, CV link, EP manager
+- [x] Remaining spec fields: company name, LC, duration, opportunity field
 ### Full version (this iteration)
-- [ ] Search box
-- [ ] Filter by LC
-- [ ] Export to spreadsheet
-- [ ] Statistics v1: total, per LC, per work area, GTa vs GTe
+- [x] Search box
+- [x] Filter by LC
+- [x] Export to spreadsheet (CSV, formula guard)
+- [x] Statistics v1: total, per LC, per work area, GTa vs GTe
 ### Quality
 - [x] Tools layer: EXPA client + mapper, pool rules, database helpers, with tests (49 tests)
 - [x] Sync job: dry run, safety brake, upsert + delete, `sync_runs` log, with tests — first real run 2026-10-15: 940 rows
 - [x] GitHub Actions workflow (every 15 min + manual) and keep-alive — `.github/workflows/sync.yml`
 - [x] First GitHub run (manual, run #1, 2026-10-15 23:31 IST): success, 940 kept, ~70 s
-- [ ] Confirm the first *scheduled* run fires and succeeds
-- [ ] Navigation layer: `/` page reads Supabase (5-min cache) with tests
-- [ ] SOPs written for each workflow (`sync.md` done; `pool-page.md` to do)
-- [ ] Full test suite run and logged
+- [x] Confirm the first *scheduled* run fires and succeeds (4 scheduled runs green by 2026-10-16 06:28 UTC)
+- [ ] Scheduled runs are sparse (4 in ~12 h instead of ~48): decide on a reliable trigger
+- [x] Navigation layer: `/` page reads Supabase (5-min cache) with tests
+- [x] SOPs written for each workflow (`sync.md`, `pool-page.md`)
+- [x] Full test suite run and logged (66 tests, 2026-10-16)
 
 ## Phase 4 — S: Stylize
 - [x] UI/UX direction agreed with user (approved 2026-10-15; more tweaks after DB is connected)
-- [ ] Empty / loading / error states
-- [ ] Responsive layout
+- [x] Empty / loading / error states (pool empty, no match, database error)
+- [x] Responsive layout (audit 320–1920 px clean, 44 px touch targets)
 - [ ] User feedback collected
 
 ## Phase 5 — T: Trigger

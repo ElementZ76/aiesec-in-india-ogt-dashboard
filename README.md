@@ -8,9 +8,8 @@ Data comes from **EXPA**, AIESEC's global platform. A scheduled sync job copies 
 15 minutes into a database, and the website reads from that database, so pages load fast and
 EXPA is never queried by visitors.
 
-> **Status (October 2026):** the sync job and database are live (about 940 applications across
-> 24 LCs). The website is being built from the approved design in
-> [`docs/design/ui-mockup.html`](docs/design/ui-mockup.html).
+> **Status (October 2026):** the sync job, database and website are built (about 930 applications
+> across 24 LCs). Next: review and deployment to Vercel.
 
 ---
 
@@ -105,17 +104,19 @@ Next.js website on Vercel  ──►  visitors' browsers (search, filter, stats,
 docs/
   design/ui-mockup.html      Approved UI design (sample data; open in a browser)
   sops/sync.md               Rules and edge cases of the sync job
+  sops/pool-page.md          Rules and edge cases of the website page
 scripts/
   sync.ts                    Sync job entry point (npm run sync)
   db-check.mjs               Checks the database connection and access rules
   expa-probe.mjs             Read-only EXPA exploration script
 src/
-  app/                       Next.js pages
+  app/                       Next.js page, layout, error page, styles
+  components/                Page parts: navbar, statistics, cards
   lib/
     expa/                    Read-only EXPA client, query and record mapper
-    pool/                    Dates (India time) and pool rules
+    pool/                    Pool rules, search, statistics, CSV export, formatting
     sync/                    One sync run, safety brake, delete list
-    db/                      Table types and the sync job's database writer
+    db/                      Table types, the website's cached reader, the sync job's writer
 supabase/schema.sql          Tables, Row Level Security and permissions
 CLAUDE.md                    Project constitution: rules, schema, decisions
 ```

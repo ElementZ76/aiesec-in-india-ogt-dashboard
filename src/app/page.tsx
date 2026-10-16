@@ -1,9 +1,8 @@
-// Placeholder until the pool is built (task_plan.md, Phase 3).
-export default function Home() {
-  return (
-    <main>
-      <h1>oGT CV Pool</h1>
-      <p>AIESEC in India. Under construction.</p>
-    </main>
-  );
+// The CV pool page (docs/sops/pool-page.md). Server part: reads the cached pool from Supabase.
+import { PoolApp } from "@/components/PoolApp";
+import { getPool } from "@/lib/db/read";
+
+export default async function Home() {
+  const { applications, lastUpdated } = await getPool();
+  return <PoolApp applications={applications} lastUpdated={lastUpdated} />;
 }
