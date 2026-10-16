@@ -107,3 +107,6 @@
 - **Files:** `src/app/globals.css`, `progress.md`
 - **Tests:** headless check on the dev server: body top 0, navbar top 14, screenshot shows no strip.
 - **Errors:** none. Note: because the body background is solid, the colour glow (`body::before`) is hidden everywhere, also in the approved mockup.
+- **Action (2026-10-16):** User created the GitHub token, stored it in Supabase Vault, enabled Cron + pg_net, ran `supabase/scheduler.sql`. Verified: GitHub run #7 (`workflow_dispatch`) started 14:22:01 UTC exactly on the Supabase slot, success in 46 s; `sync_runs` latest = success 14:22:42 UTC; 928 rows.
+- **Tests:** phone formats in the database after the run: 0 "+India", 0 trunk 0 after code, 0 invisible marks, 0 "+0" (1,187 phones).
+- **Errors:** none.
