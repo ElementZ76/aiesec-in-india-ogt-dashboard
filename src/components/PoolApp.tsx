@@ -7,6 +7,7 @@ import { filterPool, indexPool, lcOptions, workAreaOptions } from "@/lib/pool/se
 import { computeStats } from "@/lib/pool/stats";
 import type { PoolApplication } from "@/lib/pool/types";
 import { AppCard, type Notify } from "./AppCard";
+import { DetailsDialog } from "./DetailsDialog";
 import { useMediaQuery, useMinuteClock } from "./hooks";
 import { Icon, IconSprite } from "./icons";
 import { NavBar } from "./NavBar";
@@ -26,9 +27,18 @@ function LastUpdated({ at }: { at: string | null }) {
   );
 }
 
+// The toast lives in the browser's "top layer" (popover), so it also shows above the details popup.
+// Re-opening it on each message puts it above a popup opened after it.
 function Toast({ toast }: { toast: { id: number; text: string; ok: boolean; show: boolean } }) {
+  const ref = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    const el = ref.current;
+    if (!el || typeof el.showPopover !== "function") return; // older browsers: a normal fixed element
+    if (el.matches(":popover-open")) el.hidePopover();
+    el.showPopover();
+  }, [toast.id]);
   return (
-    <div className={`toast glass${toast.show ? " show" : ""}`} role="status">
+    <div ref={ref} popover="manual" className={`toast glass${toast.show ? " show" : ""}`} role="status">
       {toast.ok && toast.text ? <Icon name="check" size={15} /> : null}
       {toast.text}
     </div>
@@ -42,6 +52,8 @@ export function PoolApp({ applications, lastUpdated }: { applications: PoolAppli
   const [shown, setShown] = useState(PAGE);
   const [animate, setAnimate] = useState(true);
   const [toast, setToast] = useState({ id: 0, text: "", ok: true, show: false });
+  const [selected, setSelected] = useState<PoolApplication | null>(null); // card shown in the popup
+  const closeDetails = useCallback(() => setSelected(null), []);
   const controls = useRef<HTMLDivElement>(null);
   const narrow = useMediaQuery("(max-width: 760px)");
 
@@ -216,7 +228,7 @@ export function PoolApp({ applications, lastUpdated }: { applications: PoolAppli
 
           <div className="grid" key={`${lcId}|${field}`}>
             {visible.length ? (
-              visible.map((a, i) => <AppCard key={a.applicationId} app={a} index={i} animate={animate} notify={notify} />)
+              visible.map((a, i) => <AppCard key={a.applicationId} app={a} index={i} animate={animate} onOpen={setSelected} />)
             ) : applications.length ? (
               <div className="empty glass">
                 <h3>No applications match</h3>
@@ -260,6 +272,7 @@ export function PoolApp({ applications, lastUpdated }: { applications: PoolAppli
           </span>
         </div>
       </footer>
+      <DetailsDialog app={selected} onClose={closeDetails} notify={notify} />
       <Toast toast={toast} />
     </>
   );

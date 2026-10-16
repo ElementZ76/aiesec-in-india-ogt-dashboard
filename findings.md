@@ -287,3 +287,8 @@ _Checked by the probe on 2026-10-14 (see below), except token expiry:_
   direction marks around the number; some numbers keep the national trunk 0 after the code. Handled in
   `formatPhone` (see SOP `sync.md` step 2).
 - **Constraint:** in this Git Bash, heredocs lose backslashes; write escape-heavy scripts with the file tool.
+- **EP managers checked (2026-10-16, user report "wrong EP manager"):** EXPA has three manager lists:
+  `application.managers` (empty in 200/200 sampled), `person.managers` (what we show; 102/200 filled,
+  165 of 169 managers from the applicant's LC) and `opportunity.managers` (host side). Database vs EXPA:
+  299/299 identical; live site vs database: 12/12 cards identical. The user then found the cause on EXPA
+  (one ex-member assigned as manager to two leads): **data entry on EXPA, not our code.** No change.

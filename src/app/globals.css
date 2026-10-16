@@ -501,3 +501,64 @@ footer .stale { color: var(--warn); font-weight: 700; }
   .clear-label { display: none; }
   .lc, .area { order: 3; flex: 1 1 calc(50% - 5px); }
 }
+
+/* ---------- Summary cards + details popup (2026-10-16) ---------- */
+:root[data-theme="dark"] { --panel-solid: #0a101c; }
+:root[data-theme="light"] { --panel-solid: #f4f7fc; }
+html { scrollbar-gutter: stable; }               /* no layout jump when the popup locks scrolling */
+html:has(dialog[open]) { overflow: hidden; }     /* the page behind the popup does not scroll */
+.card { cursor: pointer; }
+.card-open {                                     /* invisible button stretched over the whole card */
+  position: absolute; inset: 0; z-index: 1; border: 0; padding: 0; margin: 0;
+  background: transparent; border-radius: inherit; cursor: pointer; -webkit-tap-highlight-color: transparent;
+}
+.card-open:focus-visible { outline: 2px solid var(--focus); outline-offset: 3px; }
+.card-foot .btn { position: relative; z-index: 2; }   /* View CV stays clickable above the card button */
+.card-hint { display: flex; align-items: center; gap: 4px; font-size: 14px; font-weight: 700; color: var(--link); }
+.card-hint svg { transition: transform .45s var(--spring); }
+.card:hover .card-hint svg { transform: translateX(3px); }
+
+.details {
+  width: min(560px, calc(100vw - 32px)); max-width: none; max-height: none;
+  padding: 0; border: 0; background: transparent; color: var(--text); overflow: visible;
+}
+.details::backdrop { background: rgba(2, 6, 14, .62); }
+.details-panel {
+  position: relative; display: flex; flex-direction: column; gap: 16px;
+  max-height: calc(100dvh - 48px); overflow-y: auto; overscroll-behavior: contain;
+  border-radius: var(--r-card); padding: var(--pad-card);
+  background: linear-gradient(180deg, var(--sheen), transparent 45%), var(--panel-solid);   /* fully opaque: text behind must not ghost through */
+  box-shadow: inset 0 1px 0 var(--rim-a), var(--shadow-lift);
+  animation: details-in .45s var(--spring-soft);
+}
+.details-panel.glass::before { content: none; }
+.details-panel .card-top { padding-right: 52px; }     /* room for the close button */
+.details-panel .who h3 { white-space: normal; }         /* full name, no "…" */
+.details-panel .card-foot { margin-top: 0; }
+.details-close {
+  position: absolute; top: 14px; right: 14px; z-index: 1; width: 44px; height: 44px; border-radius: 50%;
+  display: grid; place-items: center; cursor: pointer; color: var(--text);
+  background: var(--glass-inset); border: 1px solid var(--edge);
+  transition: transform .45s var(--spring), border-color .2s ease;
+}
+.details-close:hover { border-color: var(--link); transform: scale(1.08); }
+.details-close:active { transform: scale(.88); transition-duration: .08s; }
+.mgr-block { padding: 6px 0; }
+.mgr-block + .mgr-block { border-top: 1px dashed var(--edge); }
+.mgr-block .mname { font-weight: 700; font-size: 15px; padding-top: 4px; }
+@keyframes details-in { from { opacity: 0; transform: translateY(18px) scale(.97); } }
+
+/* Phones: the popup is a sheet that slides up from the bottom. */
+@media (max-width: 640px) {
+  .details { width: 100vw; margin: auto 0 0; }
+  .details-panel {
+    max-height: 88dvh; border-radius: var(--r-card) var(--r-card) 0 0;
+    padding-bottom: calc(var(--pad-card) + env(safe-area-inset-bottom));
+    animation-name: sheet-in;
+  }
+  @keyframes sheet-in { from { transform: translateY(100%); } }
+}
+
+/* The toast is a popover (top layer): undo the browser's popover box styles. */
+.toast[popover] { inset: auto auto 26px 50%; margin: 0; border: 0; overflow: visible; color: var(--text); width: max-content; max-width: calc(100vw - 32px); }
+

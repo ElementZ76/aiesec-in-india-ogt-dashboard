@@ -157,11 +157,16 @@ site is connected to the database.
   LC's rank; top 3 work areas) and a Breakdown panel (all LCs, all work areas; clicking a row
   filters by that LC / work area, clicking it again clears it). They follow the **LC filter**
   only, not the search box or the work-area filter (user, 2026-10-16).
-- **Cards:** one per application, **newest application first** (`applied_at`). Shows name, LC,
-  GTa/GTe badge, company, work area, start–end dates (+ weeks), applicant email and phone (with
-  copy buttons), LinkedIn (**"Not available" as text when missing**), EP manager(s) with copy
-  buttons for email/phone ("No EP manager assigned" when none), View CV ("CV not available" when
-  missing), applied date. 3 / 2 / 1 columns (desktop / tablet / phone).
+- **Cards:** one per application, **newest application first** (`applied_at`). A card is a
+  summary: name, LC, GTa/GTe badge, company, work area, start–end dates (+ weeks), a "Contact &
+  EP manager" hint, View CV ("CV not available" when missing), applied date. 3 / 2 / 1 columns
+  (desktop / tablet / phone).
+- **Details popup** (user, 2026-10-16): tapping/clicking a card (or Tab + Enter) opens one popup
+  with everything: the summary, applicant email and phone (copy buttons), LinkedIn (**"Not
+  available" as text when missing**), EP manager(s) with name, email and phone written out and
+  copy buttons ("No EP manager assigned" when none), View CV. Closes with ✕, Esc, a tap outside,
+  or Android's back gesture. Centred on laptops; a bottom sheet on phones. Page behind does not
+  scroll. Darkened backdrop, no blur.
 - **Paging:** 12 cards first, then a **"Load more applications"** button adds 12 per click. Never
   render the whole pool at once. A new search or filter starts again at 12.
 - **Search:** name, email, company, work area, LC, EP manager name. "Clear" shows only when a
@@ -255,3 +260,4 @@ Tests live next to the code they test, as `*.test.ts`.
 | 2026-10-16 | Website built: `src/app/{layout,page,error}.tsx`, `src/components/`, `src/lib/db/read.ts`, `src/lib/pool/{types,search,stats,csv,format}.ts`; SOP `docs/sops/pool-page.md`. Cache: `stale 300 / revalidate 300 / expire 3600`. CSV formula guard. Touch targets 44 px on touch screens (fixes the mockup's 34–43 px controls) | Approved website build plan |
 | 2026-10-16 | Sync trigger → Supabase Cron calling GitHub's workflow-dispatch API every 15 min (`supabase/scheduler.sql`); GitHub schedule becomes an hourly backup; Invariant 1 covers the new GitHub trigger token (Supabase Vault only) | GitHub's schedule ran every 2–5 h instead of 15 min; user approved |
 | 2026-10-16 | Added the work-area filter (dropdown + clickable Breakdown rows); statistics still follow the LC filter only; "Not specified (GTe)" label | User request: filter by work field; user chose filter over sort |
+| 2026-10-16 | Cards became summaries; contact details, LinkedIn and EP managers moved into a details popup (native `<dialog>`); toast moved to the browser's top layer so it shows above the popup | User: on phones, cards were too long to see one whole card |

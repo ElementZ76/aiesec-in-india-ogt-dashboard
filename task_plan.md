@@ -58,6 +58,9 @@
 
 ### Additional features (user, 2026-10-16)
 - [x] Work-area filter (dropdown + clickable Breakdown rows)
+- [x] Deployed on Vercel: https://aiesec-in-india-ogt-dashboard.vercel.app/ (user, 2026-10-16)
+- [x] Card popups: summary cards + details popup
+- [ ] Phone: search bar takes too much space while scrolling (proposal: slide away on scroll down) — awaiting user decision
 
 ## Phase 4 — S: Stylize
 - [x] UI/UX direction agreed with user (approved 2026-10-15; more tweaks after DB is connected)

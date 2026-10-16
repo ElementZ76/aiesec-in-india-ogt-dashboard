@@ -51,7 +51,13 @@ and CSV export, fast on phones and laptops, using only data the sync job wrote t
    whole pool; top 3 work areas. A missing work area counts as "Not specified".
    Breakdown panel: all LCs (whole pool) and all work areas (LC-filtered list). Clicking a row
    filters by it; clicking the selected row again clears that filter.
-6. **Cards**: 12 first; "Load more applications" adds 12. A new search, LC or work-area choice
+6. **Cards** (summary) and **details popup**: the card shows name, LC, programme, company, work
+   area, dates, View CV and the applied date; the whole card is one button that opens the popup
+   (View CV keeps working on its own). The popup is a native `<dialog>` opened with
+   `showModal()` (focus moves into it, Esc closes, focus returns to the card); only the selected
+   application is rendered in it. EP managers: name, then email and phone rows that exist;
+   neither → "No contact details on EXPA".
+   12 first; "Load more applications" adds 12. A new search, LC or work-area choice
    goes back to 12. Dates: plain dates shown as "15 Oct 2026"; "Applied" date in India time. Weeks =
    (end − start) / 7 days, rounded. Copy buttons copy email / phone; if the browser blocks copying,
    a message says so.
