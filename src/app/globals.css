@@ -316,7 +316,8 @@ button.bar-row:active { transform: scale(.97); }
   margin: 18px calc(-1 * var(--pad-bar)) 0; padding: var(--pad-bar); border-radius: calc(var(--pad-bar) + 23px); border: 1px solid transparent;
   transition: background-color .3s ease, border-color .3s ease, box-shadow .3s ease;
 }
-.controls.stuck { background: var(--bar-solid); border-color: var(--edge); box-shadow: inset 0 1px 0 var(--rim-b), 0 16px 40px -20px rgba(0,0,0,.6); }
+.controls.stuck { background: var(--panel-solid);   /* fully opaque: cards must not ghost through */
+   border-color: var(--edge); box-shadow: inset 0 1px 0 var(--rim-b), 0 16px 40px -20px rgba(0,0,0,.6); }
 .controls-inner { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
 .field { position: relative; display: flex; align-items: center; }
 .field svg { position: absolute; left: 15px; color: var(--faint); pointer-events: none; transition: color .2s ease, transform .4s var(--spring); }
@@ -562,3 +563,11 @@ html:has(dialog[open]) { overflow: hidden; }     /* the page behind the popup do
 /* The toast is a popover (top layer): undo the browser's popover box styles. */
 .toast[popover] { inset: auto auto 26px 50%; margin: 0; border: 0; overflow: visible; color: var(--text); width: max-content; max-width: calc(100vw - 32px); }
 
+/* Phones: the stuck search bar slides away on scroll down, back on scroll up (PoolApp.tsx). */
+@media (max-width: 760px) {
+  .controls { transition: transform .35s cubic-bezier(.2, .8, .2, 1), opacity .25s ease, background-color .3s ease, border-color .3s ease, box-shadow .3s ease; }
+  .controls.away {
+    transform: translateY(calc(-100% - var(--nav-h) - var(--nav-top) - 10px));   /* up behind the navbar */
+    opacity: 0; pointer-events: none;
+  }
+}

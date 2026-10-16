@@ -175,6 +175,9 @@ site is connected to the database.
   the selected LC, "Not specified" last; labelled "Not specified (GTe)" while every application
   without a work area is GTe. Combines with search and LC. Phones: search on its own row, LC and
   work area side by side below.
+- **Search bar on phones** (≤ 760 px wide; user, 2026-10-16): once it is stuck under the navbar,
+  it slides away while scrolling down and comes back on scrolling up a little. It never hides
+  while one of its fields has focus. Wider screens: always sticky.
 - **CSV export:** the applications matching the current search + LC + work-area filters, all spec
   fields.
 - **Stale data:** if the last successful sync is more than 1 hour old, "Last updated" turns amber
@@ -261,3 +264,4 @@ Tests live next to the code they test, as `*.test.ts`.
 | 2026-10-16 | Sync trigger → Supabase Cron calling GitHub's workflow-dispatch API every 15 min (`supabase/scheduler.sql`); GitHub schedule becomes an hourly backup; Invariant 1 covers the new GitHub trigger token (Supabase Vault only) | GitHub's schedule ran every 2–5 h instead of 15 min; user approved |
 | 2026-10-16 | Added the work-area filter (dropdown + clickable Breakdown rows); statistics still follow the LC filter only; "Not specified (GTe)" label | User request: filter by work field; user chose filter over sort |
 | 2026-10-16 | Cards became summaries; contact details, LinkedIn and EP managers moved into a details popup (native `<dialog>`); toast moved to the browser's top layer so it shows above the popup | User: on phones, cards were too long to see one whole card |
+| 2026-10-16 | Phones: the sticky search bar slides away on scroll down, returns on scroll up | User: the bar took too much of the phone screen |

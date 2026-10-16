@@ -133,6 +133,40 @@ export function PoolApp({ applications, lastUpdated }: { applications: PoolAppli
     return () => obs.disconnect();
   }, []);
 
+  // Phones: the stuck search bar slides away while scrolling down, back on scrolling up
+  // (docs/sops/pool-page.md step 9a).
+  useEffect(() => {
+    const el = controls.current;
+    if (!el) return;
+    const phone = matchMedia("(max-width: 760px)");
+    const STEP = 8; // px; smaller movements are ignored so the bar doesn't flicker
+    let lastY = scrollY;
+    let frame = 0;
+    const update = () => {
+      frame = 0;
+      const y = scrollY;
+      if (!phone.matches || !el.classList.contains("stuck") || el.contains(document.activeElement)) {
+        el.classList.remove("away");
+        lastY = y;
+        return;
+      }
+      if (Math.abs(y - lastY) < STEP) return; // keep lastY, so slow scrolling still adds up
+      el.classList.toggle("away", y > lastY);
+      lastY = y;
+    };
+    const onScroll = () => {
+      if (!frame) frame = requestAnimationFrame(update);
+    };
+    const show = () => el.classList.remove("away");
+    addEventListener("scroll", onScroll, { passive: true });
+    el.addEventListener("focusin", show);
+    return () => {
+      cancelAnimationFrame(frame);
+      removeEventListener("scroll", onScroll);
+      el.removeEventListener("focusin", show);
+    };
+  }, []);
+
   return (
     <>
       <IconSprite />

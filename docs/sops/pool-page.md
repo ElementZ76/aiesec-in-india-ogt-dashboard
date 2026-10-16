@@ -78,6 +78,11 @@ and CSV export, fast on phones and laptops, using only data the sync job wrote t
    - Supabase error: `src/app/error.tsx`, "Couldn't load the pool" + "Try again" (no error
      details shown to visitors);
    - no EP manager / LinkedIn / CV / work area / company: the texts in CLAUDE.md UI Spec.
+9a. **Search bar on phones** (`PoolApp.tsx`, CSS class `away`): only when the screen is at most
+   760 px wide and the bar is stuck under the navbar. A scroll of at least 8 px down hides it
+   (moved up behind the navbar with `transform`, faded out, not clickable); 8 px up shows it.
+   Smaller movements are ignored, so a shaky thumb doesn't make it flicker. Focus inside the bar
+   (typing, choosing a filter) shows it and keeps it shown. Checked at most once per frame.
 10. **Theme**: a tiny script in `<head>` sets `data-theme` before the page paints (no flash);
     dark when nothing is saved. The switch saves the choice in `localStorage`.
 
