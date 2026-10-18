@@ -69,6 +69,7 @@
 - [x] User feedback collected (2026-10-18: "the website is okay")
 - [ ] User's change requests (announced 2026-10-18)
   - [x] 1. Popup animation on phones: no tap flash, no bounce, close animation (2026-10-18)
+  - [x] 2. Condensed statistics cards with drop-down / sheet lists (2026-10-18)
 
 ## Phase 5 — T: Trigger
 - [x] Final integration test on the live site (2026-10-18: 45/46 checks; sync 170/170 runs green, no gap > 15.2 min)

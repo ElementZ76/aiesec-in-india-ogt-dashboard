@@ -155,3 +155,17 @@
   card not lifted after close. Full browser test on the local build: 46/46.
 - **Errors:** the first after-fix recording still showed a blue tap box on the close button → turned it
   off on the close and copy buttons too (both shrink when pressed).
+- **Action (2026-10-18):** Condensed statistics (user-approved: drop-down + sheet, merge Breakdown, 2 × 2,
+  option A). Spec + SOP first. `StatsSection.tsx` rewritten (mini top-3 lists and Breakdown removed;
+  Top LC / Top work area are buttons with `aria-expanded`; drop-down panel ≥ 641 px with Esc / ✕ /
+  card toggle and focus return; native `<dialog>` sheet ≤ 640 px that closes after a pick; compact
+  GTa card on phones). `globals.css`: card sizes, button cards, `.stat-drop` / `.stat-panel` with a
+  pointer, 2 × 2 phone grid, rank colour fix.
+- **Files:** `CLAUDE.md`, `docs/sops/pool-page.md`, `src/components/StatsSection.tsx`, `src/app/globals.css`,
+  `findings.md`, `progress.md`, `task_plan.md`
+- **Tests:** vitest 72 pass; typecheck, lint, build OK. Browser test (local build) updated for the new
+  cards: 59/59. Screenshots at 1440, 900, 412, 390, 360 and 320 px, dark + light.
+- **Errors:** (1) Bash heredoc failed on quotes → wrote the component with the file tool. (2) 320–360 px:
+  label cut off and GTa numbers hidden → compact phone GTa card, icons hidden below 360 px. (3) "#12"
+  grey (old CSS bug) → fixed. (4) Test selectors matched the new list sheet instead of the details
+  popup → narrowed.

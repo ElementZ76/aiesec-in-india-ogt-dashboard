@@ -333,3 +333,19 @@ _Checked by the probe on 2026-10-14 (see below), except token expiry:_
   close may be cut short. Older browsers: instant show/hide.
 - Not changed (possible follow-up): `.copy:hover` / `.details-close:hover` also stick after a tap
   on phones (button stays slightly enlarged).
+
+### Condensed statistics (2026-10-18, user: "condense the statistics cards")
+- User choices: drop-down under the cards on laptops + bottom sheet on phones; Breakdown merged into
+  the Top LC / Top work area cards; phones 2 × 2 grid; Applications and GTa vs GTe not clickable
+  (option A: nothing hidden on them).
+- Card height ~190 → ~150 px on laptops. Phones: all 4 cards visible (was a swipe row showing 1½).
+- **Phone widths:** at 360 px a card is ~131 px inside, too narrow for the ring + legend and for
+  "APPLICATIONS" next to its icon. Phones get a compact GTa card (big %, split bar, both counts);
+  icons hidden below 360 px.
+- **Old bug found:** `.rank span { color: var(--muted) }` also matched the rank number, so "#12" was grey
+  instead of the gradient (also in the old version). Now `.rank > span:not(.big)`.
+- Drop-down list: CSS columns (`columns: 300px 3`) so the ranking reads top to bottom, then across;
+  24 LCs = 8 rows on a laptop, no inner scrolling.
+- The phone list sheet reuses the details popup's `.details` styles (same motion); any
+  `querySelector("dialog.details")` now needs `:not(.stat-sheet)` (fixed in the test scripts).
+- Hover lift now only on the clickable cards (and mouse only), so plain cards don't look clickable.

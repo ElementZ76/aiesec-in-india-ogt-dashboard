@@ -49,8 +49,14 @@ and CSV export, fast on phones and laptops, using only data the sync job wrote t
    total, number of LCs, number of work areas, GTa vs GTe (count and GTa %), top 3 LCs, or the
    selected LC's rank among all LCs (ties: same count → ordered by name) and its share of the
    whole pool; top 3 work areas. A missing work area counts as "Not specified".
-   Breakdown panel: all LCs (whole pool) and all work areas (LC-filtered list). Clicking a row
-   filters by it; clicking the selected row again clears that filter.
+   Shown as 4 condensed cards (2026-10-18): Applications and GTa vs GTe are plain cards; "Top LC"
+   (first of `perLc`, or the selected LC's rank) and "Top work area" (first of `perField`) are
+   buttons that open the full list: all LCs (whole pool) or all work areas (LC-filtered list).
+   ≥ 641 px: one drop-down panel under the cards (`aria-expanded` on the card; same card again,
+   ✕ or Esc closes; the other card switches the list). ≤ 640 px: a bottom sheet (native
+   `<dialog>`, same motion as the details popup). Clicking a row filters by it; clicking the
+   selected row again clears that filter; on phones the sheet closes after a pick. Empty pool:
+   the two list cards are disabled.
 6. **Cards** (summary) and **details popup**: the card shows name, LC, programme, company, work
    area, dates, View CV and the applied date; the whole card is one button that opens the popup
    (View CV keeps working on its own). The popup is a native `<dialog>` opened with

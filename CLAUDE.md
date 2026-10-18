@@ -156,10 +156,14 @@ site is connected to the database.
 - **Page:** floating pill navbar (AIESEC in India · Statistics · Applications · theme switch ·
   Export CSV) → title "oGT CV Pool" → Statistics → sticky search + LC filter + work-area filter → cards → footer
   ("Last updated …" left; "Built by Praveen" → https://www.linkedin.com/in/praveen-pr190705/ right).
-- **Statistics:** 4 cards (total + LC/work-area counts; GTa vs GTe ring; top 3 LCs, or the selected
-  LC's rank; top 3 work areas) and a Breakdown panel (all LCs, all work areas; clicking a row
-  filters by that LC / work area, clicking it again clears it). They follow the **LC filter**
-  only, not the search box or the work-area filter (user, 2026-10-16).
+- **Statistics** (condensed, user 2026-10-18): 4 short cards, each one headline. Applications
+  (total + LC/work-area counts) and GTa vs GTe (small ring + both counts) show everything and are
+  not clickable. **Top LC** (or the selected LC's rank) and **Top work area** open the full list
+  (all LCs / all work areas): laptops and tablets — a panel drops down under the cards, one at a
+  time (click the card again, ✕ or Esc closes); phones (≤ 640 px) — a bottom sheet. Clicking a
+  row filters by that LC / work area, clicking it again clears it; on phones the sheet then closes.
+  No separate Breakdown button. Phones: 2 × 2 grid, no sideways swipe. They follow the **LC
+  filter** only, not the search box or the work-area filter (user, 2026-10-16).
 - **Cards:** one per application, **newest application first** (`applied_at`). A card is a
   summary: name, LC, GTa/GTe badge, company, work area, start–end dates (+ weeks), a "Contact &
   EP manager" hint, View CV ("CV not available" when missing), applied date. 3 / 2 / 1 columns
@@ -271,3 +275,4 @@ Tests live next to the code they test, as `*.test.ts`.
 | 2026-10-16 | Phones: the sticky search bar slides away on scroll down, returns on scroll up | User: the bar took too much of the phone screen |
 | 2026-10-18 | Status: live since 2026-10-16, final integration test passed; live URL in North Star; `person.full_name` marked verified | Final integration test (findings.md "Final integration test") |
 | 2026-10-18 | UI Spec: popup motion (fade-in backdrop, no-bounce glide, close animation, no tap flash) | User: on phones the popup flashed, then jumped too fast |
+| 2026-10-18 | UI Spec: condensed statistics — 4 short cards; Top LC / Top work area open the full list (drop-down on laptops, bottom sheet on phones); Breakdown button removed; phones 2 × 2 grid | User: condense the statistics cards; chose drop-down + sheet, merge Breakdown, 2 × 2, Applications and GTa cards not clickable |
