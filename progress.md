@@ -139,3 +139,7 @@
   failures in my own test (focus return after a script click; Enter without a character) → fixed the
   test. (3) Real: Breakdown rows 36 px on touch (needs 44) → fix proposed to the user, not applied.
   (4) Note-update script failed on CRLF line endings (nothing written) → script converts to CRLF.
+- **Action (2026-10-18):** Breakdown rows 44 px on touch (user-approved): `button.bar-row { min-height: 44px; }` in the `pointer: coarse` block. UI Spec already required 44 px, so no constitution change.
+- **Files:** `src/app/globals.css`, `task_plan.md`, `findings.md`, `progress.md`
+- **Tests:** build OK; browser test against the local production build: all 46 checks pass (32 Breakdown rows, 44 px).
+- **Errors:** none.

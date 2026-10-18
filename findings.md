@@ -308,7 +308,7 @@ _Checked by the probe on 2026-10-14 (see below), except token expiry:_
 - **Finding:** the Breakdown rows became buttons (clickable filters) but are **36 px tall on touch
   screens**, below the UI Spec's 44 px. The 2026-10-16 audits missed it because the panel is closed
   when the page loads. Proposed fix: `button.bar-row { min-height: 44px; }` in the `pointer: coarse`
-  block of `globals.css` (not yet approved).
+  block of `globals.css` — **applied 2026-10-18** (user-approved); rows now 44 px on touch, 36 px with a mouse.
 - **Test-method notes:** a script's `element.click()` does not move focus, so a `<dialog>` opened that
   way has nowhere to return focus to (a false failure); open it with focus + Enter instead. CDP Enter
   needs `text: "\r"` (already noted 2026-10-16). Measure tap targets inside closed (`inert`) panels

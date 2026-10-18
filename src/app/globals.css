@@ -489,6 +489,7 @@ footer .stale { color: var(--warn); font-weight: 700; }
   .theme button, .theme .thumb { width: 44px; height: 44px; }
   :root[data-theme="dark"] .theme .thumb { transform: translateX(44px); }
   .nav .btn-primary, .stats-head .btn, .more .btn, .card-foot .btn { min-height: 44px; min-width: 44px; }
+  button.bar-row { min-height: 44px; }
   .logo { min-height: 44px; }
   .row .val { padding: 12px 0; }
   footer a { padding: 12px 0; }

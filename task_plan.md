@@ -1,6 +1,6 @@
 # Task Plan
 
-**Current Phase: 5 — Trigger (wrap-up).** Deadline: **everything incl. testing done by 2026-10-20**. Live: https://aiesec-in-india-ogt-dashboard.vercel.app/. Final integration test passed 2026-10-18 (1 finding: Breakdown rows 36 px on touch). Next: the user's change requests.
+**Current Phase: 5 — Trigger (wrap-up).** Deadline: **everything incl. testing done by 2026-10-20**. Live: https://aiesec-in-india-ogt-dashboard.vercel.app/. Final integration test passed 2026-10-18 (1 finding, Breakdown rows 36 px on touch, fixed the same day). Next: the user's change requests.
 
 ## Phase 0 — Initialization
 - [x] Create `CLAUDE.md`, `task_plan.md`, `findings.md`, `progress.md`, `.tmp/`
@@ -71,7 +71,7 @@
 
 ## Phase 5 — T: Trigger
 - [x] Final integration test on the live site (2026-10-18: 45/46 checks; sync 170/170 runs green, no gap > 15.2 min)
-- [ ] Breakdown rows 44 px tall on touch screens (now 36 px; fix proposed, needs approval)
+- [x] Breakdown rows 44 px tall on touch screens (fixed 2026-10-18, user-approved)
 - [x] Deploy to Vercel (env: SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY) — 2026-10-16
 - [x] README (updated 2026-10-18 with the live link)
 - [x] Maintenance Log updated (2026-10-18)
