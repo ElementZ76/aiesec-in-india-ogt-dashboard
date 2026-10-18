@@ -143,3 +143,15 @@
 - **Files:** `src/app/globals.css`, `task_plan.md`, `findings.md`, `progress.md`
 - **Tests:** build OK; browser test against the local production build: all 46 checks pass (32 Breakdown rows, 44 px).
 - **Errors:** none.
+- **Action (2026-10-18):** Popup animation (user-approved). Spec + SOP first. `globals.css`: dialog +
+  backdrop transitions with `@starting-style` (fade-in backdrop, no-bounce glide, close animation;
+  phones: sheet from the bottom), old `details-in` / `sheet-in` keyframes removed; card hover only with
+  a real mouse; no tap highlight on cards, the close button and copy buttons. `DetailsDialog.tsx`
+  keeps the last person shown while closing.
+- **Files:** `CLAUDE.md`, `docs/sops/pool-page.md`, `src/app/globals.css`, `src/components/DetailsDialog.tsx`,
+  `findings.md`, `progress.md`, `task_plan.md`
+- **Tests:** vitest 72 pass; typecheck, lint, build OK. Frames (local build, 390 px touch): no blue box,
+  card stays still, sheet stops without overshoot; closing slides 292 → 704 px with content, then hides;
+  card not lifted after close. Full browser test on the local build: 46/46.
+- **Errors:** the first after-fix recording still showed a blue tap box on the close button → turned it
+  off on the close and copy buttons too (both shrink when pressed).

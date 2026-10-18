@@ -313,3 +313,23 @@ _Checked by the probe on 2026-10-14 (see below), except token expiry:_
   way has nowhere to return focus to (a false failure); open it with focus + Enter instead. CDP Enter
   needs `text: "\r"` (already noted 2026-10-16). Measure tap targets inside closed (`inert`) panels
   with the panel open.
+
+### Popup animation (2026-10-18, user: "a flash first, then the popup jumps too fast")
+- Recorded frame by frame (headless Chrome screencast, 390 x 844, touch; script `.tmp/popup-frames.mjs`).
+- **Flash:** Chrome's default tap highlight painted a blue box over the tapped card (the `<article>`
+  has `cursor: pointer`; only the inner button had the highlight turned off), and the backdrop
+  switched to full darkness in one frame.
+- **Jump:** the sheet used `--spring-soft` (`cubic-bezier(.22, 1.25, .36, 1)`): y > 1 overshoots, so the
+  sheet rose ~10 px past its place and dropped back, with most of the travel in ~0.1 s.
+- **Sticky hover:** phones treat a tap as `:hover`, so the card lifted 7 px behind the popup and stayed
+  lifted after closing. Fixed with `@media (hover: hover)`.
+- **Fix:** transitions + `@starting-style` on the `<dialog>` and `::backdrop`, with `overlay` and
+  `display` `allow-discrete` so closing animates; curve `cubic-bezier(.32, .72, 0, 1)` (fast start,
+  long gentle stop, no overshoot), 0.45 s phone / 0.36 s desktop in, 0.2 s ease-in out.
+  `DetailsDialog` keeps the last person rendered while closing. Lightning CSS keeps the plain
+  `transition` fallback before the `allow-discrete` one.
+- **Browser support (not verified on devices):** `@starting-style` / `allow-discrete`: Chrome 117+,
+  Safari 17.4+, Firefox 129+. `overlay` is Chromium-only as far as I know, so on Safari / Firefox the
+  close may be cut short. Older browsers: instant show/hide.
+- Not changed (possible follow-up): `.copy:hover` / `.details-close:hover` also stick after a tap
+  on phones (button stays slightly enlarged).

@@ -169,7 +169,8 @@ site is connected to the database.
   available" as text when missing**), EP manager(s) with name, email and phone written out and
   copy buttons ("No EP manager assigned" when none), View CV. Closes with ✕, Esc, a tap outside,
   or Android's back gesture. Centred on laptops; a bottom sheet on phones. Page behind does not
-  scroll. Darkened backdrop, no blur.
+  scroll. Darkened backdrop, no blur. Motion (user, 2026-10-18): backdrop fades in, popup glides
+  in and eases to a stop with **no bounce**, and slides out on close; no tap flash on cards.
 - **Paging:** 12 cards first, then a **"Load more applications"** button adds 12 per click. Never
   render the whole pool at once. A new search or filter starts again at 12.
 - **Search:** name, email, company, work area, LC, EP manager name. "Clear" shows only when a
@@ -269,3 +270,4 @@ Tests live next to the code they test, as `*.test.ts`.
 | 2026-10-16 | Cards became summaries; contact details, LinkedIn and EP managers moved into a details popup (native `<dialog>`); toast moved to the browser's top layer so it shows above the popup | User: on phones, cards were too long to see one whole card |
 | 2026-10-16 | Phones: the sticky search bar slides away on scroll down, returns on scroll up | User: the bar took too much of the phone screen |
 | 2026-10-18 | Status: live since 2026-10-16, final integration test passed; live URL in North Star; `person.full_name` marked verified | Final integration test (findings.md "Final integration test") |
+| 2026-10-18 | UI Spec: popup motion (fade-in backdrop, no-bounce glide, close animation, no tap flash) | User: on phones the popup flashed, then jumped too fast |

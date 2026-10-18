@@ -55,7 +55,12 @@ and CSV export, fast on phones and laptops, using only data the sync job wrote t
    area, dates, View CV and the applied date; the whole card is one button that opens the popup
    (View CV keeps working on its own). The popup is a native `<dialog>` opened with
    `showModal()` (focus moves into it, Esc closes, focus returns to the card); only the selected
-   application is rendered in it. EP managers: name, then email and phone rows that exist;
+   application is rendered in it (kept on screen while the popup slides away after closing).
+   Motion: the backdrop fades in; the popup glides up and eases to a stop with no bounce (phones:
+   a sheet from the bottom edge); closing reverses it, faster. Done with CSS transitions and
+   `@starting-style`, so a close during opening reverses smoothly; browsers without support just
+   show/hide it. No blue tap highlight on cards, and cards lift on hover only with a real mouse
+   (phones treat a tap as a hover that sticks). EP managers: name, then email and phone rows that exist;
    neither → "No contact details on EXPA".
    12 first; "Load more applications" adds 12. A new search, LC or work-area choice
    goes back to 12. Dates: plain dates shown as "15 Oct 2026"; "Applied" date in India time. Weeks =

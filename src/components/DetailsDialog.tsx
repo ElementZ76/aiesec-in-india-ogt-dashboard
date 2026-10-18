@@ -1,6 +1,6 @@
 "use client";
 // The details popup: one native <dialog> for the whole page (docs/sops/pool-page.md step 6).
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { telHref } from "@/lib/pool/format";
 import type { PoolApplication } from "@/lib/pool/types";
 import { CardFoot, CardTop, ContactRow, JobBlock, type Notify } from "./AppCard";
@@ -12,6 +12,11 @@ export function DetailsDialog({ app, onClose, notify }: {
   notify: Notify;
 }) {
   const ref = useRef<HTMLDialogElement>(null);
+
+  // While the popup slides away after closing, keep showing the person it was opened for.
+  const [last, setLast] = useState(app);
+  if (app && app !== last) setLast(app);
+  const shown = app ?? last;
 
   // showModal(): focus moves inside, Esc closes, the page behind is inert. close() returns focus.
   useEffect(() => {
@@ -31,24 +36,24 @@ export function DetailsDialog({ app, onClose, notify }: {
         if (e.target === e.currentTarget) e.currentTarget.close(); // a click on the backdrop
       }}
     >
-      {app ? (
+      {shown ? (
         <div className="details-panel glass">
           <button className="details-close" onClick={() => ref.current?.close()} aria-label="Close">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round" aria-hidden="true">
               <path d="M6 6l12 12M18 6 6 18" />
             </svg>
           </button>
-          <CardTop app={app} titleId="details-title" />
-          <JobBlock app={app} />
+          <CardTop app={shown} titleId="details-title" />
+          <JobBlock app={shown} />
 
           <div>
             <div className="label">Applicant</div>
-            <ContactRow icon="mail" value={app.email} href={`mailto:${app.email}`} label="email" notify={notify} />
-            <ContactRow icon="phone" value={app.phone} href={app.phone ? telHref(app.phone) : ""} label="phone" notify={notify} />
+            <ContactRow icon="mail" value={shown.email} href={`mailto:${shown.email}`} label="email" notify={notify} />
+            <ContactRow icon="phone" value={shown.phone} href={shown.phone ? telHref(shown.phone) : ""} label="phone" notify={notify} />
             <div className="row">
               <Icon name="linkedin" />
-              {app.linkedinUrl ? (
-                <a className="val" href={app.linkedinUrl} target="_blank" rel="noopener noreferrer">LinkedIn profile</a>
+              {shown.linkedinUrl ? (
+                <a className="val" href={shown.linkedinUrl} target="_blank" rel="noopener noreferrer">LinkedIn profile</a>
               ) : (
                 <span className="na">Not available</span>
               )}
@@ -56,9 +61,9 @@ export function DetailsDialog({ app, onClose, notify }: {
           </div>
 
           <div>
-            <div className="label">EP manager{app.epManagers.length > 1 ? "s" : ""}</div>
-            {app.epManagers.length ? (
-              app.epManagers.map((m, i) => (
+            <div className="label">EP manager{shown.epManagers.length > 1 ? "s" : ""}</div>
+            {shown.epManagers.length ? (
+              shown.epManagers.map((m, i) => (
                 <div className="mgr-block" key={i}>
                   <div className="mname">{m.name || "Name not on EXPA"}</div>
                   <ContactRow icon="mail" value={m.email} href={`mailto:${m.email}`} label="EP manager email" notify={notify} hideWhenMissing />
@@ -71,7 +76,7 @@ export function DetailsDialog({ app, onClose, notify }: {
             )}
           </div>
 
-          <CardFoot app={app} />
+          <CardFoot app={shown} />
         </div>
       ) : null}
     </dialog>
