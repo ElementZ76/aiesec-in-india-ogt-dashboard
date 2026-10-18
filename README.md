@@ -8,8 +8,10 @@ Data comes from **EXPA**, AIESEC's global platform. A sync job, started every 15
 Supabase Cron, copies it into a database, and the website reads from that database, so pages load fast and
 EXPA is never queried by visitors.
 
-> **Status (October 2026):** the sync job, database and website are built (about 930 applications
-> across 24 LCs). Next: review and deployment to Vercel.
+> **Live:** https://aiesec-in-india-ogt-dashboard.vercel.app/
+>
+> **Status (October 2026):** the sync job, database and website are built, deployed and tested
+> end to end (about 930 applications across 24 LCs, refreshed every 15 minutes).
 
 ---
 
@@ -235,6 +237,7 @@ The tests cover:
 - the pool rules, including "a slot ending today is kept" and India time zone edges
 - the safety brake
 - a full sync run against fake EXPA and database stand-ins: success, blocked, failed and dry run
+- the page tools: search, LC and work-area filters, statistics, CSV export (incl. the formula guard)
 
 ---
 
@@ -244,7 +247,7 @@ The tests cover:
   [`.github/workflows/sync.yml`](.github/workflows/sync.yml). Both actions are pinned to exact
   commits, and runs never overlap. A monthly keep-alive step stops GitHub from pausing the
   schedule after 60 days without repository activity.
-- **Website:** deployed on Vercel. Set `SUPABASE_URL` and `SUPABASE_PUBLISHABLE_KEY` in the
+- **Website:** deployed on Vercel at https://aiesec-in-india-ogt-dashboard.vercel.app/. Set `SUPABASE_URL` and `SUPABASE_PUBLISHABLE_KEY` in the
   Vercel project's environment variables. The EXPA token and the Supabase secret key are
   **not** needed on Vercel and must not be added there.
 

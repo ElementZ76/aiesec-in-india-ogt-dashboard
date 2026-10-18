@@ -123,3 +123,19 @@
 - **Files:** `CLAUDE.md`, `docs/sops/pool-page.md`, `src/components/PoolApp.tsx`, `src/app/globals.css`, `progress.md`, `task_plan.md`
 - **Tests:** vitest 72 pass; typecheck, lint, build OK. Browser 375 px: hides on scroll down, back after 60 px up, 3 px wobble ignored, stays while a field has focus, normal at the top; 1440 px: never hides. Responsive 320-1920 clean; no console errors.
 - **Errors:** none (the ghosting was found on the screenshot and fixed before commit).
+
+## 2026-10-18
+
+- **Action:** Final integration test (user asked for it, plus doc cleanup and push). Read `sync_runs`
+  (read-only) for the period since the Supabase trigger; ran a headless-Chrome test of the live Vercel site
+  that compares the page with the database; scanned the live HTML + JS for secrets; ran the full local
+  check suite. Updated the out-of-date docs: `task_plan.md` (phase, Vercel deploy ticked), `README.md`
+  (live link, status, page-tool tests), `CLAUDE.md` (status, live URL, `person.full_name` verified,
+  Maintenance Log row).
+- **Files:** `CLAUDE.md`, `README.md`, `task_plan.md`, `findings.md`, `progress.md` (test scripts in `.tmp/`, not committed)
+- **Tests:** sync 170/170 success, max gap 15.2 min; live test 45/46 pass; vitest 72 pass; typecheck,
+  lint, build OK; `npm audit --omit=dev` 0 vulnerabilities; no secrets in the live page.
+- **Errors:** (1) `gh` not logged in → used `sync_runs` instead of the GitHub run list. (2) Two false
+  failures in my own test (focus return after a script click; Enter without a character) → fixed the
+  test. (3) Real: Breakdown rows 36 px on touch (needs 44) → fix proposed to the user, not applied.
+  (4) Note-update script failed on CRLF line endings (nothing written) → script converts to CRLF.

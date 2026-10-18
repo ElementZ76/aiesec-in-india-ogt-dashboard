@@ -1,6 +1,6 @@
 # Task Plan
 
-**Current Phase: 4 — Stylize (user review).** Deadline: **everything incl. testing done by 2026-10-20**. Next: user reviews the site; decide on the sync trigger (scheduled runs are sparse); Vercel deploy.
+**Current Phase: 5 — Trigger (wrap-up).** Deadline: **everything incl. testing done by 2026-10-20**. Live: https://aiesec-in-india-ogt-dashboard.vercel.app/. Final integration test passed 2026-10-18 (1 finding: Breakdown rows 36 px on touch). Next: the user's change requests.
 
 ## Phase 0 — Initialization
 - [x] Create `CLAUDE.md`, `task_plan.md`, `findings.md`, `progress.md`, `.tmp/`
@@ -66,13 +66,15 @@
 - [x] UI/UX direction agreed with user (approved 2026-10-15; more tweaks after DB is connected)
 - [x] Empty / loading / error states (pool empty, no match, database error)
 - [x] Responsive layout (audit 320–1920 px clean, 44 px touch targets)
-- [ ] User feedback collected
+- [x] User feedback collected (2026-10-18: "the website is okay")
+- [ ] User's change requests (announced 2026-10-18, details to come)
 
 ## Phase 5 — T: Trigger
-- [ ] Final integration test
-- [ ] Deploy to Vercel (env: SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY)
-- [x] README (first version 2026-10-15; update after the website and deploy)
-- [ ] Maintenance Log updated
+- [x] Final integration test on the live site (2026-10-18: 45/46 checks; sync 170/170 runs green, no gap > 15.2 min)
+- [ ] Breakdown rows 44 px tall on touch screens (now 36 px; fix proposed, needs approval)
+- [x] Deploy to Vercel (env: SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY) — 2026-10-16
+- [x] README (updated 2026-10-18 with the live link)
+- [x] Maintenance Log updated (2026-10-18)
 
 ## Phase 2+ (later, not in this iteration)
 - [ ] Notes on applicants

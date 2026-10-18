@@ -2,7 +2,8 @@
 
 > **This file is LAW.** If code and this file disagree, the code is wrong or this file must be
 > updated first (with a Maintenance Log row). Status: **Blueprint approved 2026-10-14; sync +
-> database design approved 2026-10-15; UI approved 2026-10-15.** Data Schema v1 (EXPA paths verified by the probe).
+> database design approved 2026-10-15; UI approved 2026-10-15; live on Vercel since 2026-10-16;
+> final integration test passed 2026-10-18.** Data Schema v1 (EXPA paths verified by the probe and the sync).
 > **Deadline: everything, including testing, done by 2026-10-20.**
 
 ## North Star
@@ -11,6 +12,8 @@ A public website, hosted on Vercel, showing **one India-wide pool** of AIESEC in
 (outgoing Global Talent) applications with status **"applied"**, filterable by local committee
 (LC). Each application is one card showing the spec fields. A sync job copies the data from
 EXPA into our database every 15 minutes; the website reads only that database.
+
+- **Live site:** https://aiesec-in-india-ogt-dashboard.vercel.app/
 
 - **Spec:** `spec_file.txt` lists the 10 fields each card shows (see Data Schema).
 - **Bare minimum (MVP):** the cards with contact info, EP manager and CV link.
@@ -81,7 +84,7 @@ page, per_page)` → `data { ... }` + `paging { total_items total_pages }`.
 |---|---|---|---|
 | application_id | text, primary key | — (internal; card key) | `id` |
 | person_id | text | — (internal) | `person.id` |
-| full_name | text | applicant name | `person.full_name` (not yet checked by the probe; confirm in the sync dry run) |
+| full_name | text | applicant name | `person.full_name` (verified by the first sync, 2026-10-15: 940/940 filled) |
 | email | text | email | `person.email` |
 | phone | text, null | phone | `person.contact_detail.country_code` + `phone` |
 | linkedin_url | text, null | link to their linkedin profile | `person.linkedin_url`; card shows "Not available" when null |
@@ -265,3 +268,4 @@ Tests live next to the code they test, as `*.test.ts`.
 | 2026-10-16 | Added the work-area filter (dropdown + clickable Breakdown rows); statistics still follow the LC filter only; "Not specified (GTe)" label | User request: filter by work field; user chose filter over sort |
 | 2026-10-16 | Cards became summaries; contact details, LinkedIn and EP managers moved into a details popup (native `<dialog>`); toast moved to the browser's top layer so it shows above the popup | User: on phones, cards were too long to see one whole card |
 | 2026-10-16 | Phones: the sticky search bar slides away on scroll down, returns on scroll up | User: the bar took too much of the phone screen |
+| 2026-10-18 | Status: live since 2026-10-16, final integration test passed; live URL in North Star; `person.full_name` marked verified | Final integration test (findings.md "Final integration test") |

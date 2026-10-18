@@ -292,3 +292,24 @@ _Checked by the probe on 2026-10-14 (see below), except token expiry:_
   165 of 169 managers from the applicant's LC) and `opportunity.managers` (host side). Database vs EXPA:
   299/299 identical; live site vs database: 12/12 cards identical. The user then found the cause on EXPA
   (one ex-member assigned as manager to two leads): **data entry on EXPA, not our code.** No change.
+
+### Final integration test (2026-10-18)
+- **Sync since the Supabase trigger (14:00 UTC 2026-10-16 → 05:37 UTC 2026-10-18):** 170 runs, all
+  `success`; largest gap 15.2 min; starts at :07/:22/:37/:52 (plus a few hourly-backup runs); 12–28 s
+  per run (median 16 s); kept 927–933. `gh` CLI is not logged in here, so this was read from `sync_runs`.
+- **Live site** (headless Chrome against the Vercel URL; script `.tmp/live-audit.mjs`, scratch):
+  pool size, statistics total, GTa + GTe and the newest-first order all equal the database (930; 12/12
+  cards in order); "Last updated" fresh; load more, search, LC + work-area filters, stats following the
+  LC only, Breakdown row click/unclick, Clear, CSV (10 filtered rows = 10 lines, 13 columns), popup
+  (Tab + Enter, focus, Esc, click outside, page locked, bottom sheet on phones), theme remembered,
+  phone search bar hide/show, no sideways scroll or text < 12 px at 320–1920 px, no console errors.
+- **Secrets:** none of the 4 `.env.local` values, `sb_secret_`/`sb_publishable_` or `supabase.co`
+  appear in the live HTML or its 8 JS files. `gis-api.aiesec.org` appears only in CV links.
+- **Finding:** the Breakdown rows became buttons (clickable filters) but are **36 px tall on touch
+  screens**, below the UI Spec's 44 px. The 2026-10-16 audits missed it because the panel is closed
+  when the page loads. Proposed fix: `button.bar-row { min-height: 44px; }` in the `pointer: coarse`
+  block of `globals.css` (not yet approved).
+- **Test-method notes:** a script's `element.click()` does not move focus, so a `<dialog>` opened that
+  way has nowhere to return focus to (a false failure); open it with focus + Enter instead. CDP Enter
+  needs `text: "\r"` (already noted 2026-10-16). Measure tap targets inside closed (`inert`) panels
+  with the panel open.
