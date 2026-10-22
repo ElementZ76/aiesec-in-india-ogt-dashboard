@@ -14,7 +14,7 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: "#050912",
+  themeColor: "#000000",
 };
 
 // Sets the saved theme before the first paint, so there is no flash. Dark when nothing is saved.

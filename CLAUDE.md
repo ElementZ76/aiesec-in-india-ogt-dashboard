@@ -148,9 +148,13 @@ in a browser; details in findings.md "UI direction"). Further visual changes are
 site is connected to the database.
 
 - **Audience:** AIESEC members (EP managers, oGT team).
-- **Look:** AIESEC brand with Apple "Liquid Glass"-style glass panels; Lato font (400/700/900);
-  **dark mode by default**, light/dark switch remembered per browser.
-- **Colours:** AIESEC blue `#037EF3`; GTa `#0A8EA0`; GTe `#F85A40`. Every text/background pair must
+- **Look:** **monochrome** (user, 2026-10-22) with Apple "Liquid Glass"-style glass panels; Lato
+  font (400/700/900); **dark mode by default** with a pure black background, no coloured glows;
+  light mode is white/light grey; light/dark switch remembered per browser.
+- **Colours:** black, white and neutral greys. AIESEC blue `#037EF3` only as a slight accent (links,
+  buttons, focus outline, active tab, list bars); white for the big statistic numbers and stat icons.
+  GTa `#0A8EA0` and GTe `#F85A40` stay, only on GTa/GTe things (badges, avatars, ring). Amber
+  (stale data) and green (copied) stay as signals. Every text/background pair must
   meet WCAG AA contrast (4.5:1); use deeper/lighter shades for small text (e.g. buttons `#0366D6`).
 - **Corners:** concentric (inner radius = outer radius − padding); capsules for free-standing controls.
 - **Page:** floating pill navbar (AIESEC in India · Statistics · Applications · theme switch ·
@@ -276,3 +280,4 @@ Tests live next to the code they test, as `*.test.ts`.
 | 2026-10-18 | Status: live since 2026-10-16, final integration test passed; live URL in North Star; `person.full_name` marked verified | Final integration test (findings.md "Final integration test") |
 | 2026-10-18 | UI Spec: popup motion (fade-in backdrop, no-bounce glide, close animation, no tap flash) | User: on phones the popup flashed, then jumped too fast |
 | 2026-10-18 | UI Spec: condensed statistics — 4 short cards; Top LC / Top work area open the full list (drop-down on laptops, bottom sheet on phones); Breakdown button removed; phones 2 × 2 grid | User: condense the statistics cards; chose drop-down + sheet, merge Breakdown, 2 × 2, Applications and GTa cards not clickable |
+| 2026-10-22 | UI Spec: monochrome look — black background (dark), white/grey (light), blue as a slight accent, teal/orange only for GTa/GTe; mockup no longer matches the colours | User: background fully black, monochrome with slight blue and white accents; chose to keep GTa/GTe colours and make light mode monochrome too |

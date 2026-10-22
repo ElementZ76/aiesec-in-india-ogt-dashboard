@@ -1,4 +1,5 @@
-/* Ported from the approved mockup: docs/design/ui-mockup.html (v10). Keep the two in step. */
+/* Ported from the approved mockup: docs/design/ui-mockup.html (v10). Colours have changed since
+   (monochrome, 2026-10-22); the mockup still shows the old blue look. */
 /* ---------- Tokens ---------- */
 :root {
   --aiesec: #037ef3;
@@ -21,26 +22,28 @@
   --nav-h: 68px;
   --nav-top: 14px;
 }
+/* Monochrome (2026-10-22): black / white / greys; blue only for links, buttons, focus and the
+   active state; teal and orange only for GTa and GTe. */
 :root[data-theme="dark"] {
   color-scheme: dark;
-  --bg: #050912;
-  --blob-1: rgba(3, 126, 243, .30);
-  --blob-2: rgba(10, 142, 160, .32);
-  --blob-3: rgba(248, 90, 64, .16);
-  --text: #f2f5fa;
-  --muted: #b8c2d3;
-  --faint: #9eaabd;
-  --glass: rgba(12, 18, 32, .55);   /* smoked glass keeps text readable over the glow */
-  --glass-bar: rgba(12, 18, 32, .62);
-  --glass-inset: rgba(255, 255, 255, .045);
+  --bg: #000;
+  --text: #f5f5f5;
+  --muted: #a3a3a3;
+  --faint: #8f8f8f;
+  --glass: rgba(255, 255, 255, .04);
+  --glass-bar: rgba(18, 18, 18, .72);
+  --glass-inset: rgba(255, 255, 255, .05);
   --edge: rgba(255, 255, 255, .10);
-  --rim-a: rgba(255, 255, 255, .42);
+  --rim-a: rgba(255, 255, 255, .28);
   --rim-b: rgba(255, 255, 255, .06);
-  --sheen: rgba(255, 255, 255, .06);
-  --rim-top: rgba(255, 255, 255, .20);
-  --bar-solid: rgba(9, 14, 25, .94);
+  --sheen: rgba(255, 255, 255, .04);
+  --rim-top: rgba(255, 255, 255, .16);
+  --bar-solid: rgba(20, 20, 20, .95);
   --shadow: 0 18px 40px -18px rgba(0, 0, 0, .7);
   --shadow-lift: 0 30px 60px -24px rgba(0, 0, 0, .8);
+  --chip-bg: linear-gradient(140deg, #fff, #cfcfcf);
+  --chip-fg: #000;
+  --tint: rgba(255, 255, 255, .10); --tint-rest: rgba(255, 255, 255, .03); --tint-edge: rgba(255, 255, 255, .32);
   --link: #8cc8ff;
   --active: rgba(3, 126, 243, .22);
   --gta-bg: rgba(10, 142, 160, .24);
@@ -54,31 +57,31 @@
 }
 :root[data-theme="light"] {
   color-scheme: light;
-  --bg: #edf2fa;
-  --blob-1: rgba(3, 126, 243, .22);
-  --blob-2: rgba(10, 142, 160, .20);
-  --blob-3: rgba(248, 90, 64, .13);
-  --text: #0c1424;
-  --muted: #46536a;
-  --faint: #5b677c;
-  --glass: rgba(255, 255, 255, .58);
-  --glass-bar: rgba(255, 255, 255, .68);
-  --glass-inset: rgba(255, 255, 255, .55);
-  --edge: rgba(15, 30, 60, .09);
+  --bg: #f4f4f5;
+  --text: #0a0a0a;
+  --muted: #525252;
+  --faint: #666;
+  --glass: rgba(255, 255, 255, .70);
+  --glass-bar: rgba(255, 255, 255, .75);
+  --glass-inset: rgba(255, 255, 255, .60);
+  --edge: rgba(0, 0, 0, .09);
   --rim-a: rgba(255, 255, 255, .95);
   --rim-b: rgba(255, 255, 255, .25);
   --sheen: rgba(255, 255, 255, .45);
   --rim-top: rgba(255, 255, 255, .95);
-  --bar-solid: rgba(244, 247, 252, .95);
-  --shadow: 0 18px 40px -22px rgba(20, 40, 80, .35);
-  --shadow-lift: 0 30px 60px -26px rgba(20, 40, 80, .45);
+  --bar-solid: rgba(250, 250, 250, .95);
+  --shadow: 0 18px 40px -22px rgba(0, 0, 0, .22);
+  --shadow-lift: 0 30px 60px -26px rgba(0, 0, 0, .30);
+  --chip-bg: linear-gradient(140deg, #3a3a3a, #0a0a0a);
+  --chip-fg: #fff;
+  --tint: rgba(0, 0, 0, .06); --tint-rest: rgba(0, 0, 0, .02); --tint-edge: rgba(0, 0, 0, .25);
   --link: #0360c4;
   --active: rgba(3, 126, 243, .13);
   --gta-bg: rgba(10, 142, 160, .14);
   --gta-text: #066c7a;
   --gte-bg: rgba(248, 90, 64, .14);
   --gte-text: #b3321c;
-  --bar-track: rgba(15, 30, 60, .08);
+  --bar-track: rgba(0, 0, 0, .07);
   --focus: #0366d6;
   --ok: #15803d;
   --warn: #92400e;
@@ -92,13 +95,6 @@ body {
   display: flow-root;   /* keeps the navbar's top margin inside <body>; otherwise it leaks out and shows a strip above the navbar */
   font: 16px/1.55 var(--font-lato), Lato, -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
   -webkit-font-smoothing: antialiased;
-}
-body::before {   /* soft colour light behind everything; fixed and painted once, so it is cheap */
-  content: ""; position: fixed; inset: 0; z-index: -1; pointer-events: none;
-  background:
-    radial-gradient(45% 55% at 8% 0%, var(--blob-1), transparent 70%),
-    radial-gradient(40% 50% at 100% 18%, var(--blob-2), transparent 70%),
-    radial-gradient(45% 55% at 55% 105%, var(--blob-3), transparent 70%);
 }
 a { color: var(--link); text-decoration: none; }
 a:hover { text-decoration: underline; }
@@ -159,11 +155,7 @@ section[id] { scroll-margin-top: calc(var(--nav-h) + var(--nav-top) + 16px); }
 .nav {
   max-width: 1208px; height: var(--nav-h); margin: 0 auto; border-radius: var(--pill);
   display: flex; align-items: center; gap: 14px; padding: 0 10px 0 28px;
-  background:
-    radial-gradient(120% 140% at 0% 0%, rgba(3, 126, 243, .16), transparent 55%),
-    radial-gradient(90% 140% at 100% 100%, rgba(10, 142, 160, .14), transparent 60%),
-    linear-gradient(180deg, var(--sheen), transparent 60%),
-    var(--glass-bar);
+  background: linear-gradient(180deg, var(--sheen), transparent 60%), var(--glass-bar);
   box-shadow: inset 0 1px 0 var(--rim-a), 0 20px 50px -20px rgba(0, 0, 0, .55);
   transition: transform .5s var(--spring), box-shadow .3s ease;
 }
@@ -233,7 +225,6 @@ section[id] { scroll-margin-top: calc(var(--nav-h) + var(--nav-top) + 16px); }
   font: inherit; color: inherit; text-align: left;   /* two of the cards are buttons */
   background: radial-gradient(90% 90% at 100% 0%, var(--tint-rest), transparent 65%), linear-gradient(180deg, var(--sheen), transparent 45%), var(--glass);
   transition: transform .55s var(--spring);
-  --tint: rgba(3,126,243,.30); --tint-rest: rgba(3,126,243,.10); --tint-edge: rgba(3,126,243,.5);
 }
 .tile::after {   /* stronger coloured glow that fades in on hover */
   content: ""; position: absolute; inset: 0; border-radius: inherit; pointer-events: none; opacity: 0;
@@ -253,19 +244,16 @@ button.tile:active { transform: scale(.97); transition-duration: .1s; }
 }
 .tile.on { border-color: var(--tint-edge); }
 .tile.on::after { opacity: 1; }
-.t-prog, .t-field { --tint: rgba(10,142,160,.32); --tint-rest: rgba(10,142,160,.11); --tint-edge: rgba(10,142,160,.6); }
 .t-head { display: flex; align-items: center; gap: 10px; font-size: 12px; font-weight: 900; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
 .chip {
-  width: 32px; height: 32px; border-radius: var(--r-tile-inner); display: grid; place-items: center; color: #fff; flex: none;
-  background: linear-gradient(140deg, #46a3ff, var(--btn)); box-shadow: inset 0 1px 0 rgba(255,255,255,.45), 0 6px 14px -6px rgba(3,126,243,.8);
+  width: 32px; height: 32px; border-radius: var(--r-tile-inner); display: grid; place-items: center; color: var(--chip-fg); flex: none;
+  background: var(--chip-bg); box-shadow: inset 0 1px 0 rgba(255,255,255,.45), 0 6px 14px -6px rgba(0,0,0,.6);
   transition: transform .6s var(--spring);
 }
-.chip.teal { background: linear-gradient(140deg, #19b3c7, #077786); box-shadow: inset 0 1px 0 rgba(255,255,255,.45), 0 6px 14px -6px rgba(10,142,160,.8); }
-.chip.duo { background: linear-gradient(140deg, #19b3c7 45%, #f85a40 55%); }
+.chip.duo { color: #fff; background: linear-gradient(140deg, #19b3c7 45%, #f85a40 55%); }   /* GTa vs GTe keeps its colours */
 .big {
   font-size: clamp(34px, 3.4vw, 44px); font-weight: 900; line-height: .95; letter-spacing: -.035em; font-variant-numeric: tabular-nums;
-  background: linear-gradient(120deg, var(--link), var(--gta-text)); -webkit-background-clip: text; background-clip: text; color: transparent;
-  transform-origin: left bottom; transition: transform .55s var(--spring);
+  color: var(--text); transform-origin: left bottom; transition: transform .55s var(--spring);
 }
 .t-foot { margin-top: auto; color: var(--muted); font-size: 14px; display: flex; flex-wrap: wrap; align-items: center; gap: 2px 10px; }
 .t-name {   /* top LC / work area: up to 2 lines */
@@ -291,7 +279,7 @@ button.tile:active { transform: scale(.97); transition-duration: .1s; }
 .sw { width: 10px; height: 10px; border-radius: 3px; flex: none; }
 .rank { display: flex; align-items: baseline; gap: 8px; }
 .rank .big { font-size: clamp(34px, 3.4vw, 44px); }
-.rank > span:not(.big) { color: var(--muted); }   /* not the number: it has a gradient */
+.rank > span:not(.big) { color: var(--muted); }
 .prog-compact { display: none; }
 .big small { font-size: .42em; letter-spacing: 0; }
 .split { height: 6px; border-radius: 3px; background: var(--gte); overflow: hidden; }
@@ -335,7 +323,7 @@ button.bar-row:active { transform: scale(.97); }
 .bar-row.on .name { color: var(--link); font-weight: 700; }
 .bar-row .name { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .bar { height: 8px; border-radius: 4px; background: var(--bar-track); overflow: hidden; }
-.bar i { display: block; height: 100%; border-radius: 4px; background: linear-gradient(90deg, var(--aiesec), var(--gta)); transform-origin: left; animation: grow .8s var(--spring-soft) backwards; }
+.bar i { display: block; height: 100%; border-radius: 4px; background: linear-gradient(90deg, var(--btn), var(--aiesec)); transform-origin: left; animation: grow .8s var(--spring-soft) backwards; }
 .bar-row .n { text-align: right; color: var(--muted); font-variant-numeric: tabular-nums; }
 @keyframes grow { from { transform: scaleX(0); } }
 
@@ -540,8 +528,8 @@ footer .stale { color: var(--warn); font-weight: 700; }
 }
 
 /* ---------- Summary cards + details popup (2026-10-16) ---------- */
-:root[data-theme="dark"] { --panel-solid: #0a101c; }
-:root[data-theme="light"] { --panel-solid: #f4f7fc; }
+:root[data-theme="dark"] { --panel-solid: #0e0e0e; }
+:root[data-theme="light"] { --panel-solid: #fafafa; }
 html { scrollbar-gutter: stable; }               /* no layout jump when the popup locks scrolling */
 html:has(dialog[open]) { overflow: hidden; }     /* the page behind the popup does not scroll */
 .card { cursor: pointer; -webkit-tap-highlight-color: transparent; }   /* no blue flash on tap */
@@ -577,12 +565,12 @@ html:has(dialog[open]) { overflow: hidden; }     /* the page behind the popup do
 }
 @starting-style { .details[open] { opacity: 0; transform: translateY(14px) scale(.98); } }
 .details::backdrop {
-  background: rgba(2, 6, 14, 0);
+  background: rgba(0, 0, 0, 0);
   transition: background-color .2s ease;
   transition: background-color .2s ease, overlay .2s allow-discrete, display .2s allow-discrete;
 }
-.details[open]::backdrop { background: rgba(2, 6, 14, .62); transition-duration: .36s; }
-@starting-style { .details[open]::backdrop { background: rgba(2, 6, 14, 0); } }
+.details[open]::backdrop { background: rgba(0, 0, 0, .70); transition-duration: .36s; }
+@starting-style { .details[open]::backdrop { background: rgba(0, 0, 0, 0); } }
 .details-panel {
   position: relative; display: flex; flex-direction: column; gap: 16px;
   max-height: calc(100dvh - 48px); overflow-y: auto; overscroll-behavior: contain;
