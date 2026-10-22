@@ -150,7 +150,7 @@ site is connected to the database.
 - **Audience:** AIESEC members (EP managers, oGT team).
 - **Look:** **monochrome** (user, 2026-10-22) with Apple "Liquid Glass"-style glass panels; Lato
   font (400/700/900); **dark mode by default** with a pure black background, no coloured glows;
-  light mode is white/light grey; light/dark switch remembered per browser.
+  light mode is a warm (cream) white with warm near-black text; light/dark switch remembered per browser.
 - **Colours:** black, white and neutral greys. AIESEC blue `#037EF3` only as a slight accent (links,
   buttons, focus outline, active tab, list bars); white for the big statistic numbers and stat icons.
   GTa `#0A8EA0` and GTe `#F85A40` stay, only on GTa/GTe things (badges, avatars, ring). Amber
@@ -281,3 +281,4 @@ Tests live next to the code they test, as `*.test.ts`.
 | 2026-10-18 | UI Spec: popup motion (fade-in backdrop, no-bounce glide, close animation, no tap flash) | User: on phones the popup flashed, then jumped too fast |
 | 2026-10-18 | UI Spec: condensed statistics — 4 short cards; Top LC / Top work area open the full list (drop-down on laptops, bottom sheet on phones); Breakdown button removed; phones 2 × 2 grid | User: condense the statistics cards; chose drop-down + sheet, merge Breakdown, 2 × 2, Applications and GTa cards not clickable |
 | 2026-10-22 | UI Spec: monochrome look — black background (dark), white/grey (light), blue as a slight accent, teal/orange only for GTa/GTe; mockup no longer matches the colours | User: background fully black, monochrome with slight blue and white accents; chose to keep GTa/GTe colours and make light mode monochrome too |
+| 2026-10-22 | UI Spec: light mode → warm white (cream `#F6F1E7` page, warm near-black text) | User: plain white was harsh; wanted a yellowish white that is pleasing to the eye |
