@@ -38,8 +38,6 @@ export interface PoolStats {
   perLc: Count[];
   /** Work areas of the LC-filtered list. */
   perField: Count[];
-  /** Only when an LC is selected: its rank among all LCs (1 = most cards) and share of the pool. */
-  selected: { rank: number; of: number; sharePercent: number } | null;
 }
 
 /** Statistics for `all` filtered to `lcId` ("" = all LCs). They ignore the search box. */
@@ -57,12 +55,5 @@ export function computeStats(all: PoolApplication[], lcId: string): PoolStats {
     gtaPercent: list.length ? Math.round((gta / list.length) * 100) : 0,
     perLc,
     perField,
-    selected: lcId
-      ? {
-          rank: perLc.findIndex((c) => c.key === lcId) + 1, // 0 if the LC has no cards any more
-          of: perLc.length,
-          sharePercent: all.length ? Math.round((list.length / all.length) * 100) : 0,
-        }
-      : null,
   };
 }

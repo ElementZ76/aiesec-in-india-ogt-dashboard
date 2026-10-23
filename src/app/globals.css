@@ -121,7 +121,7 @@ section[id] { scroll-margin-top: calc(var(--nav-h) + var(--nav-top) + 16px); }
 @supports (corner-shape: squircle) {
   :root { --r-card: 44px; --r-tile: 38px; }   /* squircles look tighter, so use larger radii */
   .card, .tile, .panel, .job, .card-foot .btn, .chip, .avatar, .empty, .bar-row { corner-shape: squircle; }
-  .glass::before, .tile::after { corner-shape: inherit; }
+  .glass::before { corner-shape: inherit; }
   .avatar { border-radius: 50%; }
 }
 .blur { -webkit-backdrop-filter: blur(14px) saturate(160%); backdrop-filter: blur(14px) saturate(160%); }
@@ -204,14 +204,18 @@ section[id] { scroll-margin-top: calc(var(--nav-h) + var(--nav-top) + 16px); }
 /* Theme change: new theme spreads out in a circle from the switch */
 ::view-transition-old(root), ::view-transition-new(root) { animation: none; mix-blend-mode: normal; }
 
-/* ---------- Hero ---------- */
-.hero { padding: 30px 0 0; }
+/* ---------- Hero: title left, the 2 statistics cards right (2026-10-23) ---------- */
+.hero {
+  display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 620px); align-items: center; gap: 14px 32px;
+  padding: 26px 0 0;
+}
 .hero h1 { margin: 0; font-size: clamp(32px, 4.5vw, 44px); line-height: 1.02; letter-spacing: -.02em; font-weight: 900; }
 .hero h1 span { color: var(--link); }
+.hero .stat-drop { grid-column: 1 / -1; }   /* the full list spans the whole row */
 
 /* ---------- Stats ---------- */
-.stats-head { display: flex; align-items: center; gap: 12px; margin: 28px 0 14px; flex-wrap: wrap; }
-.stats-head h2 { margin: 0; font-size: clamp(26px, 3.2vw, 34px); font-weight: 900; letter-spacing: -.02em; }
+.hero-stats { display: flex; flex-direction: column; align-items: flex-start; gap: 10px; min-width: 0; }
+.hero-stats .tiles { align-self: stretch; }
 .scope {
   font-size: 13px; color: var(--muted); padding: 3px 10px; border-radius: var(--pill); background: var(--glass-inset); border: 1px solid var(--edge);
 }
@@ -219,32 +223,14 @@ section[id] { scroll-margin-top: calc(var(--nav-h) + var(--nav-top) + 16px); }
 .chev-rot { transition: transform .5s var(--spring); }
 [aria-expanded="true"] .chev-rot { transform: rotate(180deg); }
 
-.tiles { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14px; }
+.tiles { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
 .tile {
   border-radius: var(--r-tile); padding: var(--pad-tile); overflow: hidden;
   display: flex; flex-direction: column; gap: 10px;
-  font: inherit; color: inherit; text-align: left;   /* two of the cards are buttons */
   background: radial-gradient(90% 90% at 100% 0%, var(--tint-rest), transparent 65%), linear-gradient(180deg, var(--sheen), transparent 45%), var(--glass);
   transition: transform .55s var(--spring);
 }
-.tile::after {   /* stronger coloured glow that fades in on hover */
-  content: ""; position: absolute; inset: 0; border-radius: inherit; pointer-events: none; opacity: 0;
-  background: radial-gradient(100% 120% at 0% 0%, var(--tint), transparent 60%);
-  transition: opacity .35s ease;
-}
 .tile > * { position: relative; z-index: 1; }
-/* Only the clickable cards react to the mouse; hover is mouse-only (a tap would stick). */
-button.tile { cursor: pointer; -webkit-tap-highlight-color: transparent; }
-button.tile:disabled { cursor: default; }
-button.tile:focus-visible { outline: 2px solid var(--focus); outline-offset: 3px; }
-button.tile:active { transform: scale(.97); transition-duration: .1s; }
-@media (hover: hover) {
-  button.tile:not(:disabled):hover { transform: translateY(-4px); border-color: var(--tint-edge); }
-  button.tile:not(:disabled):hover::after { opacity: 1; }
-  button.tile:not(:disabled):hover .chip { transform: rotate(-12deg) scale(1.15); }
-}
-.tile.on { border-color: var(--tint-edge); }
-.tile.on::after { opacity: 1; }
 .t-head { display: flex; align-items: center; gap: 10px; font-size: 12px; font-weight: 900; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
 .chip {
   width: 32px; height: 32px; border-radius: var(--r-tile-inner); display: grid; place-items: center; color: var(--chip-fg); flex: none;
@@ -256,13 +242,21 @@ button.tile:active { transform: scale(.97); transition-duration: .1s; }
   font-size: clamp(34px, 3.4vw, 44px); font-weight: 900; line-height: .95; letter-spacing: -.035em; font-variant-numeric: tabular-nums;
   color: var(--text); transform-origin: left bottom; transition: transform .55s var(--spring);
 }
-.t-foot { margin-top: auto; color: var(--muted); font-size: 14px; display: flex; flex-wrap: wrap; align-items: center; gap: 2px 10px; }
-.t-name {   /* top LC / work area: up to 2 lines */
-  font-size: 19px; font-weight: 900; line-height: 1.2; letter-spacing: -.01em; overflow: hidden;
-  display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow-wrap: anywhere;
-}
-.t-more { margin-left: auto; display: inline-flex; align-items: center; gap: 4px; color: var(--link); font-weight: 700; white-space: nowrap; }
+.t-foot { margin-top: auto; color: var(--muted); font-size: 14px; display: flex; flex-wrap: wrap; align-items: center; gap: 6px 8px; }
 .t-foot b { color: var(--text); }
+/* "24 LCs ▾" / "8 work areas ▾" on the Applications card: open the full list. */
+.t-link {
+  display: inline-flex; align-items: center; gap: 5px; min-height: 30px; padding: 3px 10px 3px 12px;
+  font: inherit; font-size: 14px; color: var(--muted); white-space: nowrap; cursor: pointer;
+  border-radius: var(--pill); background: var(--glass-inset); border: 1px solid var(--edge);
+  transition: border-color .2s ease, color .2s ease, background-color .2s ease, transform .4s var(--spring);
+  -webkit-tap-highlight-color: transparent;
+}
+.t-link svg { color: var(--link); }
+.t-link:not(:disabled):hover { border-color: var(--link); color: var(--text); }
+.t-link:not(:disabled):active { transform: scale(.94); transition-duration: .08s; }
+.t-link.on { border-color: var(--link); background: var(--active); color: var(--text); }
+.t-link:disabled { cursor: default; opacity: .6; }
 .prog { display: flex; align-items: center; gap: 14px; flex: 1; }
 .ring-wrap { position: relative; width: 68px; height: 68px; flex: none; }
 .ring { width: 100%; height: 100%; transform: rotate(-90deg); }
@@ -278,9 +272,6 @@ button.tile:active { transform: scale(.97); transition-duration: .1s; }
 .legend .gta b { color: var(--gta-text); }
 .legend .gte b { color: var(--gte-text); }
 .sw { width: 10px; height: 10px; border-radius: 3px; flex: none; }
-.rank { display: flex; align-items: baseline; gap: 8px; }
-.rank .big { font-size: clamp(34px, 3.4vw, 44px); }
-.rank > span:not(.big) { color: var(--muted); }
 .prog-compact { display: none; }
 .big small { font-size: .42em; letter-spacing: 0; }
 .split { height: 6px; border-radius: 3px; background: var(--gte); overflow: hidden; }
@@ -288,12 +279,11 @@ button.tile:active { transform: scale(.97); transition-duration: .1s; }
 .n-gta { color: var(--gta-text) !important; }
 .n-gte { color: var(--gte-text) !important; }
 
-/* The full LC / work-area list (2026-10-18). Laptops: drops down under the cards, with a small
-   pointer to the card it belongs to. Phones: the same list in the bottom sheet (.stat-sheet). */
-.stat-drop { display: grid; grid-template-rows: 0fr; transition: grid-template-rows .45s cubic-bezier(.32, .72, 0, 1); --at: 62.5%; }
+/* The full LC / work-area list. Laptops: drops down under the title row. Phones: the same list in
+   the bottom sheet (.stat-sheet). */
+.stat-drop { display: grid; grid-template-rows: 0fr; transition: grid-template-rows .45s cubic-bezier(.32, .72, 0, 1); }
 .stat-drop.open { grid-template-rows: 1fr; }
 .stat-drop > div { overflow: hidden; }
-.stat-drop[data-at="field"] { --at: 87.5%; }
 .stat-panel {
   position: relative; margin-top: 14px; border-radius: var(--r-tile); padding: var(--pad-tile);
   background: linear-gradient(180deg, var(--sheen), transparent 45%), var(--panel-solid);
@@ -301,11 +291,6 @@ button.tile:active { transform: scale(.97); transition-duration: .1s; }
   opacity: 0; transform: translateY(-8px); transition: opacity .25s ease, transform .45s cubic-bezier(.32, .72, 0, 1);
 }
 .stat-drop.open .stat-panel { opacity: 1; transform: none; }
-.stat-panel::after {   /* pointer up to the card */
-  content: ""; position: absolute; top: -8px; left: calc(var(--at) - 8px); width: 14px; height: 14px;
-  background: var(--panel-solid); border: 1px solid var(--edge); border-right: 0; border-bottom: 0;
-  transform: rotate(45deg); transition: left .45s cubic-bezier(.32, .72, 0, 1);
-}
 .stat-panel h3, .stat-sheet h3 { margin: 4px 56px 14px 0; font-size: 15px; font-weight: 900; }
 .stat-panel h3 em, .stat-sheet h3 em { font-weight: 400; color: var(--faint); }
 .stat-panel .details-close { top: 10px; right: 10px; }
@@ -464,16 +449,15 @@ footer .stale { color: var(--warn); font-weight: 700; }
 }
 
 /* ---------- Smaller screens ---------- */
-@media (max-width: 1100px) { .grid, .tiles { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
-@media (max-width: 1100px) { .stat-drop { --at: 25%; } .stat-drop[data-at="field"] { --at: 75%; } }
-/* Phones: the 4 stat cards stay a 2 x 2 grid (2026-10-18; was a sideways swipe row). */
+@media (max-width: 1100px) { .grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+/* Too narrow for the title and the cards side by side: cards go under the title. */
+@media (max-width: 960px) { .hero { grid-template-columns: minmax(0, 1fr); } }
+/* Phones: the 2 stat cards stay side by side. */
 @media (max-width: 640px) {
   .tiles { gap: 10px; }
   .tile { --pad-tile: 14px; gap: 8px; }
   .t-head { gap: 8px; letter-spacing: .05em; }
   .chip { width: 28px; height: 28px; }
-  .t-name { font-size: 17px; }
-  .t-more { margin-left: 0; }
   .t-prog .prog { display: none; }
   .prog-compact { display: contents; }   /* its parts line up like the other cards */
 }
@@ -494,7 +478,7 @@ footer .stale { color: var(--warn); font-weight: 700; }
   .logo-text b { font-size: 16px; }
   .nav .btn-primary { padding: 11px 13px; }
 }
-@media (max-width: 640px) { .grid { grid-template-columns: minmax(0, 1fr); } .hero { padding-top: 22px; } .stats-head { margin-top: 20px; } }
+@media (max-width: 640px) { .grid { grid-template-columns: minmax(0, 1fr); } .hero { padding-top: 22px; } }
 @media (max-width: 380px) {
   .nav { padding-left: 16px; gap: 8px; }
   .logo-text b { font-size: 15px; }
@@ -513,7 +497,7 @@ footer .stale { color: var(--warn); font-weight: 700; }
   .theme button, .theme .thumb { width: 44px; height: 44px; }
   :root[data-theme="dark"] .theme .thumb { transform: translateX(44px); }
   .nav .btn-primary, .more .btn, .card-foot .btn { min-height: 44px; min-width: 44px; }
-  button.bar-row { min-height: 44px; }
+  button.bar-row, .t-link { min-height: 44px; }
   .logo { min-height: 44px; }
   .row .val { padding: 12px 0; }
   footer a { padding: 12px 0; }

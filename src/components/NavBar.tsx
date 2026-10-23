@@ -3,10 +3,8 @@
 import { useEffect, useRef, type MouseEvent } from "react";
 import { setTheme, useTheme, type Theme } from "./hooks";
 
-const SECTIONS = [
-  { id: "stats", label: "Statistics" },
-  { id: "applications", label: "Applications" },
-] as const;
+// The statistics sit next to the page title (2026-10-23), so they need no link of their own.
+const SECTIONS = [{ id: "applications", label: "Applications" }] as const;
 
 function ThemeSwitch() {
   const theme = useTheme();

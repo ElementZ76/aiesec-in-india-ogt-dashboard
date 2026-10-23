@@ -157,17 +157,19 @@ site is connected to the database.
   (stale data) and green (copied) stay as signals. Every text/background pair must
   meet WCAG AA contrast (4.5:1); use deeper/lighter shades for small text (e.g. buttons `#0366D6`).
 - **Corners:** concentric (inner radius = outer radius − padding); capsules for free-standing controls.
-- **Page:** floating pill navbar (AIESEC in India · Statistics · Applications · theme switch ·
-  Export CSV) → title "oGT CV Pool" → Statistics → sticky search + LC filter + work-area filter → cards → footer
+- **Page:** floating pill navbar (AIESEC in India · Applications · theme switch · Export CSV) →
+  title "oGT CV Pool" with the statistics cards beside it → sticky search + LC filter + work-area filter → cards → footer
   ("Last updated …" left; "Built by Praveen" → https://www.linkedin.com/in/praveen-pr190705/ right).
-- **Statistics** (condensed, user 2026-10-18): 4 short cards, each one headline. Applications
-  (total + LC/work-area counts) and GTa vs GTe (small ring + both counts) show everything and are
-  not clickable. **Top LC** (or the selected LC's rank) and **Top work area** open the full list
-  (all LCs / all work areas): laptops and tablets — a panel drops down under the cards, one at a
-  time (click the card again, ✕ or Esc closes); phones (≤ 640 px) — a bottom sheet. Clicking a
-  row filters by that LC / work area, clicking it again clears it; on phones the sheet then closes.
-  No separate Breakdown button. Phones: 2 × 2 grid, no sideways swipe. They follow the **LC
-  filter** only, not the search box or the work-area filter (user, 2026-10-16).
+- **Statistics** (user 2026-10-23): 2 cards to the right of the title, under Export CSV (below
+  960 px wide: under the title; phones: side by side). A small label above them names the LC they
+  cover. **Applications** (total + LC/work-area counts) and **GTa vs GTe** (small ring + both
+  counts). No "Statistics" heading and no navbar link. Top LC / Top work area cards and the LC
+  rank were removed. On the Applications card, **"24 LCs ▾"** and **"8 work areas ▾"** open the
+  full list (all LCs / all work areas): laptops and tablets — a panel drops down under the title
+  row, one at a time (click the button again, ✕ or Esc closes); phones (≤ 640 px) — a bottom
+  sheet. Clicking a row filters by that LC / work area, clicking it again clears it; on phones the
+  sheet then closes. They follow the **LC filter** only, not the search box or the work-area
+  filter (user, 2026-10-16).
 - **Cards:** one per application, **newest application first** (`applied_at`). A card is a
   summary: name, LC, GTa/GTe badge, company, work area, start–end dates (+ weeks), a "Contact &
   EP manager" hint, View CV ("CV not available" when missing), applied date. 3 / 2 / 1 columns
@@ -282,3 +284,4 @@ Tests live next to the code they test, as `*.test.ts`.
 | 2026-10-18 | UI Spec: condensed statistics — 4 short cards; Top LC / Top work area open the full list (drop-down on laptops, bottom sheet on phones); Breakdown button removed; phones 2 × 2 grid | User: condense the statistics cards; chose drop-down + sheet, merge Breakdown, 2 × 2, Applications and GTa cards not clickable |
 | 2026-10-22 | UI Spec: monochrome look — black background (dark), white/grey (light), blue as a slight accent, teal/orange only for GTa/GTe; mockup no longer matches the colours | User: background fully black, monochrome with slight blue and white accents; chose to keep GTa/GTe colours and make light mode monochrome too |
 | 2026-10-22 | UI Spec: light mode → warm white (cream `#F6F1E7` page, warm near-black text) | User: plain white was harsh; wanted a yellowish white that is pleasing to the eye |
+| 2026-10-23 | UI Spec: statistics → 2 cards beside the title (Top LC / Top work area cards, LC rank, "Statistics" heading and navbar link removed); full lists open from the counts on the Applications card | User: remove the two cards and fill the empty space at the top right; keep the full lists, reached from the Applications card |

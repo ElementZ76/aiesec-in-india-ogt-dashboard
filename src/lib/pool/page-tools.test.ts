@@ -128,21 +128,20 @@ describe("search", () => {
 describe("stats", () => {
   it("covers the whole pool", () => {
     const s = computeStats(POOL, "");
-    expect(s).toMatchObject({ total: 4, lcCount: 3, fieldCount: 3, gta: 3, gte: 1, gtaPercent: 75, selected: null });
+    expect(s).toMatchObject({ total: 4, lcCount: 3, fieldCount: 3, gta: 3, gte: 1, gtaPercent: 75 });
     expect(s.perLc.map((c) => [c.label, c.count])).toEqual([["Delhi IIT", 2], ["Bengaluru", 1], ["Mumbai", 1]]);
     expect(s.perField.map((c) => [c.label, c.count])).toEqual([["Marketing", 2], ["Finance", 1], [NOT_SPECIFIED, 1]]);
     expect(s.perField.find((c) => c.label === NOT_SPECIFIED)?.key).toBe(NO_FIELD); // same key as the filter
   });
-  it("follows the LC filter, with the LC's rank among all LCs", () => {
+  it("follows the LC filter", () => {
     const s = computeStats(POOL, "20");
     expect(s).toMatchObject({ total: 2, lcCount: 1, gta: 1, gte: 1, gtaPercent: 50 });
-    expect(s.selected).toEqual({ rank: 1, of: 3, sharePercent: 50 });
     expect(s.perLc).toHaveLength(3); // breakdown of LCs stays India-wide
-    expect(computeStats(POOL, "30").selected?.rank).toBe(2); // tie with Mumbai → by name
   });
   it("handles an empty pool and an LC that is gone", () => {
     expect(computeStats([], "")).toMatchObject({ total: 0, gtaPercent: 0, perLc: [] });
-    expect(computeStats(POOL, "99")).toMatchObject({ total: 0, selected: { rank: 0, of: 3, sharePercent: 0 } });
+    expect(computeStats(POOL, "99")).toMatchObject({ total: 0, perField: [] });
+    expect(computeStats(POOL, "99").perLc).toHaveLength(3);
   });
 });
 

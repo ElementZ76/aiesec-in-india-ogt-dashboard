@@ -173,18 +173,18 @@ export function PoolApp({ applications, lastUpdated }: { applications: PoolAppli
       <NavBar onExport={exportCsv} />
 
       <main className="wrap">
-        <section className="hero" id="top">
+        {/* Title on the left, the 2 statistics cards on the right (stacked on narrow screens). */}
+        <div className="hero" id="top">
           <h1>oGT <span>CV Pool</span></h1>
-        </section>
-
-        <StatsSection
-          stats={stats}
-          lcId={lcId}
-          lcName={lcName}
-          field={field}
-          onPickLc={pickLcFromBreakdown}
-          onPickField={pickFieldFromBreakdown}
-        />
+          <StatsSection
+            stats={stats}
+            lcId={lcId}
+            lcName={lcName}
+            field={field}
+            onPickLc={pickLcFromBreakdown}
+            onPickField={pickFieldFromBreakdown}
+          />
+        </div>
 
         <section id="applications" aria-label="Applications">
           <div className="controls" ref={controls}>

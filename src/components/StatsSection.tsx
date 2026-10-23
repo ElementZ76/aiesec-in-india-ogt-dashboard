@@ -1,6 +1,7 @@
 "use client";
-// Statistics: 4 condensed cards; "Top LC" and "Top work area" open the full list
-// (drop-down panel on laptops, bottom sheet on phones). They follow the LC filter only (CLAUDE.md UI Spec).
+// Statistics: 2 cards next to the page title. The LC and work-area counts on the Applications card
+// open the full list (drop-down panel on laptops, bottom sheet on phones). They follow the LC filter
+// only (CLAUDE.md UI Spec).
 import { memo, useEffect, useRef, useState, type ReactNode } from "react";
 import type { Count, PoolStats } from "@/lib/pool/stats";
 import { useMediaQuery } from "./hooks";
@@ -95,19 +96,17 @@ export const StatsSection = memo(function StatsSection({ stats, lcId, lcName, fi
   const kind = open ?? last;
 
   const sheet = useRef<HTMLDialogElement>(null);
-  const lcCard = useRef<HTMLButtonElement>(null);
-  const fieldCard = useRef<HTMLButtonElement>(null);
+  const lcBtn = useRef<HTMLButtonElement>(null);
+  const fieldBtn = useRef<HTMLButtonElement>(null);
   const share = stats.total ? stats.gta / stats.total : 0;
-  const topLc = stats.perLc[0];
-  const topField = stats.perField[0];
 
   function toggle(k: ListKind) {
     if (open !== k) setOpened((n) => n + 1);
     setOpen(open === k ? null : k);
   }
-  // Closing the laptop panel puts focus back on its card, so keyboard users don't get lost.
+  // Closing the laptop panel puts focus back on its button, so keyboard users don't get lost.
   function closePanel() {
-    (open === "field" ? fieldCard : lcCard).current?.focus();
+    (open === "field" ? fieldBtn : lcBtn).current?.focus();
     setOpen(null);
   }
   const pick = (onPick: (key: string) => void) => (key: string) => {
@@ -128,7 +127,7 @@ export const StatsSection = memo(function StatsSection({ stats, lcId, lcName, fi
     if (phone || !open) return;
     const onKey = (e: KeyboardEvent) => {
       if (e.key !== "Escape" || document.querySelector("dialog[open]")) return;
-      (open === "field" ? fieldCard : lcCard).current?.focus();
+      (open === "field" ? fieldBtn : lcBtn).current?.focus();
       setOpen(null);
     };
     addEventListener("keydown", onKey);
@@ -150,9 +149,9 @@ export const StatsSection = memo(function StatsSection({ stats, lcId, lcName, fi
         <Bars key={`${opened}-field-${lcId}`} rows={stats.perField} selected={field} onPick={pick(onPickField)} />
       </>
     );
-  const cardProps = (k: ListKind, rows: Count[]) => ({
+  const listProps = (k: ListKind, rows: Count[]) => ({
     type: "button" as const,
-    className: `tile glass t-${k} tile-btn${open === k ? " on" : ""}`,
+    className: `t-link${open === k ? " on" : ""}`,
     "aria-expanded": open === k,
     "aria-controls": phone ? "stat-sheet" : "stat-list",
     "aria-haspopup": phone ? ("dialog" as const) : undefined,
@@ -161,115 +160,71 @@ export const StatsSection = memo(function StatsSection({ stats, lcId, lcName, fi
   });
 
   return (
-    <section id="stats" aria-labelledby="stats-title">
-      <div className="stats-head">
-        <h2 id="stats-title">Statistics</h2>
+    <>
+      <section className="hero-stats" aria-label="Statistics">
         <span className="scope pop" key={lcId}>{lcId ? lcName : "All LCs"}</span>
-      </div>
+        <div className="tiles">
+          <div className="tile glass t-apps">
+            <div className="t-head">
+              <span className="chip">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                  <path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z" />
+                  <path d="M14 3v6h6M8 13h8M8 17h5" />
+                </svg>
+              </span>
+              Applications
+            </div>
+            <div className="big"><CountUp value={stats.total} /></div>
+            {/* The two counts open the full ranked lists. */}
+            <div className="t-foot">
+              <button ref={lcBtn} {...listProps("lc", stats.perLc)}>
+                <b><CountUp value={stats.lcCount} /></b> LC{stats.lcCount === 1 ? "" : "s"}<span className="sr"> (show list)</span> <Chevron />
+              </button>
+              <button ref={fieldBtn} {...listProps("field", stats.perField)}>
+                <b><CountUp value={stats.fieldCount} /></b> work area{stats.fieldCount === 1 ? "" : "s"}<span className="sr"> (show list)</span> <Chevron />
+              </button>
+            </div>
+          </div>
 
-      <div className="tiles">
-        <div className="tile glass t-apps">
-          <div className="t-head">
-            <span className="chip">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                <path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z" />
-                <path d="M14 3v6h6M8 13h8M8 17h5" />
-              </svg>
-            </span>
-            Applications
-          </div>
-          <div className="big"><CountUp value={stats.total} /></div>
-          <div className="t-foot">
-            <span>
-              <b><CountUp value={stats.lcCount} /></b> LC{stats.lcCount === 1 ? "" : "s"} ·{" "}
-              <b><CountUp value={stats.fieldCount} /></b> work area{stats.fieldCount === 1 ? "" : "s"}
-            </span>
-          </div>
-        </div>
-
-        <div className="tile glass t-prog">
-          <div className="t-head">
-            <span className="chip duo">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                <path d="M21 12a9 9 0 1 1-9-9v9z" />
-              </svg>
-            </span>
-            GTa vs GTe
-          </div>
-          <div className="prog">
-            <div className="ring-wrap">
-              <svg className="ring" viewBox="0 0 120 120" aria-hidden="true">
-                <circle className="r-gte" cx="60" cy="60" r="46" style={stats.total ? undefined : { stroke: "var(--bar-track)" }} />
-                <circle className="r-gta" cx="60" cy="60" r="46" style={{ strokeDashoffset: RING * (1 - share) }} />
-              </svg>
-              <div className="ring-center">
-                <b><CountUp value={stats.gtaPercent} />%</b>
-                <small>GTa</small>
+          <div className="tile glass t-prog">
+            <div className="t-head">
+              <span className="chip duo">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                  <path d="M21 12a9 9 0 1 1-9-9v9z" />
+                </svg>
+              </span>
+              GTa vs GTe
+            </div>
+            <div className="prog">
+              <div className="ring-wrap">
+                <svg className="ring" viewBox="0 0 120 120" aria-hidden="true">
+                  <circle className="r-gte" cx="60" cy="60" r="46" style={stats.total ? undefined : { stroke: "var(--bar-track)" }} />
+                  <circle className="r-gta" cx="60" cy="60" r="46" style={{ strokeDashoffset: RING * (1 - share) }} />
+                </svg>
+                <div className="ring-center">
+                  <b><CountUp value={stats.gtaPercent} />%</b>
+                  <small>GTa</small>
+                </div>
+              </div>
+              <div className="legend">
+                <div className="gta"><i className="sw" style={{ background: "var(--gta)" }} />GTa<b><CountUp value={stats.gta} /></b></div>
+                <div className="gte"><i className="sw" style={{ background: "var(--gte)" }} />GTe<b><CountUp value={stats.gte} /></b></div>
               </div>
             </div>
-            <div className="legend">
-              <div className="gta"><i className="sw" style={{ background: "var(--gta)" }} />GTa<b><CountUp value={stats.gta} /></b></div>
-              <div className="gte"><i className="sw" style={{ background: "var(--gte)" }} />GTe<b><CountUp value={stats.gte} /></b></div>
-            </div>
-          </div>
-          {/* Phones: too narrow for the ring + legend side by side, so a big % and a split bar. */}
-          <div className="prog-compact">
-            <div className="big"><CountUp value={stats.gtaPercent} />%<small> GTa</small></div>
-            <div className="split"><i style={{ width: `${share * 100}%` }} /></div>
-            <div className="t-foot">
-              <span><b className="n-gta">{stats.gta}</b> GTa · <b className="n-gte">{stats.gte}</b> GTe</span>
+            {/* Phones: too narrow for the ring + legend side by side, so a big % and a split bar. */}
+            <div className="prog-compact">
+              <div className="big"><CountUp value={stats.gtaPercent} />%<small> GTa</small></div>
+              <div className="split"><i style={{ width: `${share * 100}%` }} /></div>
+              <div className="t-foot">
+                <span><b className="n-gta">{stats.gta}</b> GTa · <b className="n-gte">{stats.gte}</b> GTe</span>
+              </div>
             </div>
           </div>
         </div>
+      </section>
 
-        <button ref={lcCard} {...cardProps("lc", stats.perLc)}>
-          <span className="t-head">
-            <span className="chip">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                <path d="M12 21s-7-6.2-7-11a7 7 0 0 1 14 0c0 4.8-7 11-7 11z" />
-                <circle cx="12" cy="10" r="2.5" />
-              </svg>
-            </span>
-            {stats.selected ? "LC rank" : "Top LC"}
-          </span>
-          {stats.selected ? (
-            <span className="rank">
-              <span className="big">{stats.selected.rank ? `#${stats.selected.rank}` : "—"}</span>
-              <span>of {stats.selected.of}</span>
-            </span>
-          ) : (
-            <span className="t-name" title={topLc?.label}>{topLc?.label ?? "—"}</span>
-          )}
-          <span className="t-foot">
-            {stats.selected ? (
-              <span><b>{stats.selected.sharePercent}%</b> of India&apos;s pool</span>
-            ) : (
-              <span><b>{topLc?.count ?? 0}</b> applications</span>
-            )}
-            <span className="t-more">All LCs <Chevron /></span>
-          </span>
-        </button>
-
-        <button ref={fieldCard} {...cardProps("field", stats.perField)}>
-          <span className="t-head">
-            <span className="chip">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                <rect x="3" y="7" width="18" height="13" rx="2" />
-                <path d="M9 7V5a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2" />
-              </svg>
-            </span>
-            Top work area
-          </span>
-          <span className="t-name" title={topField?.label}>{topField?.label ?? "—"}</span>
-          <span className="t-foot">
-            <span><b>{topField?.count ?? 0}</b> applications</span>
-            <span className="t-more">All work areas <Chevron /></span>
-          </span>
-        </button>
-      </div>
-
-      {/* Laptops and tablets: the list drops down under the cards. */}
-      <div className={`stat-drop${open && !phone ? " open" : ""}`} data-at={kind} id="stat-list" inert={!open || phone}>
+      {/* Laptops and tablets: the list drops down under the title row. */}
+      <div className={`stat-drop${open && !phone ? " open" : ""}`} id="stat-list" inert={!open || phone}>
         <div>
           <div className="stat-panel" role="region" aria-labelledby={phone ? undefined : "stat-list-title"}>
             {!phone ? (
@@ -300,6 +255,6 @@ export const StatsSection = memo(function StatsSection({ stats, lcId, lcName, fi
           </div>
         ) : null}
       </dialog>
-    </section>
+    </>
   );
 });
