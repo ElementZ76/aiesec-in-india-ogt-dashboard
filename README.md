@@ -170,9 +170,9 @@ All 7 checks should pass.
 ### 4. Fill the database and run the site
 
 ```bash
-npm run sync -- --dry-run   # fetch and check, write nothing
-npm run sync                # first real sync
-npm run dev                 # website at http://localhost:3000
+npm run sync:dry   # fetch and check, write nothing
+npm run sync       # first real sync
+npm run dev        # website at http://localhost:3000
 ```
 
 ### Commands
@@ -185,7 +185,7 @@ npm run dev                 # website at http://localhost:3000
 | `npm run typecheck` | Type-check all TypeScript |
 | `npm run lint` | Lint the code |
 | `npm run sync` | Real sync run |
-| `npm run sync -- --dry-run` | Fetch and check everything, write nothing; prints counts only |
+| `npm run sync:dry` | Fetch and check everything, write nothing; prints counts only. Use this, not `npm run sync -- --dry-run`: PowerShell drops the `--`, which turns that into a real run |
 | `npm run sync -- --force` | Real run that skips the "less than half" brake (only after a person has checked that the drop is real) |
 
 ---

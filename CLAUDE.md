@@ -53,7 +53,7 @@ npm on those days.
 
 | `node --env-file=.env.local scripts/db-check.mjs` | Check the database connection and access rules (write with the secret key, read-only with the publishable key) |
 
-| `npm run sync -- --dry-run` | Fetch from EXPA and check everything, **write nothing**; prints counts only |
+| `npm run sync:dry` | Fetch from EXPA and check everything, **write nothing**; prints counts only. **Never** use `npm run sync -- --dry-run` on Windows: PowerShell drops the `--`, so it becomes a real run |
 | `npm run sync` | Real sync run (what GitHub Actions runs every 15 minutes) |
 | `npm run sync -- --force` | Real run that skips the "less than half of the last run" brake. Only after a person has checked the drop is real |
 
@@ -285,3 +285,4 @@ Tests live next to the code they test, as `*.test.ts`.
 | 2026-10-22 | UI Spec: monochrome look — black background (dark), white/grey (light), blue as a slight accent, teal/orange only for GTa/GTe; mockup no longer matches the colours | User: background fully black, monochrome with slight blue and white accents; chose to keep GTa/GTe colours and make light mode monochrome too |
 | 2026-10-22 | UI Spec: light mode → warm white (cream `#F6F1E7` page, warm near-black text) | User: plain white was harsh; wanted a yellowish white that is pleasing to the eye |
 | 2026-10-23 | UI Spec: statistics → 2 cards beside the title (Top LC / Top work area cards, LC rank, "Statistics" heading and navbar link removed); full lists open from the counts on the Applications card | User: remove the two cards and fill the empty space at the top right; keep the full lists, reached from the Applications card |
+| 2026-10-27 | Commands: added `npm run sync:dry` (dry run without `--`) | PowerShell dropped the `--` in `npm run sync -- --dry-run`, so a check meant to write nothing ran a real sync |
