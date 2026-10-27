@@ -8,6 +8,23 @@ export interface EpManager {
   phone: string | null;
 }
 
+/** One job from the applicant's EXPA profile. Dates are `YYYY-MM-DD` (India); no `end` = still there. */
+export interface ProfessionalExperience {
+  title: string | null;
+  organisation: string | null;
+  /** EXPA's experience level: Internship, Full Time, Volunteer, Freelance, Part-time. */
+  type: string | null;
+  start: string | null;
+  end: string | null;
+  description: string | null;
+}
+
+/** `level` is EXPA's number (0-4). EXPA shows no label for it, so the site does not show it yet. */
+export interface Language {
+  name: string;
+  level: number | null;
+}
+
 /** One row of `applications` = one card in the pool. Dates are `YYYY-MM-DD` (India). */
 export interface ApplicationRow {
   application_id: string;
@@ -20,6 +37,9 @@ export interface ApplicationRow {
   home_lc_id: string;
   home_lc: string;
   ep_managers: EpManager[];
+  /** Newest start first. */
+  professional_experiences: ProfessionalExperience[];
+  languages: Language[];
   company_name: string | null;
   opportunity_field: string | null;
   programme: Programme;

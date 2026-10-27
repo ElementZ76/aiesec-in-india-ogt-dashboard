@@ -1,7 +1,7 @@
 "use client";
 // The details popup: one native <dialog> for the whole page (docs/sops/pool-page.md step 6).
 import { useEffect, useRef, useState } from "react";
-import { telHref } from "@/lib/pool/format";
+import { formatMonthRange, telHref } from "@/lib/pool/format";
 import type { PoolApplication } from "@/lib/pool/types";
 import { CardFoot, CardTop, ContactRow, JobBlock, type Notify } from "./AppCard";
 import { Icon } from "./icons";
@@ -73,6 +73,31 @@ export function DetailsDialog({ app, onClose, notify }: {
               ))
             ) : (
               <div className="row"><span className="na">No EP manager assigned</span></div>
+            )}
+          </div>
+
+          <div>
+            <div className="label">Languages</div>
+            {shown.languages.length ? (
+              <p className="lang-list">{shown.languages.map((l) => l.name).join(", ")}</p>
+            ) : (
+              <div className="row"><span className="na">Not available</span></div>
+            )}
+          </div>
+
+          <div>
+            <div className="label">Professional experience{shown.professionalExperiences.length > 1 ? "s" : ""}</div>
+            {shown.professionalExperiences.length ? (
+              shown.professionalExperiences.map((e, i) => (
+                <div className="exp-block" key={i}>
+                  <div className="exp-title">{e.title ?? e.organisation}</div>
+                  {e.title && e.organisation ? <div className="exp-meta">{e.organisation}</div> : null}
+                  <div className="exp-meta">{[e.type, formatMonthRange(e.start, e.end)].filter(Boolean).join(" · ")}</div>
+                  {e.description ? <p className="exp-desc">{e.description}</p> : null}
+                </div>
+              ))
+            ) : (
+              <div className="row"><span className="na">Not available</span></div>
             )}
           </div>
 

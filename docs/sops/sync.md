@@ -44,6 +44,14 @@ that passes the pool rules, one row each, and nothing else. Never damage good da
      "Not available"). This also blocks `javascript:` links.
    - Dates: a plain `YYYY-MM-DD` is kept; a timestamp is converted to its date in India time.
      Start/end: slot dates first, then the opportunity's earliest start / latest end.
+   - Professional experiences (`person.professional_experiences`): jobs with neither a title nor
+     an organisation are dropped; type = `experience_level.name`; dates as above (EXPA stores the
+     1st of a month at 00:00 UTC); description keeps its line breaks (3+ in a row → one blank
+     line); sorted newest start first, no start date last. 876 of 885 kept rows had one on
+     2026-10-27.
+   - Languages (`person.person_profile.languages`): `constant_name` + `level` (0–4, no label on
+     EXPA); blank names dropped; each name once (case ignored). Never ask for
+     `person.top_languages`: EXPA answers HTTP 500.
 3. **Pool rules**: drop rows whose home LC name starts with `Closed [` (any case); drop rows
    whose end date is before today in India. Ending today is kept; no end date is kept.
 4. **Safety brake**. Write nothing, delete nothing, record `blocked` if any of:

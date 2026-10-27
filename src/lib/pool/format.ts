@@ -16,6 +16,21 @@ export function formatDate(ymd: string | null): string {
   return p && p[1] >= 1 && p[1] <= 12 ? `${p[2]} ${MONTHS[p[1] - 1]} ${p[0]}` : "—";
 }
 
+/** "2026-03-01" → "Mar 2026"; missing or invalid → null. */
+export function formatMonth(ymd: string | null): string | null {
+  const p = ymd ? parts(ymd) : null;
+  return p && p[1] >= 1 && p[1] <= 12 ? `${MONTHS[p[1] - 1]} ${p[0]}` : null;
+}
+
+/** A job's dates: "Mar 2026 – May 2026", "Mar 2026 – Present" (no end), "Mar 2026" (same month). */
+export function formatMonthRange(start: string | null, end: string | null): string {
+  const a = formatMonth(start);
+  const b = formatMonth(end);
+  if (!a) return b ? `Until ${b}` : "Dates not on EXPA";
+  if (!end) return `${a} – Present`;
+  return !b || a === b ? a : `${a} – ${b}`;
+}
+
 /** A timestamp shifted to India time, as a Date whose UTC fields are the India fields. */
 function inIndia(iso: string): Date | null {
   const t = new Date(iso).getTime();

@@ -11,7 +11,7 @@ const app = (id: number, lc = "Mumbai", end = "2027-01-01"): RawApplication => (
   id, status: "open", created_at: "2026-10-01T00:00:00Z",
   slot: { start_date: "2026-11-01", end_date: end },
   person: { id: id * 10, full_name: `P${id}`, email: null, linkedin_url: null, cv_url: null,
-    home_lc: { id: 1, name: lc }, contact_detail: null, managers: [] },
+    home_lc: { id: 1, name: lc }, contact_detail: null, managers: [], professional_experiences: null, person_profile: null },
   opportunity: { programme: { short_name_display: "GTa" }, organisation: null, sub_product: null,
     earliest_start_date: null, latest_end_date: null },
 });

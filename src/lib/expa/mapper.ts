@@ -1,5 +1,5 @@
 // Turns one EXPA record into one `applications` row (docs/sops/sync.md step 2).
-import type { ApplicationRow, EpManager, Programme } from "@/lib/db/types";
+import type { ApplicationRow, EpManager, Language, ProfessionalExperience, Programme } from "@/lib/db/types";
 import { toIndiaDate } from "@/lib/pool/dates";
 import type { RawApplication } from "./applications";
 
@@ -56,6 +56,38 @@ function managers(raw: RawApplication): EpManager[] {
     .filter((m) => m.name || m.email || m.phone);
 }
 
+/** Multi-line text: line breaks kept (at most one blank line in a row), spaces at the ends removed. */
+function longText(v: string | null | undefined): string | null {
+  const t = v?.replace(/\r\n?/g, "\n").replace(/[ \t]+$/gm, "").replace(/\n{3,}/g, "\n\n").trim();
+  return t ? t : null;
+}
+
+/** Jobs with a title or organisation, newest start first (no start date: last). */
+function experiences(raw: RawApplication): ProfessionalExperience[] {
+  return (raw.person?.professional_experiences ?? [])
+    .map((e) => ({
+      title: text(e.title),
+      organisation: text(e.organisation_name),
+      type: text(e.experience_level?.name),
+      start: toIndiaDate(e.start_date),
+      end: toIndiaDate(e.end_date),
+      description: longText(e.description),
+    }))
+    .filter((e) => e.title || e.organisation)
+    .sort((a, b) => (b.start ?? "").localeCompare(a.start ?? ""));
+}
+
+/** Language names in EXPA's order, each once. */
+function languages(raw: RawApplication): Language[] {
+  const seen = new Set<string>();
+  return (raw.person?.person_profile?.languages ?? []).flatMap((l) => {
+    const name = text(l.constant_name);
+    if (!name || seen.has(name.toLowerCase())) return [];
+    seen.add(name.toLowerCase());
+    return [{ name, level: typeof l.level === "number" ? l.level : null }];
+  });
+}
+
 export function mapApplication(raw: RawApplication): MapResult {
   const id = raw.id == null ? null : text(String(raw.id));
   if (!id) return { ok: false, reason: "no id" };
@@ -85,6 +117,8 @@ export function mapApplication(raw: RawApplication): MapResult {
       home_lc_id: lcId,
       home_lc: lcName,
       ep_managers: managers(raw),
+      professional_experiences: experiences(raw),
+      languages: languages(raw),
       company_name: text(opp?.organisation?.name),
       opportunity_field: text(opp?.sub_product?.name),
       programme: programme as Programme,

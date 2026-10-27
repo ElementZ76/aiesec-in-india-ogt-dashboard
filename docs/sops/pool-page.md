@@ -69,14 +69,21 @@ and CSV export, fast on phones and laptops, using only data the sync job wrote t
    show/hide it. No blue tap highlight on cards, and cards lift on hover only with a real mouse
    (phones treat a tap as a hover that sticks). EP managers: name, then email and phone rows that exist;
    neither → "No contact details on EXPA".
+   Below the EP managers: **Languages** (names only, comma-separated; EXPA's 0–4 level has no
+   label yet, so it is not shown) and **Professional experience(s)**, newest first: title,
+   organisation, type · "Mar 2026 – Present" (no end date = Present), then the full description
+   with its line breaks kept. Either list empty → "Not available".
    12 first; "Load more applications" adds 12. A new search, LC or work-area choice
    goes back to 12. Dates: plain dates shown as "15 Oct 2026"; "Applied" date in India time. Weeks =
    (end − start) / 7 days, rounded. Copy buttons copy email / phone; if the browser blocks copying,
    a message says so.
 7. **CSV export** (`src/lib/pool/csv.ts`): the cards matching search + LC + work area (all of them, not just
    the 12 shown). Columns: Applicant name, Company name, EP manager, Email, Phone, LC, Start date,
-   End date, CV link, Opportunity field, LinkedIn, Programme, Applied on. Several EP managers are
-   joined with "; ". UTF-8 with a byte-order mark (so Excel shows Indian names correctly),
+   End date, CV link, Opportunity field, LinkedIn, Programme, Applied on, Professional
+   experiences, Languages. Several EP managers are joined with "; ". Experiences: one line per job
+   inside the cell, "Title at Organisation (Type, Mar 2026 – Present)", **without descriptions**
+   (24 jobs × ~2,200 characters could pass Excel's 32,767-character cell limit). Languages joined
+   with ", ". UTF-8 with a byte-order mark (so Excel shows Indian names correctly),
    `\r\n` line ends, every cell in double quotes.
    **Formula guard:** a cell starting with `=`, `+`, `-`, `@`, tab or carriage return gets a
    leading `'`, so a spreadsheet shows it as text and never runs it as a formula. This is why

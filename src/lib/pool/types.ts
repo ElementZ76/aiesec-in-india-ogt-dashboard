@@ -1,5 +1,5 @@
 // What the server hands to the page (CLAUDE.md "Data Schema", `PoolApplication`).
-import type { EpManager, Programme } from "@/lib/db/types";
+import type { EpManager, Language, ProfessionalExperience, Programme } from "@/lib/db/types";
 
 export interface PoolApplication {
   applicationId: string;
@@ -12,6 +12,9 @@ export interface PoolApplication {
   homeLcId: string;
   homeLc: string;
   epManagers: EpManager[];
+  /** Newest start first. */
+  professionalExperiences: ProfessionalExperience[];
+  languages: Language[];
   companyName: string | null;
   opportunityField: string | null;
   programme: Programme;

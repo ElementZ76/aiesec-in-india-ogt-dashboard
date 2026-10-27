@@ -8,7 +8,7 @@ import type { ApplicationRow } from "./types";
 const PAGE = 1000; // Supabase returns at most 1000 rows per request
 const COLUMNS =
   "application_id,person_id,full_name,email,phone,linkedin_url,cv_url,home_lc_id,home_lc," +
-  "ep_managers,company_name,opportunity_field,programme,start_date,end_date,applied_at";
+  "ep_managers,professional_experiences,languages,company_name,opportunity_field,programme,start_date,end_date,applied_at";
 
 function client() {
   const url = process.env.SUPABASE_URL;
@@ -29,6 +29,8 @@ export function toPoolApplication(row: ApplicationRow): PoolApplication {
     homeLcId: row.home_lc_id,
     homeLc: row.home_lc,
     epManagers: Array.isArray(row.ep_managers) ? row.ep_managers : [],
+    professionalExperiences: Array.isArray(row.professional_experiences) ? row.professional_experiences : [],
+    languages: Array.isArray(row.languages) ? row.languages : [],
     companyName: row.company_name,
     opportunityField: row.opportunity_field,
     programme: row.programme,

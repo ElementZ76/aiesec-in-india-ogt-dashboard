@@ -104,6 +104,7 @@ export async function runSync(options: RunOptions): Promise<RunReport> {
       report.filled = {
         "real name": count((r) => r.full_name !== NAME_FALLBACK), email: count((r) => r.email), phone: count((r) => r.phone),
         linkedin: count((r) => r.linkedin_url), cv: count((r) => r.cv_url), "ep manager": count((r) => r.ep_managers.length),
+        experience: count((r) => r.professional_experiences.length), languages: count((r) => r.languages.length),
         company: count((r) => r.company_name), "work area": count((r) => r.opportunity_field),
         "start date": count((r) => r.start_date), "end date": count((r) => r.end_date),
       };

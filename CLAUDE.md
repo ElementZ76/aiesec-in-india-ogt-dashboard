@@ -92,6 +92,8 @@ page, per_page)` → `data { ... }` + `paging { total_items total_pages }`.
 | home_lc_id | text | — (internal; LC filter key) | `person.home_lc.id` |
 | home_lc | text | lc | `person.home_lc.name` |
 | ep_managers | jsonb: list of `{ name, email, phone }` | ep manager | `person.managers { full_name email contact_detail { phone } }`; can be empty or several |
+| professional_experiences | jsonb: list of `{ title, organisation, type, start, end, description }` | professional experiences (user, 2026-10-27) | `person.professional_experiences { title organisation_name experience_level { name } start_date end_date description }`; newest first; no `end` = "Present" (verified 2026-10-27: 876/885 have one) |
+| languages | jsonb: list of `{ name, level }` | languages (user, 2026-10-27) | `person.person_profile.languages { constant_name level }`; `level` is 0–4 with no label on EXPA, so only names are shown. **Not** `person.top_languages` (EXPA HTTP 500) |
 | company_name | text, null | company name | `opportunity.organisation.name` |
 | opportunity_field | text, null | opportunity field (the job's work area) | `opportunity.sub_product.name` |
 | programme | text, `GTa` or `GTe` | — (stats only) | `opportunity.programme.short_name_display` |
@@ -128,7 +130,9 @@ Supabase Cron (every 15 min) → starts the sync job (GitHub Actions) → EXPA �
 
 `PoolApplication` (what the server hands to the page; camelCase of the table columns):
 `{ applicationId, personId, fullName, email, phone|null, linkedinUrl|null, cvUrl|null, homeLcId,
-homeLc, epManagers: [{ name, email|null, phone|null }], companyName|null, opportunityField|null,
+homeLc, epManagers: [{ name, email|null, phone|null }], professionalExperiences: [{ title|null,
+organisation|null, type|null, start|null, end|null, description|null }], languages: [{ name,
+level|null }], companyName|null, opportunityField|null,
 programme: "GTa"|"GTe", startDate|null, endDate|null, appliedAt }` — start/end dates as `YYYY-MM-DD`
 strings; `appliedAt` as an ISO timestamp.
 
@@ -177,7 +181,9 @@ site is connected to the database.
 - **Details popup** (user, 2026-10-16): tapping/clicking a card (or Tab + Enter) opens one popup
   with everything: the summary, applicant email and phone (copy buttons), LinkedIn (**"Not
   available" as text when missing**), EP manager(s) with name, email and phone written out and
-  copy buttons ("No EP manager assigned" when none), View CV. Closes with ✕, Esc, a tap outside,
+  copy buttons ("No EP manager assigned" when none), languages (names only), professional
+  experiences newest first with title, organisation, type, "Mar 2026 – Present" dates and the full
+  description ("Not available" when a list is empty; user, 2026-10-27), View CV. Closes with ✕, Esc, a tap outside,
   or Android's back gesture. Centred on laptops; a bottom sheet on phones. Page behind does not
   scroll. Darkened backdrop, no blur. Motion (user, 2026-10-18): backdrop fades in, popup glides
   in and eases to a stop with **no bounce**, and slides out on close; no tap flash on cards.
@@ -193,7 +199,8 @@ site is connected to the database.
   it slides away while scrolling down and comes back on scrolling up a little. It never hides
   while one of its fields has focus. Wider screens: always sticky.
 - **CSV export:** the applications matching the current search + LC + work-area filters, all spec
-  fields.
+  fields, plus professional experiences (one line per job, no descriptions: Excel's cell limit)
+  and languages.
 - **Stale data:** if the last successful sync is more than 1 hour old, "Last updated" turns amber
   and says the data may be out of date.
 - **Performance rules (measured 2026-10-15):** background blur only on the navbar; no masks or
@@ -286,3 +293,4 @@ Tests live next to the code they test, as `*.test.ts`.
 | 2026-10-22 | UI Spec: light mode → warm white (cream `#F6F1E7` page, warm near-black text) | User: plain white was harsh; wanted a yellowish white that is pleasing to the eye |
 | 2026-10-23 | UI Spec: statistics → 2 cards beside the title (Top LC / Top work area cards, LC rank, "Statistics" heading and navbar link removed); full lists open from the counts on the Applications card | User: remove the two cards and fill the empty space at the top right; keep the full lists, reached from the Applications card |
 | 2026-10-27 | Commands: added `npm run sync:dry` (dry run without `--`) | PowerShell dropped the `--` in `npm run sync -- --dry-run`, so a check meant to write nothing ran a real sync |
+| 2026-10-27 | Schema: `professional_experiences` + `languages` (jsonb) on `applications`; shown in the details popup and the CSV. Page data 642 → 1,913 KB (86 → 324 KB compressed): 885 cards are only 348 people, so each history repeats per application | User: add work experiences (labelled professional experiences) and languages to the EP details |

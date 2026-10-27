@@ -1,9 +1,9 @@
 import { describe, expect, it } from "vitest";
 import { toPoolApplication } from "@/lib/db/read";
 import type { ApplicationRow } from "@/lib/db/types";
-import { CSV_COLUMNS, csvCell, toCsv } from "./csv";
+import { CSV_COLUMNS, csvCell, experienceText, toCsv } from "./csv";
 import {
-  formatDate, formatIndiaDate, formatIndiaDateTime, initials, isStale, telHref, weeksBetween,
+  formatDate, formatIndiaDate, formatIndiaDateTime, formatMonthRange, initials, isStale, telHref, weeksBetween,
 } from "./format";
 import { NO_FIELD, filterPool, indexPool, lcOptions, workAreaOptions } from "./search";
 import { NOT_SPECIFIED, computeStats } from "./stats";
@@ -21,6 +21,8 @@ function app(over: Partial<PoolApplication> = {}): PoolApplication {
     homeLcId: "10",
     homeLc: "Mumbai",
     epManagers: [{ name: "Neha Agarwal", email: "neha@aiesec.example", phone: null }],
+    professionalExperiences: [],
+    languages: [],
     companyName: "Northwind Labs",
     opportunityField: "Marketing",
     programme: "GTa",
@@ -39,6 +41,13 @@ const POOL = [
 ];
 
 describe("format", () => {
+  it("writes job dates as months", () => {
+    expect(formatMonthRange("2025-03-01", "2025-06-01")).toBe("Mar 2025 – Jun 2025");
+    expect(formatMonthRange("2026-01-01", null)).toBe("Jan 2026 – Present");
+    expect(formatMonthRange("2026-01-01", "2026-01-20")).toBe("Jan 2026");
+    expect(formatMonthRange(null, "2026-01-20")).toBe("Until Jan 2026");
+    expect(formatMonthRange(null, null)).toBe("Dates not on EXPA");
+  });
   it("formats plain dates without shifting them", () => {
     expect(formatDate("2026-10-05")).toBe("5 Oct 2026");
     expect(formatDate(null)).toBe("—");
@@ -166,6 +175,18 @@ describe("csv", () => {
     expect(lines[1]).toContain(`"'+91 98765 43210"`);
     expect(lines[1]).toContain('"Not available"'); // LinkedIn missing
     expect(lines[2].startsWith('"Rohan Mehta","Northwind Labs","",')).toBe(true); // no EP manager
+    expect(lines[1].endsWith(',"",""')).toBe(true); // no experiences, no languages
+  });
+  it("writes experiences one per line (no descriptions) and languages comma-separated", () => {
+    const a = app({
+      professionalExperiences: [
+        { title: "Analyst", organisation: "New Co", type: "Full Time", start: "2026-01-01", end: null, description: "long text" },
+        { title: null, organisation: "Old Co", type: null, start: "2025-03-01", end: "2025-06-01", description: null },
+      ],
+      languages: [{ name: "English", level: 2 }, { name: "Hindi", level: null }],
+    });
+    expect(experienceText(a)).toBe("Analyst at New Co (Full Time, Jan 2026 – Present)\nOld Co (Mar 2025 – Jun 2025)");
+    expect(toCsv([a])).toContain('"Analyst at New Co (Full Time, Jan 2026 – Present)\nOld Co (Mar 2025 – Jun 2025)","English, Hindi"');
   });
 });
 
@@ -173,7 +194,7 @@ describe("toPoolApplication", () => {
   const row: ApplicationRow = {
     application_id: "1", person_id: "p1", full_name: "Priya", email: null, phone: null,
     linkedin_url: "javascript:alert(1)", cv_url: "https://example.com/cv.pdf", home_lc_id: "10",
-    home_lc: "Mumbai", ep_managers: [], company_name: null, opportunity_field: null, programme: "GTa",
+    home_lc: "Mumbai", ep_managers: [], professional_experiences: [], languages: [], company_name: null, opportunity_field: null, programme: "GTa",
     start_date: null, end_date: null, applied_at: "2026-10-01T10:00:00Z",
   };
   it("re-checks links and maps to camelCase", () => {

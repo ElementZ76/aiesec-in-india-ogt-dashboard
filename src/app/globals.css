@@ -579,6 +579,12 @@ html:has(dialog[open]) { overflow: hidden; }     /* the page behind the popup do
 .mgr-block { padding: 6px 0; }
 .mgr-block + .mgr-block { border-top: 1px dashed var(--edge); }
 .mgr-block .mname { font-weight: 700; font-size: 15px; padding-top: 4px; }
+.lang-list { margin: 0; font-size: 15px; overflow-wrap: anywhere; }
+.exp-block { padding: 10px 0; }
+.exp-block + .exp-block { border-top: 1px dashed var(--edge); }
+.exp-title { font-weight: 700; font-size: 15px; overflow-wrap: anywhere; }
+.exp-meta { font-size: 14px; color: var(--muted); margin-top: 2px; overflow-wrap: anywhere; }
+.exp-desc { margin: 6px 0 0; font-size: 14px; line-height: 1.5; color: var(--muted); white-space: pre-line; overflow-wrap: anywhere; }   /* keeps EXPA's line breaks; long links wrap instead of scrolling sideways */
 
 /* Phones: the popup is a sheet that slides up from the bottom edge (no fade: a sheet stays solid). */
 @media (max-width: 640px) {

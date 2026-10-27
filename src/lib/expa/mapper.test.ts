@@ -16,6 +16,11 @@ const raw = (over: Partial<RawApplication> = {}): RawApplication => ({
     home_lc: { id: 55, name: "Mumbai" },
     contact_detail: { phone: "9876543210", country_code: "+91" },
     managers: [{ full_name: "Manager One", email: "m1@example.com", contact_detail: { phone: "9000000000", country_code: "91" } }],
+    professional_experiences: [
+      { title: " Intern ", organisation_name: "Old Co", experience_level: { name: "Internship" }, start_date: "2025-03-01T00:00:00Z", end_date: "2025-06-01T00:00:00Z", description: "Did things" },
+      { title: "Analyst", organisation_name: "New Co", experience_level: { name: "Full Time" }, start_date: "2026-01-01T00:00:00Z", end_date: null, description: null },
+    ],
+    person_profile: { languages: [{ constant_name: "English", level: 2 }, { constant_name: "Hindi", level: null }] },
   },
   opportunity: {
     programme: { short_name_display: "GTa" },
@@ -42,6 +47,11 @@ describe("mapApplication", () => {
         home_lc_id: "55",
         home_lc: "Mumbai",
         ep_managers: [{ name: "Manager One", email: "m1@example.com", phone: "+91 9000000000" }],
+        professional_experiences: [
+          { title: "Analyst", organisation: "New Co", type: "Full Time", start: "2026-01-01", end: null, description: null },
+          { title: "Intern", organisation: "Old Co", type: "Internship", start: "2025-03-01", end: "2025-06-01", description: "Did things" },
+        ],
+        languages: [{ name: "English", level: 2 }, { name: "Hindi", level: null }],
         company_name: "Example Ltd",
         opportunity_field: "Marketing",
         programme: "GTa",
@@ -76,6 +86,38 @@ describe("mapApplication", () => {
       full_name: NAME_FALLBACK, email: null, phone: null, linkedin_url: null, cv_url: null,
       ep_managers: [], company_name: null, opportunity_field: null,
     });
+  });
+
+  it("cleans experiences: drops empty ones, keeps line breaks, puts undated ones last", () => {
+    const p = raw().person!;
+    const job = { title: null, organisation_name: null, experience_level: null, start_date: null, end_date: null, description: null };
+    const m = mapApplication(raw({
+      person: {
+        ...p,
+        professional_experiences: [
+          { ...job, organisation_name: "No Dates Ltd" },
+          { ...job, title: "  ", description: "only a description" },
+          { ...job, title: "Volunteer", start_date: "2024-05-01", description: " Line 1  \r\n\r\n\r\n\r\nLine 2 " },
+        ],
+      },
+    }));
+    expect(m.ok && m.row.professional_experiences).toEqual([
+      { title: "Volunteer", organisation: null, type: null, start: "2024-05-01", end: null, description: "Line 1\n\nLine 2" },
+      { title: null, organisation: "No Dates Ltd", type: null, start: null, end: null, description: null },
+    ]);
+  });
+
+  it("lists each language once and skips blank names", () => {
+    const p = raw().person!;
+    const m = mapApplication(raw({
+      person: { ...p, person_profile: { languages: [{ constant_name: "English", level: 4 }, { constant_name: " english ", level: 1 }, { constant_name: "", level: 2 }] } },
+    }));
+    expect(m.ok && m.row.languages).toEqual([{ name: "English", level: 4 }]);
+  });
+
+  it("treats missing experience and language lists as empty", () => {
+    const m = mapApplication(raw({ person: { ...raw().person!, professional_experiences: null, person_profile: null } }));
+    expect(m.ok && [m.row.professional_experiences, m.row.languages]).toEqual([[], []]);
   });
 
   it.each([

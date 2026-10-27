@@ -26,6 +26,11 @@ create table if not exists public.applications (
 );
 create index if not exists applications_applied_at_idx on public.applications (applied_at desc);
 
+-- Added 2026-10-27 (also on tables created before that date).
+alter table public.applications
+  add column if not exists professional_experiences jsonb not null default '[]'::jsonb, -- [{ "title", "organisation", "type", "start", "end", "description" }]
+  add column if not exists languages                jsonb not null default '[]'::jsonb; -- [{ "name", "level" }]
+
 -- One row per sync run. The website reads only status + finished_at ("Last updated").
 create table if not exists public.sync_runs (
   id             bigint generated always as identity primary key,

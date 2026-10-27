@@ -1,5 +1,6 @@
 // Fetches every pool candidate from EXPA (read-only). Field paths verified 2026-10-14/15
-// (findings.md "EXPA probe results").
+// (findings.md "EXPA probe results"); experiences and languages 2026-10-27. Do not ask for
+// `person.top_languages`: EXPA answers HTTP 500 (checked 2026-10-27).
 import type { ExpaClient } from "./client";
 
 export const INDIA_MC_ID = 1585;
@@ -26,6 +27,15 @@ export interface RawApplication {
       email: string | null;
       contact_detail: { phone: string | null; country_code: string | null } | null;
     }[] | null;
+    professional_experiences: {
+      title: string | null;
+      organisation_name: string | null;
+      experience_level: { name: string | null } | null;
+      start_date: string | null;
+      end_date: string | null;
+      description: string | null;
+    }[] | null;
+    person_profile: { languages: { constant_name: string | null; level: number | null }[] | null } | null;
   } | null;
   opportunity: {
     programme: { short_name_display: string | null } | null;
@@ -47,6 +57,8 @@ export const APPLICATIONS_QUERY = `query PoolApplications($filters: ApplicationF
         home_lc { id name }
         contact_detail { phone country_code }
         managers { full_name email contact_detail { phone country_code } }
+        professional_experiences { title organisation_name experience_level { name } start_date end_date description }
+        person_profile { languages { constant_name level } }
       }
       opportunity {
         programme { short_name_display }
