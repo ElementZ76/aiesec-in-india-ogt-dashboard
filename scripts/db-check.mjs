@@ -1,5 +1,6 @@
 // Database connection + access-rule check (CLAUDE.md invariant 3).
-// Proves: the secret key can write; the publishable key can only read; nothing is left behind.
+// Proves: the secret key can write; the publishable key can only read (and check, not see or change,
+// entity passwords); nothing is left behind.
 // Prints no keys and no personal data. Touches only one test row in sync_runs, then deletes it.
 // Run: node --env-file=.env.local scripts/db-check.mjs
 
@@ -70,6 +71,17 @@ if (id) {
   const del = await admin.from("sync_runs").delete().eq("id", id);
   check("test row removed", !del.error, del.error?.message ?? "");
 }
+
+// 8. Logins (supabase/entities.sql): the website sees the list but never a password hash,
+//    can check a password, and cannot change one.
+const list = await website.from("entities").select("slug, name, lc_id, session_version");
+check("website key can read the entity list", !list.error && list.data.length > 0, list.error?.message ?? `${list.data.length} entities`);
+const hash = await website.from("entities").select("password_hash").limit(1);
+check("website key is refused password hashes", Boolean(hash.error), hash.error?.code ?? "hashes were READABLE");
+const wrong = await website.rpc("check_entity_password", { p_slug: list.data?.[0]?.slug ?? "x", p_password: `db-check-${Date.now()}` });
+check("website key can check a password (wrong one → no login)", !wrong.error && wrong.data === null, wrong.error?.message ?? "");
+const change = await website.rpc("set_entity_password", { p_slug: "x", p_password: "db-check-123" });
+check("website key cannot change passwords", Boolean(change.error), change.error?.code ?? "change was ALLOWED");
 
 console.log(failed ? `\n${failed} check(s) failed.` : "\nAll checks passed.");
 process.exit(failed ? 1 : 0);

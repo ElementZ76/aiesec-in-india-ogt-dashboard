@@ -1,12 +1,13 @@
 "use client";
-// Floating pill navbar: logo, section links with a sliding highlight, theme switch, Export CSV.
+// Floating pill navbar: logo, section links with a sliding highlight, theme switch, Export CSV, Log out.
 import { useEffect, useRef, type MouseEvent } from "react";
+import { logout } from "@/app/actions";
 import { setTheme, useTheme, type Theme } from "./hooks";
 
 // The statistics sit next to the page title (2026-10-23), so they need no link of their own.
 const SECTIONS = [{ id: "applications", label: "Applications" }] as const;
 
-function ThemeSwitch() {
+export function ThemeSwitch() {
   const theme = useTheme();
 
   function choose(next: Theme, e: MouseEvent<HTMLButtonElement>) {
@@ -43,7 +44,7 @@ function ThemeSwitch() {
   );
 }
 
-export function NavBar({ onExport }: { onExport: () => void }) {
+export function NavBar({ onExport, entityName }: { onExport: () => void; entityName: string }) {
   const shell = useRef<HTMLElement>(null);
   const links = useRef<HTMLDivElement>(null);
   const indicator = useRef<HTMLSpanElement>(null);
@@ -120,6 +121,15 @@ export function NavBar({ onExport }: { onExport: () => void }) {
             <span className="export-label">Export CSV</span>
             <span className="sr"> (spreadsheet of the applications shown)</span>
           </button>
+          <form action={logout}>
+            <button className="btn btn-glass" type="submit" title={`Log out of ${entityName}`}>
+              <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                <path d="M15 4h3a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-3M10 17l5-5-5-5M15 12H3" />
+              </svg>
+              <span className="logout-label">Log out</span>
+              <span className="sr"> of {entityName}</span>
+            </button>
+          </form>
         </div>
       </nav>
     </header>

@@ -84,9 +84,11 @@ interface Props {
   field: string;
   onPickLc: (lcId: string) => void;
   onPickField: (field: string) => void;
+  /** Set on an LC's own page (it covers one LC): its name labels the cards and the LC list is hidden. */
+  singleLc?: string;
 }
 
-export const StatsSection = memo(function StatsSection({ stats, lcId, lcName, field, onPickLc, onPickField }: Props) {
+export const StatsSection = memo(function StatsSection({ stats, lcId, lcName, field, onPickLc, onPickField, singleLc }: Props) {
   const phone = useMediaQuery(PHONE);
   const [open, setOpen] = useState<ListKind | null>(null);
   const [opened, setOpened] = useState(0); // replays the bar animation each time a list opens
@@ -162,7 +164,7 @@ export const StatsSection = memo(function StatsSection({ stats, lcId, lcName, fi
   return (
     <>
       <section className="hero-stats" aria-label="Statistics">
-        <span className="scope pop" key={lcId}>{lcId ? lcName : "All LCs"}</span>
+        <span className="scope pop" key={lcId}>{lcId ? lcName : (singleLc ?? "All LCs")}</span>
         <div className="tiles">
           <div className="tile glass t-apps">
             <div className="t-head">
@@ -177,9 +179,11 @@ export const StatsSection = memo(function StatsSection({ stats, lcId, lcName, fi
             <div className="big"><CountUp value={stats.total} /></div>
             {/* The two counts open the full ranked lists. */}
             <div className="t-foot">
-              <button ref={lcBtn} {...listProps("lc", stats.perLc)}>
-                <b><CountUp value={stats.lcCount} /></b> LC{stats.lcCount === 1 ? "" : "s"}<span className="sr"> (show list)</span> <Chevron />
-              </button>
+              {singleLc ? null : (
+                <button ref={lcBtn} {...listProps("lc", stats.perLc)}>
+                  <b><CountUp value={stats.lcCount} /></b> LC{stats.lcCount === 1 ? "" : "s"}<span className="sr"> (show list)</span> <Chevron />
+                </button>
+              )}
               <button ref={fieldBtn} {...listProps("field", stats.perField)}>
                 <b><CountUp value={stats.fieldCount} /></b> work area{stats.fieldCount === 1 ? "" : "s"}<span className="sr"> (show list)</span> <Chevron />
               </button>

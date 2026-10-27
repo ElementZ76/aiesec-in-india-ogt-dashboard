@@ -491,12 +491,51 @@ footer .stale { color: var(--warn); font-weight: 700; }
 .error-page { min-height: 70vh; display: grid; place-items: center; padding: 24px 16px; }
 .error-page .empty { max-width: 520px; }
 
+/* ---------- Logins: entity list, password box, Log out (2026-10-27) ---------- */
+.nav form { display: contents; }
+.logo + .nav-right { margin-left: auto; }   /* login pages: no section links, so push the switch right */
+.nav .btn-glass { padding: 11px 16px; }
+.hero-entity { margin: 8px 0 0; font-size: 18px; font-weight: 700; color: var(--muted); }
+.gate { max-width: 760px; margin: 0 auto; padding: 40px 16px 8px; min-height: 70vh; }
+.gate-loading { min-height: 70vh; display: grid; place-items: center; color: var(--muted); }
+.gate-title { margin: 0; font-size: clamp(32px, 4.5vw, 44px); line-height: 1.05; letter-spacing: -.02em; font-weight: 900; overflow-wrap: anywhere; }
+.gate-title span { color: var(--link); }
+.gate-lead { margin: 10px 0 24px; color: var(--muted); font-size: 16px; }
+.gate-back { margin: 0 0 14px; font-size: 15px; }
+.gate-back a { display: inline-block; padding: 6px 0; }
+.entity-list { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 10px; }
+.entity-list li:has(.all) { grid-column: 1 / -1; }   /* the all-India login gets its own row */
+.entity-link {
+  display: flex; align-items: center; justify-content: space-between; gap: 10px; min-height: 52px; padding: 12px 18px;
+  border-radius: var(--r-tile); color: var(--text); font-weight: 700; text-decoration: none !important;
+  transition: border-color .2s ease, transform .45s var(--spring);
+}
+.entity-link svg { color: var(--faint); flex: none; transition: transform .45s var(--spring), color .2s ease; }
+.entity-link:hover { transform: translateY(-2px); }
+.entity-link:hover svg { color: var(--link); transform: translateX(3px); }
+.entity-link.all { font-weight: 900; }
+.login { display: flex; flex-direction: column; gap: 10px; max-width: 420px; padding: var(--pad-card); border-radius: var(--r-card); }
+.login label { font-weight: 700; }
+.login input[type="password"] {
+  font: inherit; color: var(--text); border-radius: var(--pill); border: 1px solid var(--edge); background: var(--glass-inset);
+  padding: 12px 18px; min-height: 46px; box-shadow: inset 0 1px 0 var(--rim-b);
+}
+.login input[type="password"]:focus { outline: none; border-color: var(--link); box-shadow: 0 0 0 4px var(--active); }
+.login .btn { align-self: flex-start; min-height: 46px; padding: 11px 24px; }
+.login-error { margin: 0; color: var(--warn); font-weight: 700; font-size: 15px; }
+@media (max-width: 760px) {
+  .logout-label { display: none; }
+  .nav .btn-glass { padding: 11px 13px; }
+  .gate { padding-top: 28px; }
+}
+@media (hover: none) { .entity-link:hover, .entity-link:hover svg { transform: none; } }
+
 /* Touch screens: 44px for everything you tap (CLAUDE.md UI Spec). Last in the file so it wins
    over the small-screen sizes above. */
 @media (pointer: coarse) {
   .theme button, .theme .thumb { width: 44px; height: 44px; }
   :root[data-theme="dark"] .theme .thumb { transform: translateX(44px); }
-  .nav .btn-primary, .more .btn, .card-foot .btn { min-height: 44px; min-width: 44px; }
+  .nav .btn-primary, .nav .btn-glass, .more .btn, .card-foot .btn { min-height: 44px; min-width: 44px; }
   button.bar-row, .t-link { min-height: 44px; }
   .logo { min-height: 44px; }
   .row .val { padding: 12px 0; }

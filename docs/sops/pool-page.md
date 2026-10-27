@@ -1,6 +1,6 @@
-# SOP: The CV pool page (`/`)
+# SOP: The CV pool page (`/<entity>`)
 
-Layer: Architecture. Code: `src/app/page.tsx` (server: reads the data) → `src/components/PoolApp.tsx`
+Layer: Architecture. Code: `src/app/[entity]/page.tsx` (server: login check, reads the data) → `src/components/PoolApp.tsx`
 (browser: search, filter, stats, cards, export) → tools in `src/lib/pool/` and `src/lib/db/read.ts`.
 Rules come from `CLAUDE.md` (UI Spec, Data Schema, Invariants 2 and 3). Visual reference:
 `docs/design/ui-mockup.html`. If this SOP and the code disagree, fix this SOP first.
@@ -18,6 +18,32 @@ and CSV export, fast on phones and laptops, using only data the sync job wrote t
 | `applications` rows | Supabase, read-only key |
 | Last successful sync time | `sync_runs.finished_at` of the newest `status = 'success'` row |
 | Theme choice | the visitor's browser (`localStorage` key `theme`); dark when unset |
+| `entities` rows (no hashes) + `check_entity_password()` | Supabase, read-only key (`supabase/entities.sql`) |
+| `SESSION_SECRET` | Vercel environment variable / `.env.local` (server only) |
+| Login cookie `ogt_session` | the visitor's browser |
+
+## Login (before step 1)
+
+- `/` (`src/app/page.tsx`): the entity list from `entities` (cached; `/india` first, then A–Z).
+  No applicant data, so it is a static page.
+- `/<entity>`: unknown address → 404. The address and the cookie are read inside `<Suspense>`
+  (request data; Cache Components rule). Cookie = `slug.version.expiry.signature`
+  (`src/lib/auth/session.ts`), HMAC-SHA256 with `SESSION_SECRET`; valid only if the signature
+  matches, it has not expired (30 days), its slug is this entity and its version equals the
+  entity's current `session_version`. Otherwise: the password box (and "You are logged in as …"
+  when the cookie is valid for another entity).
+- Log in (server action `login`, `src/app/actions.ts`): the address must be a valid slug and the
+  password 1–200 characters; the database compares it with bcrypt and returns the version or null.
+  Right → cookie (HttpOnly, Secure on the live site, SameSite=Lax, path `/`, 30 days) and
+  redirect to `/<entity>`. Wrong → "Wrong password. Passwords are case-sensitive." (same text for
+  an unknown address, so it reveals nothing).
+- Log out (server action `logout`): deletes the cookie, back to `/`.
+- A password change by the admin bumps `session_version`; the entity list is cached for about a
+  minute, so open sessions of that entity end within a few minutes.
+- After login: steps 1–10 below, with `applicationsFor(entity, pool)`: an LC gets only rows whose
+  `homeLcId` is its `lc_id`; `/india` gets all. The LC filter and the "LCs" list are hidden on an
+  LC's page, the statistics label shows the entity name, and the CSV is `ogt-cv-pool-<slug>.csv`.
+- Known gap: no limit on password attempts.
 
 ## Steps
 

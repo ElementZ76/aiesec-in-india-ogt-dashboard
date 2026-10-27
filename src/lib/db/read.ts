@@ -3,7 +3,8 @@ import { cacheLife } from "next/cache";
 import { createClient } from "@supabase/supabase-js";
 import { safeUrl } from "@/lib/expa/mapper";
 import type { PoolApplication, PoolData } from "@/lib/pool/types";
-import type { ApplicationRow } from "./types";
+import { sortEntities, type Entity } from "@/lib/auth/entities";
+import type { ApplicationRow, EntityRow } from "./types";
 
 const PAGE = 1000; // Supabase returns at most 1000 rows per request
 const COLUMNS =
@@ -38,6 +39,29 @@ export function toPoolApplication(row: ApplicationRow): PoolApplication {
     endDate: row.end_date,
     appliedAt: row.applied_at,
   };
+}
+
+/**
+ * All logins (supabase/entities.sql), A–Z with "india" first. Cached for about a minute, so a
+ * password change (which bumps session_version) logs people out within a few minutes.
+ */
+export async function getEntities(): Promise<Entity[]> {
+  "use cache";
+  cacheLife({ stale: 60, revalidate: 60, expire: 3600 });
+
+  const { data, error } = await client()
+    .from("entities")
+    .select("slug,name,lc_id,session_version")
+    .returns<EntityRow[]>();
+  if (error) throw new Error(`Reading entities failed: ${error.message}`);
+  return sortEntities(data.map((r) => ({ slug: r.slug, name: r.name, lcId: r.lc_id, sessionVersion: r.session_version })));
+}
+
+/** The entity's session version if the password is right, else null. Never cached. */
+export async function checkEntityPassword(slug: string, password: string): Promise<number | null> {
+  const { data, error } = await client().rpc("check_entity_password", { p_slug: slug, p_password: password });
+  if (error) throw new Error(`Checking the password failed: ${error.message}`);
+  return typeof data === "number" ? data : null;
 }
 
 export async function getPool(): Promise<PoolData> {

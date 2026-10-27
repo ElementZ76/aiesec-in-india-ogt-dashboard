@@ -49,7 +49,16 @@ export interface ApplicationRow {
   applied_at: string;
 }
 
-export type SyncStatus = "success" | "failed" | "blocked";
+/** One row of `entities` as the website may read it (never the password hash). */
+export interface EntityRow {
+  slug: string;
+  name: string;
+  /** EXPA home LC id; null = all of India. */
+  lc_id: string | null;
+  session_version: number;
+}
+
+export type SyncStatus ="success" | "failed" | "blocked";
 
 /** One row of `sync_runs`. `message` never contains secrets or personal data. */
 export interface SyncRunRow {

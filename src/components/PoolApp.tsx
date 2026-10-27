@@ -45,7 +45,18 @@ function Toast({ toast }: { toast: { id: number; text: string; ok: boolean; show
   );
 }
 
-export function PoolApp({ applications, lastUpdated }: { applications: PoolApplication[]; lastUpdated: string | null }) {
+/** The logged-in entity. `allLcs` = the all-India login; otherwise the page covers one LC. */
+export interface PageEntity {
+  slug: string;
+  name: string;
+  allLcs: boolean;
+}
+
+export function PoolApp({ applications, lastUpdated, entity }: {
+  applications: PoolApplication[];
+  lastUpdated: string | null;
+  entity: PageEntity;
+}) {
   const [query, setQuery] = useState("");
   const [lcId, setLcId] = useState("");
   const [field, setField] = useState(""); // work area; "" = all
@@ -112,7 +123,7 @@ export function PoolApp({ applications, lastUpdated }: { applications: PoolAppli
     const rows = filterPool(index, { query, lcId, field }); // exactly what the filters say right now
     const blob = new Blob([toCsv(rows)], { type: "text/csv;charset=utf-8" });
     const url = URL.createObjectURL(blob);
-    const a = Object.assign(document.createElement("a"), { href: url, download: "ogt-cv-pool.csv" });
+    const a = Object.assign(document.createElement("a"), { href: url, download: `ogt-cv-pool-${entity.slug}.csv` });
     a.click();
     setTimeout(() => URL.revokeObjectURL(url), 1000);
     notify(`Exported ${rows.length} ${plural(rows.length)}`);
@@ -170,12 +181,15 @@ export function PoolApp({ applications, lastUpdated }: { applications: PoolAppli
   return (
     <>
       <IconSprite />
-      <NavBar onExport={exportCsv} />
+      <NavBar onExport={exportCsv} entityName={entity.name} />
 
       <main className="wrap">
         {/* Title on the left, the 2 statistics cards on the right (stacked on narrow screens). */}
         <div className="hero" id="top">
-          <h1>oGT <span>CV Pool</span></h1>
+          <div className="hero-title">
+            <h1>oGT <span>CV Pool</span></h1>
+            <p className="hero-entity">{entity.name}</p>
+          </div>
           <StatsSection
             stats={stats}
             lcId={lcId}
@@ -183,6 +197,7 @@ export function PoolApp({ applications, lastUpdated }: { applications: PoolAppli
             field={field}
             onPickLc={pickLcFromBreakdown}
             onPickField={pickFieldFromBreakdown}
+            singleLc={entity.allLcs ? undefined : entity.name}
           />
         </div>
 
@@ -208,25 +223,28 @@ export function PoolApp({ applications, lastUpdated }: { applications: PoolAppli
                   spellCheck={false}
                 />
               </label>
-              <label className="field lc">
-                <span className="sr">Filter by LC</span>
-                <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                  <path d="M12 21s-7-6.2-7-11a7 7 0 0 1 14 0c0 4.8-7 11-7 11z" />
-                  <circle cx="12" cy="10" r="2.5" />
-                </svg>
-                <select value={lcId} onChange={(e) => chooseLc(e.target.value)}>
-                  <option value="">All LCs ({applications.length})</option>
-                  {options.map((o) => (
-                    <option key={o.id} value={o.id}>
-                      {o.name} ({o.count})
-                    </option>
-                  ))}
-                  {lcId && !lcName ? <option value={lcId}>LC no longer in the pool (0)</option> : null}
-                </select>
-                <svg className="chev" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" aria-hidden="true">
-                  <path d="m6 9 6 6 6-6" />
-                </svg>
-              </label>
+              {/* An LC's own page covers one LC, so it has no LC filter. */}
+              {entity.allLcs ? (
+                <label className="field lc">
+                  <span className="sr">Filter by LC</span>
+                  <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                    <path d="M12 21s-7-6.2-7-11a7 7 0 0 1 14 0c0 4.8-7 11-7 11z" />
+                    <circle cx="12" cy="10" r="2.5" />
+                  </svg>
+                  <select value={lcId} onChange={(e) => chooseLc(e.target.value)}>
+                    <option value="">All LCs ({applications.length})</option>
+                    {options.map((o) => (
+                      <option key={o.id} value={o.id}>
+                        {o.name} ({o.count})
+                      </option>
+                    ))}
+                    {lcId && !lcName ? <option value={lcId}>LC no longer in the pool (0)</option> : null}
+                  </select>
+                  <svg className="chev" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" aria-hidden="true">
+                    <path d="m6 9 6 6 6-6" />
+                  </svg>
+                </label>
+              ) : null}
               <label className="field area">
                 <span className="sr">Filter by work area</span>
                 <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">

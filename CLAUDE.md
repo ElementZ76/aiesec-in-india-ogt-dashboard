@@ -102,6 +102,16 @@ page, per_page)` → `data { ... }` + `paging { total_items total_pages }`.
 | end_date | date, null | duration (actual dates) | `slot.end_date`; fallback `opportunity.latest_end_date` |
 | synced_at | timestamptz | — (internal) | time the sync wrote the row |
 
+### Table `entities` (one row per login; `supabase/entities.sql`, user 2026-10-27)
+
+`slug` (text, primary key: the address, e.g. `chennai`), `name`, `lc_id` (EXPA home LC id; **null
+= all of India**), `password_hash` (bcrypt via pgcrypto; never readable by the website),
+`session_version` (+1 on every password change, which logs that entity out). 25 rows: the 24 LCs
+in the pool (India National Office = `/national-office`) + `/india`. Starting passwords are
+**never committed or written in any repo file** (public repo). Admin, in the Supabase SQL editor:
+`select set_entity_password('<slug>', '<new>');` and `select add_entity('<slug>', '<name>', '<lc id>', '<password>');`.
+The website calls only `check_entity_password(slug, password)` → `session_version` or null.
+
 ### Table `sync_runs` (one row per sync run)
 
 `id` (number), `started_at`, `finished_at`, `status` (`success` / `failed` / `blocked`),
@@ -124,8 +134,10 @@ Supabase Cron (every 15 min) → starts the sync job (GitHub Actions) → EXPA �
    the pool rules (Invariant 6) → upserts the kept rows (adds new ones, updates changed ones) →
    deletes rows no longer in EXPA's result → writes a `sync_runs` row. The safety brake
    (Invariant 7) can stop it before any write.
-2. **Website server:** on `/`, reads all `applications` rows and the latest successful
-   `sync_runs` row from Supabase, cached for up to 5 minutes, and sends them with the page.
+2. **Website server:** on `/<entity>`, checks the login cookie; if it is valid, reads all
+   `applications` rows and the latest successful `sync_runs` row from Supabase (cached for up to
+   5 minutes), keeps **only that entity's applications** (all of them for `/india`) and sends those
+   with the page. Other LCs' applications never reach the browser.
 3. **Browser:** search, LC filter, statistics and CSV export all run on that list (rules in UI Spec).
 
 `PoolApplication` (what the server hands to the page; camelCase of the table columns):
@@ -140,9 +152,12 @@ strings; `appliedAt` as an ISO timestamp.
 
 | Method | Path | Purpose | Auth | Input | Output |
 |---|---|---|---|---|---|
-| GET | `/` | The CV pool page (cards, search, LC filter, stats, export, "Last updated") | none (public) | — | HTML page with `PoolApplication[]` |
+| GET | `/` | Entity list: pick your entity | none (public) | — | HTML, entity names only |
+| GET | `/<entity>` | Password box; after login, that entity's CV pool (cards, search, filters, stats, export, "Last updated") | login cookie `ogt_session` | — | HTML; `PoolApplication[]` of that entity only |
+| POST (server action) | `login` | Check the password, set the cookie (30 days), go to `/<entity>` | none | `slug`, `password` | cookie + redirect, or "Wrong password" |
+| POST (server action) | `logout` | Delete the cookie, go to `/` | none | — | redirect |
 
-No public JSON API in v1. The sync job is not an endpoint; it is the GitHub Actions workflow
+No public JSON API. The sync job is not an endpoint; it is the GitHub Actions workflow
 `.github/workflows/sync.yml`.
 
 ## UI Spec
@@ -161,7 +176,12 @@ site is connected to the database.
   (stale data) and green (copied) stay as signals. Every text/background pair must
   meet WCAG AA contrast (4.5:1); use deeper/lighter shades for small text (e.g. buttons `#0366D6`).
 - **Corners:** concentric (inner radius = outer radius − padding); capsules for free-standing controls.
-- **Page:** floating pill navbar (AIESEC in India · Applications · theme switch · Export CSV) →
+- **Logins** (user, 2026-10-27): `/` lists the entities (`/india` first, then A–Z) → `/<entity>`
+  asks for that entity's password ("Wrong password. Passwords are case-sensitive." when wrong) →
+  its pool. A login lasts 30 days in that browser, one entity at a time; **Log out** in the
+  navbar. Visiting another entity's address shows its password box with "You are logged in as …".
+  An LC's page shows the entity name under the title, has no LC filter and no "LCs" list.
+- **Page:** floating pill navbar (AIESEC in India · Applications · theme switch · Export CSV · Log out) →
   title "oGT CV Pool" with the statistics cards beside it → sticky search + LC filter + work-area filter → cards → footer
   ("Last updated …" left; "Built by Praveen" → https://www.linkedin.com/in/praveen-pr190705/ right).
 - **Statistics** (user 2026-10-23): 2 cards to the right of the title, under Export CSV (below
@@ -215,7 +235,7 @@ site is connected to the database.
 |---|---|---|
 | Architecture | SOPs in Markdown: goals, inputs, logic, edge cases | `docs/sops/` (`sync.md`, `pool-page.md`) |
 | Navigation | Orchestration: decides what to fetch, write and show | `src/app/` (the page); `src/lib/sync/run.ts` (one sync run); `scripts/sync.ts` (sync entry point); `.github/workflows/sync.yml` (the job + hourly backup schedule); `supabase/scheduler.sql` (15-minute trigger) |
-| Tools | Deterministic, testable units | `src/lib/expa/` (read-only EXPA client, query, mapper); `src/lib/pool/` (dates, pool rules, search, LC filter, stats, CSV); `src/lib/sync/` (safety brake, delete diff); `src/lib/db/` (row types; `read.ts` = the website's cached read-only access; `sync-store.ts` = writes, sync job only) |
+| Tools | Deterministic, testable units | `src/lib/expa/` (read-only EXPA client, query, mapper); `src/lib/pool/` (dates, pool rules, search, LC filter, stats, CSV); `src/lib/sync/` (safety brake, delete diff); `src/lib/db/` (row types; `read.ts` = the website's cached read-only access; `sync-store.ts` = writes, sync job only); `src/lib/auth/` (login cookie, entity filter) |
 | (UI pieces) | Visual components used by pages | `src/components/` |
 | (Database setup) | SQL that creates the tables and access rules; pasted into Supabase's SQL editor | `supabase/schema.sql` |
 | (Design reference) | Approved UI mockup with sample data (not used by the site) | `docs/design/ui-mockup.html` |
@@ -236,8 +256,13 @@ Tests live next to the code they test, as `*.test.ts`.
    `.env.local` only). The website uses `SUPABASE_PUBLISHABLE_KEY`, which Row Level Security
    (RLS, the database's per-table access rules) limits to reading. RLS is on for every table.
    Neither key gets a `NEXT_PUBLIC_` prefix; the browser never talks to Supabase directly.
-4. The site is **public, with no login** (user decision, 2026-10-14; data privacy is covered by
-   AIESEC in India policy). Revisit only if the user asks.
+4. **Every applicant page needs a login** (user decision, 2026-10-27; replaces "public, no
+   login" of 2026-10-14). One shared password per entity; an LC's login sees only applicants
+   whose home LC is that LC; `/india` sees all. The server filters before sending, so the browser
+   only ever gets the logged-in entity's applications. Passwords are stored only as bcrypt hashes
+   and never committed. The login cookie is signed with `SESSION_SECRET` (Vercel and
+   `.env.local` only; never `NEXT_PUBLIC_`, never committed); changing it logs everyone out.
+   An LC that joins the pool without an entity is visible only to `/india` until one is added.
 5. **EXPA is read-only.** The project only runs read queries. It never creates, updates or deletes
    anything on EXPA (no GraphQL mutations).
 6. **Pool rules.** An application is in the pool only if all of these hold:
@@ -294,4 +319,5 @@ Tests live next to the code they test, as `*.test.ts`.
 | 2026-10-23 | UI Spec: statistics → 2 cards beside the title (Top LC / Top work area cards, LC rank, "Statistics" heading and navbar link removed); full lists open from the counts on the Applications card | User: remove the two cards and fill the empty space at the top right; keep the full lists, reached from the Applications card |
 | 2026-10-27 | Commands: added `npm run sync:dry` (dry run without `--`) | PowerShell dropped the `--` in `npm run sync -- --dry-run`, so a check meant to write nothing ran a real sync |
 | 2026-10-27 | Schema: `professional_experiences` + `languages` (jsonb) on `applications`; shown in the details popup and the CSV. Page data 642 → 1,913 KB (86 → 324 KB compressed): 885 cards are only 348 people, so each history repeats per application | User: add work experiences (labelled professional experiences) and languages to the EP details |
+| 2026-10-27 | **Logins per entity.** Table `entities` (`supabase/entities.sql`); `/` = entity list, `/<entity>` = password box then that entity's pool; signed 30-day cookie (`SESSION_SECRET`), Log out; Invariant 4 rewritten; endpoint table, data flow, UI Spec updated. Starting passwords chosen by the user, kept out of git | User: split the site per LC with a password each, plus one India login; admin changes passwords |
 | 2026-10-27 | Live URL → https://aiesec-india-ogt.vercel.app/ (Vercel domain renamed by the user). The old `aiesec-in-india-ogt-dashboard.vercel.app` now returns 404. The GitHub repo name is unchanged (`supabase/scheduler.sql` calls it by name) | User: rename the site to aiesec-india-ogt |
