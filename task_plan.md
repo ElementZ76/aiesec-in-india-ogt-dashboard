@@ -1,6 +1,6 @@
 # Task Plan
 
-**Current Phase: 5 — Trigger (wrap-up).** Deadline: **everything incl. testing done by 2026-10-20**. Live: https://aiesec-in-india-ogt-dashboard.vercel.app/. Final integration test passed 2026-10-18 (1 finding, Breakdown rows 36 px on touch, fixed the same day). Next: the user's change requests.
+**Current Phase: 5 — Trigger (wrap-up).** Deadline: **everything incl. testing done by 2026-10-20**. Live: https://aiesec-india-ogt.vercel.app/ (renamed 2026-10-27). Final integration test passed 2026-10-18 (1 finding, Breakdown rows 36 px on touch, fixed the same day). Next: the user's change requests.
 
 ## Phase 0 — Initialization
 - [x] Create `CLAUDE.md`, `task_plan.md`, `findings.md`, `progress.md`, `.tmp/`

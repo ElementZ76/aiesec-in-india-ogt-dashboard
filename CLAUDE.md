@@ -13,7 +13,7 @@ A public website, hosted on Vercel, showing **one India-wide pool** of AIESEC in
 (LC). Each application is one card showing the spec fields. A sync job copies the data from
 EXPA into our database every 15 minutes; the website reads only that database.
 
-- **Live site:** https://aiesec-in-india-ogt-dashboard.vercel.app/
+- **Live site:** https://aiesec-india-ogt.vercel.app/
 
 - **Spec:** `spec_file.txt` lists the 10 fields each card shows (see Data Schema).
 - **Bare minimum (MVP):** the cards with contact info, EP manager and CV link.
@@ -294,3 +294,4 @@ Tests live next to the code they test, as `*.test.ts`.
 | 2026-10-23 | UI Spec: statistics → 2 cards beside the title (Top LC / Top work area cards, LC rank, "Statistics" heading and navbar link removed); full lists open from the counts on the Applications card | User: remove the two cards and fill the empty space at the top right; keep the full lists, reached from the Applications card |
 | 2026-10-27 | Commands: added `npm run sync:dry` (dry run without `--`) | PowerShell dropped the `--` in `npm run sync -- --dry-run`, so a check meant to write nothing ran a real sync |
 | 2026-10-27 | Schema: `professional_experiences` + `languages` (jsonb) on `applications`; shown in the details popup and the CSV. Page data 642 → 1,913 KB (86 → 324 KB compressed): 885 cards are only 348 people, so each history repeats per application | User: add work experiences (labelled professional experiences) and languages to the EP details |
+| 2026-10-27 | Live URL → https://aiesec-india-ogt.vercel.app/ (Vercel domain renamed by the user). The old `aiesec-in-india-ogt-dashboard.vercel.app` now returns 404. The GitHub repo name is unchanged (`supabase/scheduler.sql` calls it by name) | User: rename the site to aiesec-india-ogt |
