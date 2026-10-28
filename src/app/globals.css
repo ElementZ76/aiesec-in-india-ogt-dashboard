@@ -8,17 +8,19 @@
   --btn: #0366d6;          /* deeper AIESEC blue: white text passes contrast (5.4) */
   --btn-hover: #0257b8;
   /* Concentric corners (Apple's rule): inner radius = outer radius - the padding between them,
-     so nested shapes share one centre. Capsules for free-standing controls. */
+     so nested shapes share one centre. Capsules for free-standing controls.
+     Every big box (navbar, stuck search bar, stat cards, cards, popup) has the same plain round
+     30px corner (2026-10-28, chosen in docs/design/corner-lab.html); no squircles. */
   --pad-card: 20px;
   --r-card: 30px;
   --r-card-inner: calc(var(--r-card) - var(--pad-card));      /* 10px */
   --pad-tile: 20px;
-  --r-tile: 26px;
-  --r-tile-inner: calc(var(--r-tile) - var(--pad-tile));      /* 6px */
+  --r-tile: var(--r-card);
+  --r-tile-inner: calc(var(--r-tile) - var(--pad-tile));      /* 10px */
   /* One text line (2026-10-28): boxes sit at the page margin, and all text starts this far inside
      it, the same as the text inside a card (1px border + 20px padding) and in the navbar. */
   --inset: 21px;
-  --pad-bar: 10px;
+  --pad-bar: 7px;   /* stuck search bar: 7px + the 23px capsule fields = its 30px corner */
   --pill: 999px;
   --spring: cubic-bezier(.34, 1.56, .64, 1);      /* overshoots a little, then settles */
   --spring-soft: cubic-bezier(.22, 1.25, .36, 1);
@@ -126,12 +128,6 @@ section[id] { scroll-margin-top: calc(var(--nav-h) + var(--nav-top) + 16px); }
   -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
   -webkit-mask-composite: xor; mask-composite: exclude;
 }
-@supports (corner-shape: squircle) {
-  :root { --r-card: 44px; --r-tile: 38px; }   /* squircles look tighter, so use larger radii */
-  .card, .tile, .panel, .job, .card-foot .btn, .chip, .avatar, .empty, .bar-row { corner-shape: squircle; }
-  .glass::before { corner-shape: inherit; }
-  .avatar { border-radius: 50%; }
-}
 .blur { -webkit-backdrop-filter: blur(14px) saturate(160%); backdrop-filter: blur(14px) saturate(160%); }
 @supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) { .blur { background: var(--bg) !important; } }
 @media (prefers-reduced-transparency: reduce) {
@@ -162,7 +158,7 @@ section[id] { scroll-margin-top: calc(var(--nav-h) + var(--nav-top) + 16px); }
 /* ---------- Floating pill navbar ---------- */
 .nav-shell { position: sticky; top: var(--nav-top); z-index: 30; padding: 0 16px; margin-top: var(--nav-top); }
 .nav {
-  max-width: 1208px; height: var(--nav-h); margin: 0 auto; border-radius: var(--pill);
+  max-width: 1208px; height: var(--nav-h); margin: 0 auto; border-radius: var(--r-card);   /* a capsule on phones (60px tall) */
   display: flex; align-items: center; gap: 14px; padding: 0 10px 0 var(--inset);
   background: linear-gradient(180deg, var(--sheen), transparent 60%), var(--glass-bar);
   box-shadow: inset 0 1px 0 var(--rim-a), 0 20px 50px -20px rgba(0, 0, 0, .55);
@@ -325,7 +321,9 @@ button.bar-row:active { transform: scale(.97); }
 /* ---------- Search + filter bar ---------- */
 .controls {
   position: sticky; top: calc(var(--nav-top) + var(--nav-h) + 10px); z-index: 20;
-  margin: 18px calc(-1 * var(--pad-bar) - 1px) 0; padding: var(--pad-bar);   /* -1px: its border, so the fields sit at the page margin */ border-radius: calc(var(--pad-bar) + 23px); border: 1px solid transparent;
+  /* Negative side margins (-1px for its border) put the fields on the page margin until it sticks. */
+  margin: calc(28px - var(--pad-bar)) calc(-1 * var(--pad-bar) - 1px) 0; padding: var(--pad-bar);
+  border-radius: var(--r-card); border: 1px solid transparent;
   transition: margin .25s ease, background-color .3s ease, border-color .3s ease, box-shadow .3s ease;
 }
 .controls.stuck { margin-inline: 0;   /* once it shows as a box, the box keeps to the page margin and the fields move in */
@@ -352,7 +350,7 @@ button.bar-row:active { transform: scale(.97); }
 .field input, .field select { min-width: 0; }
 .clear { height: 46px; animation: pop .45s var(--spring); }
 .clear[hidden] { display: none; }
-.count { color: var(--muted); font-size: 15px; margin: 12px 0 14px; padding-left: var(--inset); }
+.count { color: var(--muted); font-size: 15px; margin: calc(22px - var(--pad-bar)) 0 14px; padding-left: var(--inset); }   /* 22px below the fields */
 .count b { color: var(--text); }
 .count:focus { outline: none; }   /* focused only by script after a page change, for screen readers */
 

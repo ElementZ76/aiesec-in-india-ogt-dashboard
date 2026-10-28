@@ -177,6 +177,8 @@ site is connected to the database.
   (stale data) and green (copied) stay as signals. Every text/background pair must
   meet WCAG AA contrast (4.5:1); use deeper/lighter shades for small text (e.g. buttons `#0366D6`).
 - **Corners:** concentric (inner radius = outer radius − padding); capsules for free-standing controls.
+  Every big box (navbar, stuck search bar, stat cards, cards, popup) has the same **plain round
+  30 px** corner; no squircles (user, 2026-10-28; chosen in `docs/design/corner-lab.html`).
 - **Alignment** (user, 2026-10-28): boxes (navbar, stat cards, search bar, cards) sit at the page
   margin; **all text starts on one line 21 px inside it** (`--inset`): navbar text, title, LC name,
   "Showing …" line, footer, and the content of every box (1 px border + 20 px padding).
@@ -335,3 +337,4 @@ Tests live next to the code they test, as `*.test.ts`.
 | 2026-10-28 | UI Spec: **pagination replaces "Load more"** — 12 per page, numbered pages (compact "Page 5 of 79" on phones); search, LC, work area and page kept in the address (`src/lib/pool/view.ts`, `src/components/Pagination.tsx`); endpoint table: `/<entity>` reads `q`, `lc`, `area`, `page` | User: pagination instead of Load more; chose 12 per page, page + filters in the address, compact phone layout |
 | 2026-10-28 | UI Spec: one text line (`--inset`, 21 px inside the box edge) for all text, inside and outside boxes; stat-card padding 18/14 → 20 px; navbar left padding 28/20/16 → 21 px; the LC label above the stat cards removed on LC pages | User: margins inconsistent (marked on a phone screenshot); the label repeated the LC name |
 | 2026-10-28 | Stuck search bar's box keeps to the page margin (fields move in); "Contact & EP manager" line trimmed to its letters so the card's gaps look even. Added `docs/design/corner-lab.html` (corner shapes: now / round 30 / squircle 30) | User: the stuck box went past the margin; uneven spacing around the hint; wants to compare corner shapes before choosing |
+| 2026-10-28 | UI Spec: one corner for all big boxes — plain round 30 px (squircles removed; stat cards 26 → 30; navbar 30 instead of a full capsule, still a capsule on phones; stuck search bar 30 with 7 px padding) | User: navbar and cards had different corners; chose option A in the corner lab |
