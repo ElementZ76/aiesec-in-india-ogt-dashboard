@@ -78,8 +78,9 @@ export function DetailsDialog({ match, onClose, notify }: {
             </svg>
           </button>
           <CardTop person={shown} titleId="details-title" />
-          <Applications match={shownMatch} />
 
+          {/* Contact details first: people open a card mostly for them, and someone with 15
+              applications would otherwise push them far down (user, 2026-10-28). */}
           <div>
             <div className="label">Applicant</div>
             <ContactRow icon="mail" value={shown.email} href={`mailto:${shown.email}`} label="email" notify={notify} />
@@ -109,6 +110,8 @@ export function DetailsDialog({ match, onClose, notify }: {
               <div className="row"><span className="na">No EP manager assigned</span></div>
             )}
           </div>
+
+          <Applications match={shownMatch} />
 
           <div>
             <div className="label">Languages</div>

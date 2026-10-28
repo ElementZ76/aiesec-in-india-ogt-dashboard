@@ -219,12 +219,13 @@ site is connected to the database.
   available" when missing), applied date ("Last applied" with more than one). 3 / 2 / 1 columns
   (desktop / tablet / phone).
 - **Details popup** (user, 2026-10-16): tapping/clicking a card (or Tab + Enter) opens one popup
-  with everything: name, LC and badge(s); **Applications** — every application newest first, each
-  with company, work area, GTa/GTe, dates + weeks and applied date; while a search or filter leaves
-  some out, the matching ones come first under "Matches your filter (2 of 5)" and the rest under
-  "Other applications" (nothing hidden; user, 2026-10-28); applicant email and phone (copy buttons), LinkedIn (**"Not
-  available" as text when missing**), EP manager(s) with name, email and phone written out and
-  copy buttons ("No EP manager assigned" when none), languages (names only), professional
+  with everything, in this order: name, LC and badge(s); applicant email and phone (copy buttons),
+  LinkedIn (**"Not available" as text when missing**); EP manager(s) with name, email and phone
+  written out and copy buttons ("No EP manager assigned" when none); **Applications** (after the
+  contacts, so those stay on the first screen; user, 2026-10-28) — every application newest first,
+  each with company, work area, GTa/GTe, dates + weeks and applied date; while a search or filter
+  leaves some out, the matching ones come first under "Matches your filter (2 of 5)" and the rest
+  under "Other applications" (nothing hidden); languages (names only), professional
   experiences newest first with title, organisation, type, "Mar 2026 – Present" dates and the full
   description ("Not available" when a list is empty; user, 2026-10-27), View CV. Closes with ✕, Esc, a tap outside,
   or Android's back gesture. Centred on laptops; a bottom sheet on phones. Page behind does not

@@ -104,7 +104,8 @@ laptops, using only data the sync job wrote to Supabase.
    dates) of their newest **matching** application, "+N more applications" when they have more,
    View CV and the applied date ("Last applied" = their newest application, with more than one).
    The whole card is one button that opens the popup (View CV keeps working on its own).
-   The popup starts with **Applications**: every application newest first (company + badge, work
+   In the popup, **Applications** comes after the applicant's contacts and the EP managers (so
+   those stay on the first screen even for someone with 15 applications): every application newest first (company + badge, work
    area, dates + weeks, "Applied …"). While the search or filters leave some of the person's
    applications out, the matching ones come first under "Matches your filter (2 of 5)", the rest
    under "Other applications"; nothing is hidden. The popup is a native `<dialog>` opened with
