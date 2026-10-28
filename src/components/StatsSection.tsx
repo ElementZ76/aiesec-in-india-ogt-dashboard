@@ -164,7 +164,8 @@ export const StatsSection = memo(function StatsSection({ stats, lcId, lcName, fi
   return (
     <>
       <section className="hero-stats" aria-label="Statistics">
-        <span className="scope pop" key={lcId}>{lcId ? lcName : (singleLc ?? "All LCs")}</span>
+        {/* An LC's page already shows its name under the title, so only /india gets the label. */}
+        {singleLc ? null : <span className="scope pop" key={lcId}>{lcId ? lcName : "All LCs"}</span>}
         <div className="tiles">
           <div className="tile glass t-apps">
             <div className="t-head">

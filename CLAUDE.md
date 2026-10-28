@@ -177,6 +177,9 @@ site is connected to the database.
   (stale data) and green (copied) stay as signals. Every text/background pair must
   meet WCAG AA contrast (4.5:1); use deeper/lighter shades for small text (e.g. buttons `#0366D6`).
 - **Corners:** concentric (inner radius = outer radius − padding); capsules for free-standing controls.
+- **Alignment** (user, 2026-10-28): boxes (navbar, stat cards, search bar, cards) sit at the page
+  margin; **all text starts on one line 21 px inside it** (`--inset`): navbar text, title, LC name,
+  "Showing …" line, footer, and the content of every box (1 px border + 20 px padding).
 - **Logins** (user, 2026-10-27): `/` lists the entities (`/india` first, then A–Z) → `/<entity>`
   asks for that entity's password ("Wrong password. Passwords are case-sensitive." when wrong) →
   its pool. A login lasts 30 days in that browser, one entity at a time; **Log out** in the
@@ -186,8 +189,8 @@ site is connected to the database.
   title "oGT CV Pool" with the statistics cards beside it → sticky search + LC filter + work-area filter → cards → footer
   ("Last updated …" left; "Built by Praveen" → https://www.linkedin.com/in/praveen-pr190705/ right).
 - **Statistics** (user 2026-10-23): 2 cards to the right of the title, under Export CSV (below
-  960 px wide: under the title; phones: side by side). A small label above them names the LC they
-  cover. **Applications** (total + LC/work-area counts) and **GTa vs GTe** (small ring + both
+  960 px wide: under the title; phones: side by side). On `/india`, a small label above them names
+  the LC they cover ("All LCs" or the chosen LC); an LC's page has none (its name is under the title). **Applications** (total + LC/work-area counts) and **GTa vs GTe** (small ring + both
   counts). No "Statistics" heading and no navbar link. Top LC / Top work area cards and the LC
   rank were removed. On the Applications card, **"24 LCs ▾"** and **"8 work areas ▾"** open the
   full list (all LCs / all work areas): laptops and tablets — a panel drops down under the title
@@ -330,3 +333,4 @@ Tests live next to the code they test, as `*.test.ts`.
 | 2026-10-27 | Live URL → https://aiesec-india-ogt.vercel.app/ (Vercel domain renamed by the user). The old `aiesec-in-india-ogt-dashboard.vercel.app` now returns 404. The GitHub repo name is unchanged (`supabase/scheduler.sql` calls it by name) | User: rename the site to aiesec-india-ogt |
 | 2026-10-28 | UI Spec: fonts — Playfair Display 600 for the page/login title and applicant names (5% larger); Lato 400/700 for everything else (900 no longer used); clearer grey levels (dark: text `#ececec`, muted `#a8a8a8`, faint `#808080`; light: muted `#4a443c`, faint `#6f675c`). Added `docs/design/type-lab.html` | User picked the combination in the type lab: serif headings, calm weights, current sizes, clear greys |
 | 2026-10-28 | UI Spec: **pagination replaces "Load more"** — 12 per page, numbered pages (compact "Page 5 of 79" on phones); search, LC, work area and page kept in the address (`src/lib/pool/view.ts`, `src/components/Pagination.tsx`); endpoint table: `/<entity>` reads `q`, `lc`, `area`, `page` | User: pagination instead of Load more; chose 12 per page, page + filters in the address, compact phone layout |
+| 2026-10-28 | UI Spec: one text line (`--inset`, 21 px inside the box edge) for all text, inside and outside boxes; stat-card padding 18/14 → 20 px; navbar left padding 28/20/16 → 21 px; the LC label above the stat cards removed on LC pages | User: margins inconsistent (marked on a phone screenshot); the label repeated the LC name |

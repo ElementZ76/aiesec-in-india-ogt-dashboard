@@ -42,7 +42,7 @@ and CSV export, fast on phones and laptops, using only data the sync job wrote t
   minute, so open sessions of that entity end within a few minutes.
 - After login: steps 1–10 below, with `applicationsFor(entity, pool)`: an LC gets only rows whose
   `homeLcId` is its `lc_id`; `/india` gets all. The LC filter and the "LCs" list are hidden on an
-  LC's page, the statistics label shows the entity name, and the CSV is `ogt-cv-pool-<slug>.csv`.
+  LC's page, the statistics label is hidden (the name is under the title), and the CSV is `ogt-cv-pool-<slug>.csv`.
 - Known gap: no limit on password attempts.
 
 ## Steps
@@ -76,7 +76,7 @@ and CSV export, fast on phones and laptops, using only data the sync job wrote t
    (whole pool; ties: same count → ordered by name) and per work area (LC-filtered list). A
    missing work area counts as "Not specified".
    Shown as 2 cards next to the page title (2026-10-23; stacked under it ≤ 960 px): Applications
-   and GTa vs GTe, with a label above them naming the LC they cover ("All LCs" or the LC).
+   and GTa vs GTe; on `/india`, a label above them names the LC they cover ("All LCs" or the LC).
    On the Applications card, "24 LCs ▾" and "8 work areas ▾" are buttons that open the full
    list: all LCs (whole pool) or all work areas (LC-filtered list). ≥ 641 px: one drop-down panel
    under the title row (`aria-expanded` on the button; same button again, ✕ or Esc closes and
