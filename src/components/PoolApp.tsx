@@ -1,19 +1,20 @@
 "use client";
-// The pool page in the browser: search, LC filter, stats, cards, CSV export (docs/sops/pool-page.md).
+// The pool page in the browser: search, LC filter, stats, cards, pages, CSV export (docs/sops/pool-page.md).
 import { useCallback, useDeferredValue, useEffect, useMemo, useRef, useState } from "react";
 import { toCsv } from "@/lib/pool/csv";
 import { formatIndiaDateTime, isStale } from "@/lib/pool/format";
 import { filterPool, indexPool, lcOptions, workAreaOptions } from "@/lib/pool/search";
 import { computeStats } from "@/lib/pool/stats";
 import type { PoolApplication } from "@/lib/pool/types";
+import { PAGE_SIZE, pageCount, parseView, viewSearch, type View } from "@/lib/pool/view";
 import { AppCard, type Notify } from "./AppCard";
 import { DetailsDialog } from "./DetailsDialog";
 import { useMediaQuery, useMinuteClock } from "./hooks";
 import { Icon, IconSprite } from "./icons";
 import { NavBar } from "./NavBar";
+import { Pagination } from "./Pagination";
 import { StatsSection } from "./StatsSection";
 
-const PAGE = 12;
 const plural = (n: number) => `application${n === 1 ? "" : "s"}`;
 
 function LastUpdated({ at }: { at: string | null }) {
@@ -52,20 +53,26 @@ export interface PageEntity {
   allLcs: boolean;
 }
 
-export function PoolApp({ applications, lastUpdated, entity }: {
+export function PoolApp({ applications, lastUpdated, entity, initialView }: {
   applications: PoolApplication[];
   lastUpdated: string | null;
   entity: PageEntity;
+  initialView: View; // from the address, e.g. ?q=priya&page=3
 }) {
-  const [query, setQuery] = useState("");
-  const [lcId, setLcId] = useState("");
-  const [field, setField] = useState(""); // work area; "" = all
-  const [shown, setShown] = useState(PAGE);
+  // Search, filters and page start from the address and are written back to it (SOP step 6a).
+  // An LC's own page has no LC filter, so an "lc" in its address is ignored.
+  const [query, setQuery] = useState(initialView.query);
+  const [lcId, setLcId] = useState(entity.allLcs ? initialView.lcId : "");
+  const [field, setField] = useState(initialView.field); // work area; "" = all
+  const [page, setPage] = useState(initialView.page);
+  const addressMode = useRef<"push" | "replace" | null>(null); // how the next change is written to the address
   const [animate, setAnimate] = useState(true);
   const [toast, setToast] = useState({ id: 0, text: "", ok: true, show: false });
   const [selected, setSelected] = useState<PoolApplication | null>(null); // card shown in the popup
   const closeDetails = useCallback(() => setSelected(null), []);
   const controls = useRef<HTMLDivElement>(null);
+  const listTop = useRef<HTMLElement>(null);
+  const countLine = useRef<HTMLDivElement>(null);
   const narrow = useMediaQuery("(max-width: 760px)");
 
   // Typing stays smooth: the input updates at once, the card list a moment later if needed.
@@ -80,8 +87,10 @@ export function PoolApp({ applications, lastUpdated, entity }: {
   );
   const stats = useMemo(() => computeStats(applications, lcId), [applications, lcId]);
   const lcName = options.find((o) => o.id === lcId)?.name ?? "";
-  const visible = matches.slice(0, shown);
-  const left = Math.max(0, matches.length - shown);
+  const pages = pageCount(matches.length);
+  const current = Math.min(page, pages); // the address may ask for a page that no longer exists
+  const first = (current - 1) * PAGE_SIZE;
+  const visible = matches.slice(first, first + PAGE_SIZE);
   const active = query.trim() !== "" || lcId !== "" || field !== "";
 
   const notify: Notify = useCallback((text, ok = true) => {
@@ -93,24 +102,29 @@ export function PoolApp({ applications, lastUpdated, entity }: {
     return () => clearTimeout(h);
   }, [toast.id, toast.show]);
 
+  // A new LC or work area starts again at page 1 and gets its own history entry (Back undoes it).
   const chooseLc = useCallback((id: string) => {
+    addressMode.current = "push";
     setLcId(id);
-    setShown(PAGE);
+    setPage(1);
     setAnimate(true);
   }, []);
   const pickLcFromBreakdown = useCallback((id: string) => {
+    addressMode.current = "push";
     setLcId((cur) => (cur === id ? "" : id));
-    setShown(PAGE);
+    setPage(1);
     setAnimate(true);
   }, []);
   const chooseField = useCallback((id: string) => {
+    addressMode.current = "push";
     setField(id);
-    setShown(PAGE);
+    setPage(1);
     setAnimate(true);
   }, []);
   const pickFieldFromBreakdown = useCallback((id: string) => {
+    addressMode.current = "push";
     setField((cur) => (cur === id ? "" : id));
-    setShown(PAGE);
+    setPage(1);
     setAnimate(true);
   }, []);
   function clearAll() {
@@ -118,6 +132,55 @@ export function PoolApp({ applications, lastUpdated, entity }: {
     setField("");
     chooseLc("");
   }
+
+  function goToPage(n: number) {
+    addressMode.current = "push";
+    setPage(n);
+    setAnimate(true);
+    // The new page starts at its first card, just under the search bar. Keyboard focus moves to the
+    // "Showing 13–24 of …" line, so it is not left on a button far below.
+    listTop.current?.scrollIntoView({ block: "start" });
+    countLine.current?.focus({ preventScroll: true });
+  }
+  const hrefFor = (n: number) => `/${entity.slug}${viewSearch({ query, lcId, field, page: n })}`;
+
+  // Keep the address in step with the search, filters and page. Typing replaces the current history
+  // entry once the visitor pauses (browsers limit how often the address may change); everything
+  // else adds an entry, so Back returns to the previous page or filter.
+  useEffect(() => {
+    const mode = addressMode.current;
+    if (!mode) return; // first load or Back/Forward: the address is already right
+    addressMode.current = null;
+    const url = `/${entity.slug}${viewSearch({ query, lcId, field, page })}`;
+    const write = () => {
+      if (url === location.pathname + location.search) return;
+      try {
+        if (mode === "push") history.pushState(null, "", url);
+        else history.replaceState(null, "", url);
+      } catch {
+        // over the browser's limit: the address catches up on the next change
+      }
+    };
+    if (mode === "push") return write();
+    const h = setTimeout(write, 400);
+    return () => clearTimeout(h);
+  }, [entity.slug, query, lcId, field, page]);
+
+  // Back / Forward: show what that address describes.
+  useEffect(() => {
+    const onPop = () => {
+      const params = new URLSearchParams(location.search);
+      const v = parseView((k) => params.get(k));
+      addressMode.current = null;
+      setQuery(v.query);
+      setLcId(entity.allLcs ? v.lcId : "");
+      setField(v.field);
+      setPage(v.page);
+      setAnimate(true);
+    };
+    addEventListener("popstate", onPop);
+    return () => removeEventListener("popstate", onPop);
+  }, [entity.allLcs]);
 
   function exportCsv() {
     const rows = filterPool(index, { query, lcId, field }); // exactly what the filters say right now
@@ -201,7 +264,7 @@ export function PoolApp({ applications, lastUpdated, entity }: {
           />
         </div>
 
-        <section id="applications" aria-label="Applications">
+        <section id="applications" aria-label="Applications" ref={listTop}>
           <div className="controls" ref={controls}>
             <div className="controls-inner">
               <label className="field search">
@@ -214,8 +277,9 @@ export function PoolApp({ applications, lastUpdated, entity }: {
                   type="search"
                   value={query}
                   onChange={(e) => {
+                    addressMode.current = "replace";
                     setQuery(e.target.value);
-                    setShown(PAGE);
+                    setPage(1);
                     setAnimate(false);
                   }}
                   placeholder={narrow ? "Search" : "Search name, email, company, work area, EP manager…"}
@@ -274,8 +338,9 @@ export function PoolApp({ applications, lastUpdated, entity }: {
             </div>
           </div>
 
-          <div className="count" aria-live="polite">
-            Showing <b>{visible.length}</b> of <b>{matches.length}</b> {plural(matches.length)} · newest first
+          <div className="count" aria-live="polite" ref={countLine} tabIndex={-1}>
+            Showing <b>{visible.length > 1 ? `${first + 1}–${first + visible.length}` : visible.length ? first + 1 : 0}</b> of{" "}
+            <b>{matches.length}</b> {plural(matches.length)} · newest first
           </div>
 
           <div className="grid" key={`${lcId}|${field}`}>
@@ -295,21 +360,7 @@ export function PoolApp({ applications, lastUpdated, entity }: {
             )}
           </div>
 
-          <div className="more">
-            {left > 0 ? (
-              <button
-                className="btn btn-glass"
-                onClick={() => {
-                  setShown(shown + PAGE);
-                  setAnimate(true);
-                }}
-              >
-                Load more applications <span className="left">{left} left</span>
-              </button>
-            ) : (
-              <span aria-live="polite">{matches.length ? `That's all ${matches.length} ${plural(matches.length)}` : ""}</span>
-            )}
-          </div>
+          <Pagination page={current} pages={pages} hrefFor={hrefFor} onPage={goToPage} />
         </section>
       </main>
 

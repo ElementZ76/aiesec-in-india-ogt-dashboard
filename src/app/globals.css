@@ -349,6 +349,7 @@ button.bar-row:active { transform: scale(.97); }
 .clear[hidden] { display: none; }
 .count { color: var(--muted); font-size: 15px; margin: 12px 0 14px; }
 .count b { color: var(--text); }
+.count:focus { outline: none; }   /* focused only by script after a page change, for screen readers */
 
 /* ---------- Cards ---------- */
 .grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 22px; }
@@ -418,10 +419,36 @@ button.bar-row:active { transform: scale(.97); }
 .card-foot .btn { flex: 1 1 150px; border-radius: var(--r-card-inner); }
 .applied { font-size: 13px; color: var(--faint); white-space: nowrap; }
 
-.more { display: flex; justify-content: center; margin: 28px 0 0; min-height: 24px; color: var(--faint); font-size: 14px; }
-.more .btn { padding: 12px 22px; }
-.more .btn[hidden] { display: none; }
-.more .left { font-weight: 400; color: var(--muted); padding-left: 8px; margin-left: 2px; border-left: 1px solid var(--edge); }
+/* ---------- Pages (2026-10-28): ‹ Previous  1 … 4 [5] 6 … 79  Next › ---------- */
+.pager { display: flex; justify-content: center; align-items: center; gap: 10px; margin: 28px 0 0; }
+.pager-step { padding: 10px 16px; min-height: 46px; }
+.pager-step[aria-disabled="true"] { opacity: .45; cursor: default; }
+.pager-step[aria-disabled="true"]:hover { transform: none; }
+.pager-list {
+  display: flex; align-items: center; gap: 2px; margin: 0; padding: 3px; list-style: none;
+  border-radius: var(--pill); background: var(--glass-inset); border: 1px solid var(--edge); box-shadow: inset 0 1px 0 var(--rim-b);
+}
+.pager-num {
+  display: grid; place-items: center; min-width: 38px; height: 38px; padding: 0 8px; border-radius: var(--pill);
+  color: var(--muted); font-weight: 700; font-variant-numeric: tabular-nums; text-decoration: none !important;
+  transition: color .2s ease, background-color .2s ease, transform .4s var(--spring);
+  -webkit-tap-highlight-color: transparent;
+}
+.pager-num:hover { color: var(--text); background: var(--glass-inset); }
+.pager-num:active { transform: scale(.9); transition-duration: .08s; }
+.pager-num.on { color: var(--link); background: var(--active); box-shadow: inset 0 0 0 1px rgba(3,126,243,.25); }
+.pager-gap { min-width: 22px; text-align: center; color: var(--faint); }
+.pager-compact { display: none; color: var(--muted); font-size: 15px; white-space: nowrap; }
+.pager-compact b { color: var(--text); font-variant-numeric: tabular-nums; }
+@media (max-width: 760px) {   /* arrows only, so the numbers fit */
+  .pager-word { display: none; }
+  .pager-step { width: 46px; padding: 0; }
+}
+@media (max-width: 640px) {   /* phones: ‹  Page 5 of 79  › */
+  .pager { gap: 18px; }
+  .pager-list { display: none; }
+  .pager-compact { display: block; }
+}
 .empty { grid-column: 1 / -1; text-align: center; padding: 56px 16px; border-radius: var(--r-card); animation: rise .6s var(--spring) backwards; }
 .empty h3 { margin: 0 0 6px; font-size: 22px; font-weight: 700; }
 .empty p { color: var(--muted); margin: 0 0 18px; }
@@ -539,7 +566,8 @@ footer .stale { color: var(--warn); font-weight: 700; }
 @media (pointer: coarse) {
   .theme button, .theme .thumb { width: 44px; height: 44px; }
   :root[data-theme="dark"] .theme .thumb { transform: translateX(44px); }
-  .nav .btn-primary, .nav .btn-glass, .more .btn, .card-foot .btn { min-height: 44px; min-width: 44px; }
+  .nav .btn-primary, .nav .btn-glass, .card-foot .btn { min-height: 44px; min-width: 44px; }
+  .pager-num { min-width: 44px; height: 44px; }
   button.bar-row, .t-link { min-height: 44px; }
   .logo { min-height: 44px; }
   .row .val { padding: 12px 0; }

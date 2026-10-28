@@ -153,7 +153,7 @@ strings; `appliedAt` as an ISO timestamp.
 | Method | Path | Purpose | Auth | Input | Output |
 |---|---|---|---|---|---|
 | GET | `/` | Entity list: pick your entity | none (public) | — | HTML, entity names only |
-| GET | `/<entity>` | Password box; after login, that entity's CV pool (cards, search, filters, stats, export, "Last updated") | login cookie `ogt_session` | — | HTML; `PoolApplication[]` of that entity only |
+| GET | `/<entity>` | Password box; after login, that entity's CV pool (cards, search, filters, stats, export, "Last updated") | login cookie `ogt_session` | optional `q`, `lc`, `area`, `page` (the view to open with) | HTML; `PoolApplication[]` of that entity only |
 | POST (server action) | `login` | Check the password, set the cookie (30 days), go to `/<entity>` | none | `slug`, `password` | cookie + redirect, or "Wrong password" |
 | POST (server action) | `logout` | Delete the cookie, go to `/` | none | — | redirect |
 
@@ -208,8 +208,14 @@ site is connected to the database.
   or Android's back gesture. Centred on laptops; a bottom sheet on phones. Page behind does not
   scroll. Darkened backdrop, no blur. Motion (user, 2026-10-18): backdrop fades in, popup glides
   in and eases to a stop with **no bounce**, and slides out on close; no tap flash on cards.
-- **Paging:** 12 cards first, then a **"Load more applications"** button adds 12 per click. Never
-  render the whole pool at once. A new search or filter starts again at 12.
+- **Paging** (user, 2026-10-28; replaces "Load more"): **12 cards per page**; below the cards
+  "‹ Previous 1 … 4 [5] 6 … 79 Next ›"; phones (≤ 640 px) "‹ Page 5 of 79 ›". Count line
+  "Showing 13–24 of 945". A page change scrolls to the top of the cards. A new search or filter
+  goes back to page 1. Never render the whole pool at once.
+- **Address** (user, 2026-10-28): search, LC, work area and page live in the address
+  (`?q=…&lc=…&area=…&page=…`, defaults left out), so refresh keeps the view, Back undoes a page or
+  filter change, and links can be shared. Changed with the browser's history API: no reload, no
+  new data download.
 - **Search:** name, email, company, work area, LC, EP manager name. "Clear" shows only when a
   search or filter is active, and resets all three.
 - **Work-area filter** (user, 2026-10-16): dropdown "All work areas", options A–Z with counts within
@@ -323,3 +329,4 @@ Tests live next to the code they test, as `*.test.ts`.
 | 2026-10-27 | **Logins per entity.** Table `entities` (`supabase/entities.sql`); `/` = entity list, `/<entity>` = password box then that entity's pool; signed 30-day cookie (`SESSION_SECRET`), Log out; Invariant 4 rewritten; endpoint table, data flow, UI Spec updated. Starting passwords chosen by the user, kept out of git | User: split the site per LC with a password each, plus one India login; admin changes passwords |
 | 2026-10-27 | Live URL → https://aiesec-india-ogt.vercel.app/ (Vercel domain renamed by the user). The old `aiesec-in-india-ogt-dashboard.vercel.app` now returns 404. The GitHub repo name is unchanged (`supabase/scheduler.sql` calls it by name) | User: rename the site to aiesec-india-ogt |
 | 2026-10-28 | UI Spec: fonts — Playfair Display 600 for the page/login title and applicant names (5% larger); Lato 400/700 for everything else (900 no longer used); clearer grey levels (dark: text `#ececec`, muted `#a8a8a8`, faint `#808080`; light: muted `#4a443c`, faint `#6f675c`). Added `docs/design/type-lab.html` | User picked the combination in the type lab: serif headings, calm weights, current sizes, clear greys |
+| 2026-10-28 | UI Spec: **pagination replaces "Load more"** — 12 per page, numbered pages (compact "Page 5 of 79" on phones); search, LC, work area and page kept in the address (`src/lib/pool/view.ts`, `src/components/Pagination.tsx`); endpoint table: `/<entity>` reads `q`, `lc`, `area`, `page` | User: pagination instead of Load more; chose 12 per page, page + filters in the address, compact phone layout |

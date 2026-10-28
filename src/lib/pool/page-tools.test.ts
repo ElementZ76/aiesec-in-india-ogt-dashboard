@@ -8,6 +8,7 @@ import {
 import { NO_FIELD, filterPool, indexPool, lcOptions, workAreaOptions } from "./search";
 import { NOT_SPECIFIED, computeStats } from "./stats";
 import type { PoolApplication } from "./types";
+import { EMPTY_VIEW, pageCount, pageItems, parseView, viewSearch } from "./view";
 
 function app(over: Partial<PoolApplication> = {}): PoolApplication {
   return {
@@ -205,5 +206,47 @@ describe("toPoolApplication", () => {
   });
   it("treats a non-list EP manager value as no managers", () => {
     expect(toPoolApplication({ ...row, ep_managers: null as unknown as [] }).epManagers).toEqual([]);
+  });
+});
+
+describe("view (paging + address)", () => {
+  const from = (search: string) => {
+    const p = new URLSearchParams(search);
+    return parseView((k) => p.get(k));
+  };
+
+  it("counts pages, with at least one page", () => {
+    expect(pageCount(0)).toBe(1);
+    expect(pageCount(12)).toBe(1);
+    expect(pageCount(13)).toBe(2);
+    expect(pageCount(945)).toBe(79);
+  });
+  it("lists every page when there are 7 or fewer", () => {
+    expect(pageItems(1, 1)).toEqual([1]);
+    expect(pageItems(3, 7)).toEqual([1, 2, 3, 4, 5, 6, 7]);
+  });
+  it("keeps 7 buttons with gaps when there are more pages", () => {
+    expect(pageItems(1, 79)).toEqual([1, 2, 3, 4, 5, "gap", 79]);
+    expect(pageItems(4, 79)).toEqual([1, 2, 3, 4, 5, "gap", 79]);
+    expect(pageItems(5, 79)).toEqual([1, "gap", 4, 5, 6, "gap", 79]);
+    expect(pageItems(76, 79)).toEqual([1, "gap", 75, 76, 77, 78, 79]);
+    expect(pageItems(79, 79)).toEqual([1, "gap", 75, 76, 77, 78, 79]);
+    expect(pageItems(5, 8)).toEqual([1, "gap", 4, 5, 6, 7, 8]);
+  });
+  it("reads search, filters and page from the address", () => {
+    expect(from("?q=priya+s&lc=10&area=Marketing&page=3")).toEqual({ query: "priya s", lcId: "10", field: "Marketing", page: 3 });
+    expect(from("")).toEqual(EMPTY_VIEW);
+  });
+  it("falls back to page 1 for a bad page number", () => {
+    for (const bad of ["0", "-2", "2.5", "abc", "", "1e400"]) expect(from(`?page=${bad}`).page).toBe(1);
+  });
+  it("writes only what is set, so the default view has a clean address", () => {
+    expect(viewSearch(EMPTY_VIEW)).toBe("");
+    expect(viewSearch({ ...EMPTY_VIEW, query: "   " })).toBe("");
+    expect(viewSearch({ query: "ravi & co", lcId: "10", field: "__none__", page: 2 })).toBe("?q=ravi+%26+co&lc=10&area=__none__&page=2");
+  });
+  it("round-trips a view through the address", () => {
+    const view = { query: "Nürnberg", lcId: "77", field: "Teaching", page: 12 };
+    expect(from(viewSearch(view))).toEqual(view);
   });
 });

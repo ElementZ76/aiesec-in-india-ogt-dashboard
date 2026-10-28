@@ -10,17 +10,21 @@ import { currentSession } from "@/lib/auth/current";
 import { applicationsFor } from "@/lib/auth/entities";
 import { sessionGrants } from "@/lib/auth/session";
 import { getEntities, getPool } from "@/lib/db/read";
+import { parseView, type View } from "@/lib/pool/view";
 
-export default function EntityPage({ params }: PageProps<"/[entity]">) {
+export default function EntityPage({ params, searchParams }: PageProps<"/[entity]">) {
   // The address and the cookie are request data, so they are read inside <Suspense>.
   return (
     <Suspense fallback={<main className="gate-loading" aria-busy="true">Loading…</main>}>
-      {params.then(({ entity }) => <Gate slug={entity} />)}
+      {Promise.all([params, searchParams]).then(([{ entity }, search]) => (
+        // ?q=…&lc=…&area=…&page=… → the search, filters and page the pool opens with
+        <Gate slug={entity} view={parseView((k) => [search[k]].flat()[0])} />
+      ))}
     </Suspense>
   );
 }
 
-async function Gate({ slug }: { slug: string }) {
+async function Gate({ slug, view }: { slug: string; view: View }) {
   const entities = await getEntities();
   const entity = entities.find((e) => e.slug === slug);
   if (!entity) notFound();
@@ -52,6 +56,7 @@ async function Gate({ slug }: { slug: string }) {
       applications={applicationsFor(entity, applications)}
       lastUpdated={lastUpdated}
       entity={{ slug: entity.slug, name: entity.name, allLcs: entity.lcId === null }}
+      initialView={view}
     />
   );
 }

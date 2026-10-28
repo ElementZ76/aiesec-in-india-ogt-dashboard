@@ -99,10 +99,24 @@ and CSV export, fast on phones and laptops, using only data the sync job wrote t
    label yet, so it is not shown) and **Professional experience(s)**, newest first: title,
    organisation, type · "Mar 2026 – Present" (no end date = Present), then the full description
    with its line breaks kept. Either list empty → "Not available".
-   12 first; "Load more applications" adds 12. A new search, LC or work-area choice
-   goes back to 12. Dates: plain dates shown as "15 Oct 2026"; "Applied" date in India time. Weeks =
+   12 cards per page (see 6a). Dates: plain dates shown as "15 Oct 2026"; "Applied" date in India time. Weeks =
    (end − start) / 7 days, rounded. Copy buttons copy email / phone; if the browser blocks copying,
    a message says so.
+6a. **Pages and the address** (`src/lib/pool/view.ts`, `Pagination.tsx`; user, 2026-10-28):
+   12 cards per page (12 fits 3 / 2 / 1 columns with no half-empty row). Below the cards:
+   "‹ Previous · 1 … 4 [5] 6 … 79 · Next ›" — first and last page, the current page and its
+   neighbours, "…" for the rest; always 7 buttons once there are more than 7 pages, so the row
+   keeps its width. At most 760 px wide: arrows without the words. Phones (≤ 640 px): "‹ Page 5 of
+   79 ›". Only 1 page → no buttons. The count line says "Showing 13–24 of 945 applications".
+   Changing page scrolls to the top of the card list (just under the search bar) and moves keyboard
+   focus to the count line. A new search, LC or work-area choice goes back to page 1.
+   **Address:** search, LC, work area and page are kept in the address, e.g.
+   `/india?q=priya&lc=1234&area=Marketing&page=3`; anything at its default is left out. Opening or
+   refreshing such an address shows exactly that view. Page buttons are real links (Ctrl/middle
+   click opens a new tab). A page, LC or work-area change adds a browser history entry, so Back
+   undoes it; typing replaces the current entry once the visitor pauses for 0.4 s (browsers limit
+   how often the address may change). The address is changed with `history.pushState` /
+   `replaceState`, which Next.js supports without reloading: no data is downloaded again.
 7. **CSV export** (`src/lib/pool/csv.ts`): the cards matching search + LC + work area (all of them, not just
    the 12 shown). Columns: Applicant name, Company name, EP manager, Email, Phone, LC, Start date,
    End date, CV link, Opportunity field, LinkedIn, Programme, Applied on, Professional
@@ -145,8 +159,12 @@ and CSV export, fast on phones and laptops, using only data the sync job wrote t
 | A GTa application without a work area appears | label switches from "Not specified (GTe)" to "Not specified" |
 | `localStorage` blocked (private mode) | theme still works for the visit; just not remembered |
 | Visitor in another time zone | all dates shown in India time / as stored, never shifted |
+| Address asks for a page past the end (`?page=999`, or fewer matches after a sync) | the last page is shown |
+| Page number not a whole number ≥ 1 (`?page=abc`, `0`, `2.5`) | page 1 |
+| `lc=` in the address of an LC's own page | ignored (that page has no LC filter) |
+| Address opened while logged out | password box; after logging in, the pool opens at page 1 with no filters |
 
 ## Performance rules (CLAUDE.md UI Spec)
 
-Blur only on the navbar. Never render the whole pool (12 + 12 per click). No
+Blur only on the navbar. Never render the whole pool (12 cards per page). No
 `content-visibility: auto`. Animate `transform` / `opacity`. Respect "reduce motion".
