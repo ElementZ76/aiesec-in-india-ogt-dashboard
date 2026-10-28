@@ -614,9 +614,9 @@ html:has(dialog[open]) { overflow: hidden; }     /* the page behind the popup do
 .card-foot .btn { position: relative; z-index: 2; }   /* View CV stays clickable above the card button */
 /* The line hugs its letters (cap height to baseline), so the gaps above and below it look like the
    card's other 16px gaps instead of 16px + the line's empty leading. text-box: Chrome 133+, Safari 18.2+;
-   elsewhere line-height 1 gets within ~2px. */
-.card-hint { display: flex; align-items: center; gap: 4px; font-size: 14px; font-weight: 700; color: var(--link); line-height: 1; text-box: trim-both cap alphabetic; }
-.card-hint svg { margin-block: -2px; }   /* the 14px icon must not make the line taller than the 10px capitals */
+   elsewhere line-height 1 gets within ~2px. It must stay a block: text-box does nothing on a flex box. */
+.card-hint { font-size: 14px; font-weight: 700; color: var(--link); line-height: 1; text-box: trim-both cap alphabetic; }
+.card-hint svg { margin-left: 4px; vertical-align: -2px; }
 .card-hint svg { transition: transform .45s var(--spring); }
 @media (hover: hover) { .card:hover .card-hint svg { transform: translateX(3px); } }
 
