@@ -247,6 +247,8 @@ section[id] { scroll-margin-top: calc(var(--nav-h) + var(--nav-top) + 16px); }
   font-size: clamp(34px, 3.4vw, 44px); font-weight: 700; line-height: .95; letter-spacing: -.035em; font-variant-numeric: tabular-nums;
   color: var(--text); transform-origin: left bottom; transition: transform .55s var(--spring);
 }
+.t-sub { margin-top: -2px; font-size: 14px; color: var(--muted); }   /* "903 applications" under the people count */
+.t-sub b { color: var(--text); }
 .t-foot { margin-top: auto; color: var(--muted); font-size: 14px; display: flex; flex-wrap: wrap; align-items: center; gap: 6px 8px; }
 .t-foot b { color: var(--text); }
 /* "24 LCs ▾" / "8 work areas ▾" on the Applications card: open the full list. */
@@ -390,6 +392,16 @@ button.bar-row:active { transform: scale(.97); }
 .job .area { font-size: 15px; color: var(--muted); }
 .job .dates { display: flex; align-items: center; gap: 6px; margin-top: 6px; font-size: 14px; color: var(--muted); }
 .job .weeks { margin-left: auto; font-size: 12px; font-weight: 700; padding: 2px 9px; border-radius: var(--pill); background: var(--bar-track); }
+/* One card per person (2026-10-28): badges for both programmes, "+4 more applications" under the
+   company box, and the full list in the popup. */
+.badges { display: flex; gap: 6px; flex: none; }
+.job-group { display: flex; flex-direction: column; gap: 10px; }
+.more { padding-left: 15px; font-size: 14px; color: var(--muted); line-height: 1; text-box: trim-both cap alphabetic; }   /* text lines up with the box's text */
+.job-head { display: flex; align-items: flex-start; gap: 8px; }
+.job-head .company { flex: 1; min-width: 0; }
+.job-head .badge { margin-top: 1px; }
+.job .applied { display: block; margin-top: 4px; }
+.job-list { display: grid; gap: 10px; }
 
 .label { font-size: 12px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--faint); margin-bottom: 6px; }
 .row { display: flex; align-items: center; gap: 8px; font-size: 15px; min-width: 0; min-height: 40px; }

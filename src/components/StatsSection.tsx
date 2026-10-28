@@ -175,9 +175,11 @@ export const StatsSection = memo(function StatsSection({ stats, lcId, lcName, fi
                   <path d="M14 3v6h6M8 13h8M8 17h5" />
                 </svg>
               </span>
-              Applications
+              Applicants
             </div>
-            <div className="big"><CountUp value={stats.total} /></div>
+            {/* People (one per card); the number of applications under it (user, 2026-10-28). */}
+            <div className="big"><CountUp value={stats.people} /></div>
+            <div className="t-sub"><b><CountUp value={stats.total} /></b> application{stats.total === 1 ? "" : "s"}</div>
             {/* The two counts open the full ranked lists. */}
             <div className="t-foot">
               {singleLc ? null : (

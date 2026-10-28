@@ -1,30 +1,64 @@
 "use client";
-// The details popup: one native <dialog> for the whole page (docs/sops/pool-page.md step 6).
+// The details popup: one native <dialog> for the whole page (docs/sops/pool-page.md step 6). One person:
+// their applications, contact details, EP managers, languages and professional experiences.
 import { useEffect, useRef, useState } from "react";
 import { formatMonthRange, telHref } from "@/lib/pool/format";
-import type { PoolApplication } from "@/lib/pool/types";
+import { isNarrowed, type Match } from "@/lib/pool/search";
+import type { PersonApplication } from "@/lib/pool/types";
 import { CardFoot, CardTop, ContactRow, JobBlock, type Notify } from "./AppCard";
 import { Icon } from "./icons";
 
-export function DetailsDialog({ app, onClose, notify }: {
-  app: PoolApplication | null;
+/** The person's applications, newest first. While the search or filters leave some out, the
+ *  matching ones come first under their own label (nothing is hidden). */
+function Applications({ match }: { match: Match }) {
+  const { person, matches } = match;
+  const all = person.applications;
+  const list = (jobs: PersonApplication[]) => (
+    <div className="job-list">{jobs.map((j) => <JobBlock key={j.applicationId} job={j} full />)}</div>
+  );
+  if (!isNarrowed(match)) {
+    return (
+      <div>
+        <div className="label">Application{all.length > 1 ? `s (${all.length})` : ""}</div>
+        {list(all)}
+      </div>
+    );
+  }
+  const rest = all.filter((a) => !matches.includes(a));
+  return (
+    <>
+      <div>
+        <div className="label">Matches your filter ({matches.length} of {all.length})</div>
+        {list(matches)}
+      </div>
+      <div>
+        <div className="label">Other application{rest.length > 1 ? `s (${rest.length})` : ""}</div>
+        {list(rest)}
+      </div>
+    </>
+  );
+}
+
+export function DetailsDialog({ match, onClose, notify }: {
+  match: Match | null;
   onClose: () => void;
   notify: Notify;
 }) {
   const ref = useRef<HTMLDialogElement>(null);
 
   // While the popup slides away after closing, keep showing the person it was opened for.
-  const [last, setLast] = useState(app);
-  if (app && app !== last) setLast(app);
-  const shown = app ?? last;
+  const [last, setLast] = useState(match);
+  if (match && match !== last) setLast(match);
+  const shownMatch = match ?? last;
+  const shown = shownMatch?.person;
 
   // showModal(): focus moves inside, Esc closes, the page behind is inert. close() returns focus.
   useEffect(() => {
     const d = ref.current;
     if (!d) return;
-    if (app && !d.open) d.showModal();
-    if (!app && d.open) d.close();
-  }, [app]);
+    if (match && !d.open) d.showModal();
+    if (!match && d.open) d.close();
+  }, [match]);
 
   return (
     <dialog
@@ -36,15 +70,15 @@ export function DetailsDialog({ app, onClose, notify }: {
         if (e.target === e.currentTarget) e.currentTarget.close(); // a click on the backdrop
       }}
     >
-      {shown ? (
+      {shown && shownMatch ? (
         <div className="details-panel glass">
           <button className="details-close" onClick={() => ref.current?.close()} aria-label="Close">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round" aria-hidden="true">
               <path d="M6 6l12 12M18 6 6 18" />
             </svg>
           </button>
-          <CardTop app={shown} titleId="details-title" />
-          <JobBlock app={shown} />
+          <CardTop person={shown} titleId="details-title" />
+          <Applications match={shownMatch} />
 
           <div>
             <div className="label">Applicant</div>
@@ -101,7 +135,7 @@ export function DetailsDialog({ app, onClose, notify }: {
             )}
           </div>
 
-          <CardFoot app={shown} />
+          <CardFoot person={shown} />
         </div>
       ) : null}
     </dialog>

@@ -5,7 +5,8 @@ import { CSV_COLUMNS, csvCell, experienceText, toCsv } from "./csv";
 import {
   formatDate, formatIndiaDate, formatIndiaDateTime, formatMonthRange, initials, isStale, telHref, weeksBetween,
 } from "./format";
-import { NO_FIELD, filterPool, indexPool, lcOptions, workAreaOptions } from "./search";
+import { groupByPerson, programmesOf } from "./people";
+import { NO_FIELD, filterPool, indexPool, isNarrowed, lcOptions, workAreaOptions, type Match } from "./search";
 import { NOT_SPECIFIED, computeStats } from "./stats";
 import type { PoolApplication } from "./types";
 import { EMPTY_VIEW, pageCount, pageItems, parseView, viewSearch } from "./view";
@@ -34,12 +35,15 @@ function app(over: Partial<PoolApplication> = {}): PoolApplication {
   };
 }
 
-const POOL = [
-  app({ applicationId: "1" }),
-  app({ applicationId: "2", fullName: "Rohan Mehta", homeLcId: "20", homeLc: "Delhi IIT", programme: "GTe", opportunityField: null, epManagers: [] }),
-  app({ applicationId: "3", fullName: "Ananya Iyer", homeLcId: "20", homeLc: "Delhi IIT", companyName: "Contoso", opportunityField: "Finance" }),
-  app({ applicationId: "4", fullName: "Karan Das", homeLcId: "30", homeLc: "Bengaluru", opportunityField: "Marketing" }),
+// Priya (p1) has two applications: Northwind (Marketing, GTa) and a newer Fabrikam (Finance, GTe).
+const APPS = [
+  app({ applicationId: "1", appliedAt: "2026-10-01T10:00:00Z" }),
+  app({ applicationId: "2", personId: "p2", fullName: "Rohan Mehta", homeLcId: "20", homeLc: "Delhi IIT", programme: "GTe", opportunityField: null, epManagers: [], appliedAt: "2026-09-30T10:00:00Z" }),
+  app({ applicationId: "3", personId: "p3", fullName: "Ananya Iyer", homeLcId: "20", homeLc: "Delhi IIT", companyName: "Contoso", opportunityField: "Finance", appliedAt: "2026-09-29T10:00:00Z" }),
+  app({ applicationId: "4", personId: "p4", fullName: "Karan Das", homeLcId: "30", homeLc: "Bengaluru", opportunityField: "Marketing", appliedAt: "2026-09-28T10:00:00Z" }),
+  app({ applicationId: "5", companyName: "Fabrikam", opportunityField: "Finance", programme: "GTe", appliedAt: "2026-10-05T10:00:00Z" }),
 ];
+const POOL = groupByPerson(APPS);
 
 describe("format", () => {
   it("writes job dates as months", () => {
@@ -78,55 +82,89 @@ describe("format", () => {
   });
 });
 
+describe("people", () => {
+  it("makes one entry per person, ordered by their newest application", () => {
+    expect(POOL.map((p) => p.personId)).toEqual(["p1", "p2", "p3", "p4"]);
+    expect(POOL[0].applications.map((a) => a.applicationId)).toEqual(["5", "1"]); // newest first
+    expect(POOL[0]).toMatchObject({ fullName: "Priya Sharma", homeLc: "Mumbai" });
+    expect(POOL[0]).not.toHaveProperty("companyName"); // application fields live in `applications`
+  });
+  it("orders by time whatever the input order, ties by id", () => {
+    expect(groupByPerson([...APPS].reverse())).toEqual(POOL);
+    const tie = groupByPerson([app({ applicationId: "b" }), app({ applicationId: "a" })]);
+    expect(tie[0].applications.map((a) => a.applicationId)).toEqual(["a", "b"]);
+  });
+  it("lists a person's programmes, GTa first", () => {
+    expect(programmesOf(POOL[0].applications)).toEqual(["GTa", "GTe"]);
+    expect(programmesOf(POOL[1].applications)).toEqual(["GTe"]);
+    expect(groupByPerson([])).toEqual([]);
+  });
+});
+
 describe("search", () => {
   const index = indexPool(POOL);
-  const ids = (list: PoolApplication[]) => list.map((a) => a.applicationId);
+  const ids = (list: Match[]) => list.map((m) => m.person.personId);
+  const jobs = (m: Match | undefined) => m?.matches.map((a) => a.applicationId);
   const f = (query: string, lcId = "", field = "") => filterPool(index, { query, lcId, field });
 
   it("finds by name, email, company, work area, LC and EP manager, any case", () => {
-    expect(ids(f("ROHAN", ""))).toEqual(["2"]);
-    expect(ids(f("contoso", ""))).toEqual(["3"]);
-    expect(ids(f("finance", ""))).toEqual(["3"]);
-    expect(ids(f("delhi", ""))).toEqual(["2", "3"]);
-    expect(ids(f("neha", ""))).toEqual(["1", "3", "4"]);
-    expect(ids(f("priya@", ""))).toEqual(["1", "2", "3", "4"]); // same email in fixture
+    expect(ids(f("ROHAN"))).toEqual(["p2"]);
+    expect(ids(f("contoso"))).toEqual(["p3"]);
+    expect(ids(f("finance"))).toEqual(["p1", "p3"]);
+    expect(ids(f("delhi"))).toEqual(["p2", "p3"]);
+    expect(ids(f("neha"))).toEqual(["p1", "p3", "p4"]);
+    expect(ids(f("priya@"))).toEqual(["p1", "p2", "p3", "p4"]); // same email in fixture
+  });
+  it("says which of a person's applications match", () => {
+    expect(jobs(f("fabrikam")[0])).toEqual(["5"]); // company search: just that application
+    expect(jobs(f("priya")[0])).toEqual(["5", "1"]); // a hit on the person counts for all of them
+    expect(jobs(f("", "", "Marketing")[0])).toEqual(["1"]);
+    expect(jobs(f("priya", "", "Finance")[0])).toEqual(["5"]); // person hit, narrowed by work area
+    expect(isNarrowed(f("fabrikam")[0])).toBe(true);
+    expect(isNarrowed(f("")[0])).toBe(false);
   });
   it("combines search and LC, ignores surrounding spaces, keeps order", () => {
-    expect(ids(f("  neha ", "20"))).toEqual(["3"]);
-    expect(ids(f("   ", ""))).toEqual(["1", "2", "3", "4"]);
-    expect(ids(f("", "30"))).toEqual(["4"]);
-    expect(f("nobody", "")).toEqual([]);
+    expect(ids(f("  neha ", "20"))).toEqual(["p3"]);
+    expect(ids(f("   "))).toEqual(["p1", "p2", "p3", "p4"]);
+    expect(ids(f("", "30"))).toEqual(["p4"]);
+    expect(f("nobody")).toEqual([]);
   });
-  it("does not match across two fields", () => {
-    expect(f("sharma priya", "")).toEqual([]);
+  it("does not match across two fields, or across person and application", () => {
+    expect(f("sharma priya")).toEqual([]);
+    expect(f("mumbai\nnorthwind")).toEqual([]);
   });
   it("filters by work area, alone and with LC and search", () => {
-    expect(ids(f("", "", "Marketing"))).toEqual(["1", "4"]);
-    expect(ids(f("", "", NO_FIELD))).toEqual(["2"]);
-    expect(ids(f("", "20", "Finance"))).toEqual(["3"]);
-    expect(ids(f("karan", "", "Marketing"))).toEqual(["4"]);
+    expect(ids(f("", "", "Marketing"))).toEqual(["p1", "p4"]);
+    expect(ids(f("", "", NO_FIELD))).toEqual(["p2"]);
+    expect(ids(f("", "20", "Finance"))).toEqual(["p3"]);
+    expect(ids(f("karan", "", "Marketing"))).toEqual(["p4"]);
     expect(f("", "30", "Finance")).toEqual([]);
+    expect(f("contoso", "", "Marketing")).toEqual([]); // one application must match both
   });
-  it("lists work areas A-Z with counts, 'Not specified' last", () => {
+  it("lists work areas A-Z with the number of people, 'Not specified' last", () => {
     expect(workAreaOptions(POOL)).toEqual([
-      { id: "Finance", name: "Finance", count: 1 },
+      { id: "Finance", name: "Finance", count: 2 },
       { id: "Marketing", name: "Marketing", count: 2 },
       { id: NO_FIELD, name: "Not specified (GTe)", count: 1 },
     ]);
   });
+  it("counts a person once per work area", () => {
+    const twice = groupByPerson([...APPS, app({ applicationId: "6", personId: "p4", fullName: "Karan Das", homeLcId: "30", homeLc: "Bengaluru" })]);
+    expect(workAreaOptions(twice).find((o) => o.id === "Marketing")?.count).toBe(2);
+  });
   it("says (GTe) only while every application without a work area is GTe", () => {
-    const withGta = [...POOL, app({ applicationId: "5", opportunityField: null, programme: "GTa" })];
+    const withGta = groupByPerson([...APPS, app({ applicationId: "6", personId: "p5", opportunityField: null, programme: "GTa" })]);
     expect(workAreaOptions(withGta).at(-1)).toEqual({ id: NO_FIELD, name: "Not specified", count: 2 });
   });
   it("keeps a selected work area that is missing from the list, with 0", () => {
-    const bengaluru = POOL.filter((a) => a.homeLcId === "30");
+    const bengaluru = POOL.filter((p) => p.homeLcId === "30");
     expect(workAreaOptions(bengaluru, "Finance")).toEqual([
       { id: "Finance", name: "Finance", count: 0 },
       { id: "Marketing", name: "Marketing", count: 1 },
     ]);
     expect(workAreaOptions(bengaluru, NO_FIELD).at(-1)).toEqual({ id: NO_FIELD, name: "Not specified", count: 0 });
   });
-  it("lists LCs by name with counts", () => {
+  it("lists LCs by name with the number of people", () => {
     expect(lcOptions(POOL)).toEqual([
       { id: "30", name: "Bengaluru", count: 1 },
       { id: "20", name: "Delhi IIT", count: 2 },
@@ -136,26 +174,29 @@ describe("search", () => {
 });
 
 describe("stats", () => {
-  it("covers the whole pool", () => {
+  it("counts people for the big number and applications for the rest", () => {
     const s = computeStats(POOL, "");
-    expect(s).toMatchObject({ total: 4, lcCount: 3, fieldCount: 3, gta: 3, gte: 1, gtaPercent: 75 });
-    expect(s.perLc.map((c) => [c.label, c.count])).toEqual([["Delhi IIT", 2], ["Bengaluru", 1], ["Mumbai", 1]]);
-    expect(s.perField.map((c) => [c.label, c.count])).toEqual([["Marketing", 2], ["Finance", 1], [NOT_SPECIFIED, 1]]);
+    expect(s).toMatchObject({ people: 4, total: 5, lcCount: 3, fieldCount: 3, gta: 3, gte: 2, gtaPercent: 60 });
+    expect(s.perLc.map((c) => [c.label, c.count])).toEqual([["Delhi IIT", 2], ["Mumbai", 2], ["Bengaluru", 1]]);
+    expect(s.perField.map((c) => [c.label, c.count])).toEqual([["Finance", 2], ["Marketing", 2], [NOT_SPECIFIED, 1]]);
     expect(s.perField.find((c) => c.label === NOT_SPECIFIED)?.key).toBe(NO_FIELD); // same key as the filter
   });
   it("follows the LC filter", () => {
     const s = computeStats(POOL, "20");
-    expect(s).toMatchObject({ total: 2, lcCount: 1, gta: 1, gte: 1, gtaPercent: 50 });
+    expect(s).toMatchObject({ people: 2, total: 2, lcCount: 1, gta: 1, gte: 1, gtaPercent: 50 });
     expect(s.perLc).toHaveLength(3); // breakdown of LCs stays India-wide
   });
   it("handles an empty pool and an LC that is gone", () => {
-    expect(computeStats([], "")).toMatchObject({ total: 0, gtaPercent: 0, perLc: [] });
-    expect(computeStats(POOL, "99")).toMatchObject({ total: 0, perField: [] });
+    expect(computeStats([], "")).toMatchObject({ people: 0, total: 0, gtaPercent: 0, perLc: [] });
+    expect(computeStats(POOL, "99")).toMatchObject({ people: 0, total: 0, perField: [] });
     expect(computeStats(POOL, "99").perLc).toHaveLength(3);
   });
 });
 
 describe("csv", () => {
+  const all = (list = POOL): Match[] => list.map((person) => ({ person, matches: person.applications }));
+  const lines = (csv: string) => csv.slice(1).trimEnd().split("\r\n");
+
   it("quotes cells and doubles inner quotes", () => {
     expect(csvCell('Say "hi", ok')).toBe('"Say ""hi"", ok"');
     expect(csvCell(null)).toBe('""');
@@ -167,27 +208,33 @@ describe("csv", () => {
     expect(csvCell("Priya")).toBe('"Priya"');
   });
   it("writes a BOM, the header and one line per application", () => {
-    const csv = toCsv([POOL[0], POOL[1]]);
+    const csv = toCsv(all(POOL.slice(0, 2)));
     expect(csv.startsWith("﻿")).toBe(true);
-    const lines = csv.slice(1).trimEnd().split("\r\n");
-    expect(lines).toHaveLength(3);
-    expect(lines[0]).toBe(CSV_COLUMNS.map((c) => `"${c}"`).join(","));
-    expect(lines[1]).toContain('"Neha Agarwal"');
-    expect(lines[1]).toContain(`"'+91 98765 43210"`);
-    expect(lines[1]).toContain('"Not available"'); // LinkedIn missing
-    expect(lines[2].startsWith('"Rohan Mehta","Northwind Labs","",')).toBe(true); // no EP manager
-    expect(lines[1].endsWith(',"",""')).toBe(true); // no experiences, no languages
+    const l = lines(csv);
+    expect(l).toHaveLength(4); // Priya's 2 applications + Rohan's 1
+    expect(l[0]).toBe(CSV_COLUMNS.map((c) => `"${c}"`).join(","));
+    expect(l[1].startsWith('"Priya Sharma","Fabrikam",')).toBe(true);
+    expect(l[2].startsWith('"Priya Sharma","Northwind Labs",')).toBe(true);
+    expect(l[2]).toContain('"Neha Agarwal"');
+    expect(l[2]).toContain(`"'+91 98765 43210"`);
+    expect(l[2]).toContain('"Not available"'); // LinkedIn missing
+    expect(l[2].endsWith(',"",""')).toBe(true); // no experiences, no languages
+    expect(l[3].startsWith('"Rohan Mehta","Northwind Labs","",')).toBe(true); // no EP manager
+  });
+  it("writes only the applications that match", () => {
+    const rows = filterPool(indexPool(POOL), { query: "", lcId: "", field: "Finance" });
+    expect(lines(toCsv(rows)).slice(1).map((l) => l.split(",")[1])).toEqual(['"Fabrikam"', '"Contoso"']);
   });
   it("writes experiences one per line (no descriptions) and languages comma-separated", () => {
-    const a = app({
+    const [person] = groupByPerson([app({
       professionalExperiences: [
         { title: "Analyst", organisation: "New Co", type: "Full Time", start: "2026-01-01", end: null, description: "long text" },
         { title: null, organisation: "Old Co", type: null, start: "2025-03-01", end: "2025-06-01", description: null },
       ],
       languages: [{ name: "English", level: 2 }, { name: "Hindi", level: null }],
-    });
-    expect(experienceText(a)).toBe("Analyst at New Co (Full Time, Jan 2026 – Present)\nOld Co (Mar 2025 – Jun 2025)");
-    expect(toCsv([a])).toContain('"Analyst at New Co (Full Time, Jan 2026 – Present)\nOld Co (Mar 2025 – Jun 2025)","English, Hindi"');
+    })]);
+    expect(experienceText(person)).toBe("Analyst at New Co (Full Time, Jan 2026 – Present)\nOld Co (Mar 2025 – Jun 2025)");
+    expect(toCsv(all([person]))).toContain('"Analyst at New Co (Full Time, Jan 2026 – Present)\nOld Co (Mar 2025 – Jun 2025)","English, Hindi"');
   });
 });
 

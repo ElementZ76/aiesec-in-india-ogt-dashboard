@@ -7,8 +7,9 @@ Rules come from `CLAUDE.md` (UI Spec, Data Schema, Invariants 2 and 3). Visual r
 
 ## Goal
 
-Show every application in the pool as a card, newest first, with search, an LC filter, statistics
-and CSV export, fast on phones and laptops, using only data the sync job wrote to Supabase.
+Show every applicant in the pool as one card (all their applications inside it), newest
+application first, with search, an LC filter, statistics and CSV export, fast on phones and
+laptops, using only data the sync job wrote to Supabase.
 
 ## Inputs
 
@@ -57,22 +58,36 @@ and CSV export, fast on phones and laptops, using only data the sync job wrote t
      **again** for `http(s)` (the sync already did; this is a second guard before a link is put
      in the page).
    Any Supabase error is thrown, so the page shows the error state (step 8), never half a pool.
+1a. **Group by person (server, `src/lib/pool/people.ts`, user 2026-10-28).** After the entity
+   filter, `groupByPerson` turns the rows into `PoolPerson`s: the person's details once (taken
+   from their newest application; all rows of one person come from the same sync) and their
+   applications (company, work area, programme, dates, applied time), newest first. People are
+   ordered by their newest application; equal times by application id. This is also what keeps
+   the page small: a person's professional experiences travel once, not once per application.
 2. **Cache meaning.** A visitor gets the cached page. After 5 minutes the next visit triggers a
    background refresh. After 1 hour without visits, the next visit waits for fresh data
    (about 1 s). So the cache never adds more than about 1 hour on top of the sync's own delay.
 3. **Search** (`src/lib/pool/search.ts`): case-insensitive "contains" on name, email, company,
    work area, LC and EP manager names. Leading/trailing spaces ignored. Search text is built once
-   per card, not on every key press. Typing is kept smooth with `useDeferredValue`.
-4. **LC filter**: by `homeLcId`; options sorted by LC name, each with its count. Statistics follow
-   the LC filter only; cards and CSV follow search + LC + work area.
+   per person (person part + one part per application), not on every key press. Typing is kept
+   smooth with `useDeferredValue`.
+   `filterPool` returns each matching person with **which** of their applications match: an
+   application matches when it fits the work-area filter and the search hits either the person
+   (name, email, LC, EP manager — then it counts for all their applications) or that application
+   (company, work area). A person with no matching application is left out. The matching list
+   drives the card's summary (newest matching application), the popup order and the CSV rows.
+4. **LC filter**: by `homeLcId`; options sorted by LC name, each with its number of people.
+   Statistics follow the LC filter only; cards and CSV follow search + LC + work area.
 4a. **Work-area filter** (`workAreaOptions`, `filterPool` in `search.ts`): by `opportunityField`;
    a missing work area has the key `NO_FIELD`. Options: the work areas present in the
-   LC-filtered list, A–Z, each with its count there, "Not specified" last. Its label is
+   LC-filtered list, A–Z, each with the number of people who have at least one application in it
+   (a person counts once per work area), "Not specified" last. Its label is
    "Not specified (GTe)" when every application without a work area is GTe, otherwise
    "Not specified". A selected work area that has no cards in the chosen LC stays in the list
    with (0), so the dropdown never shows a value that isn't an option.
-5. **Statistics** (`src/lib/pool/stats.ts`), for the LC-filtered list:
-   total, number of LCs, number of work areas, GTa vs GTe (count and GTa %), applications per LC
+5. **Statistics** (`src/lib/pool/stats.ts`), for the LC-filtered list: number of people (the big
+   number on the "Applicants" card) and of applications (under it); everything else counts
+   applications (user, 2026-10-28): number of LCs, number of work areas, GTa vs GTe (count and GTa %), applications per LC
    (whole pool; ties: same count → ordered by name) and per work area (LC-filtered list). A
    missing work area counts as "Not specified".
    Shown as 2 cards next to the page title (2026-10-23; stacked under it ≤ 960 px): Applications
@@ -84,11 +99,17 @@ and CSV export, fast on phones and laptops, using only data the sync job wrote t
    `<dialog>`, same motion as the details popup). Clicking a row filters by it; clicking the
    selected row again clears that filter; on phones the sheet closes after a pick. Empty pool:
    the two list buttons are disabled.
-6. **Cards** (summary) and **details popup**: the card shows name, LC, programme, company, work
-   area, dates, View CV and the applied date; the whole card is one button that opens the popup
-   (View CV keeps working on its own). The popup is a native `<dialog>` opened with
+6. **Cards** (summary, one per person) and **details popup**: the card shows name, LC, programme
+   badge(s) (both GTa and GTe when the person has both), the company box (company, work area,
+   dates) of their newest **matching** application, "+N more applications" when they have more,
+   View CV and the applied date ("Last applied" = their newest application, with more than one).
+   The whole card is one button that opens the popup (View CV keeps working on its own).
+   The popup starts with **Applications**: every application newest first (company + badge, work
+   area, dates + weeks, "Applied …"). While the search or filters leave some of the person's
+   applications out, the matching ones come first under "Matches your filter (2 of 5)", the rest
+   under "Other applications"; nothing is hidden. The popup is a native `<dialog>` opened with
    `showModal()` (focus moves into it, Esc closes, focus returns to the card); only the selected
-   application is rendered in it (kept on screen while the popup slides away after closing).
+   person is rendered in it (kept on screen while the popup slides away after closing).
    Motion: the backdrop fades in; the popup glides up and eases to a stop with no bounce (phones:
    a sheet from the bottom edge); closing reverses it, faster. Done with CSS transitions and
    `@starting-style`, so a close during opening reverses smoothly; browsers without support just
@@ -107,7 +128,7 @@ and CSV export, fast on phones and laptops, using only data the sync job wrote t
    "‹ Previous · 1 … 4 [5] 6 … 79 · Next ›" — first and last page, the current page and its
    neighbours, "…" for the rest; always 7 buttons once there are more than 7 pages, so the row
    keeps its width. At most 760 px wide: arrows without the words. Phones (≤ 640 px): "‹ Page 5 of
-   79 ›". Only 1 page → no buttons. The count line says "Showing 13–24 of 945 applications".
+   79 ›". Only 1 page → no buttons. The count line says "Showing 13–24 of 349 applicants".
    Changing page scrolls to the top of the card list (just under the search bar) and moves keyboard
    focus to the count line. A new search, LC or work-area choice goes back to page 1.
    **Address:** search, LC, work area and page are kept in the address, e.g.
@@ -117,8 +138,9 @@ and CSV export, fast on phones and laptops, using only data the sync job wrote t
    undoes it; typing replaces the current entry once the visitor pauses for 0.4 s (browsers limit
    how often the address may change). The address is changed with `history.pushState` /
    `replaceState`, which Next.js supports without reloading: no data is downloaded again.
-7. **CSV export** (`src/lib/pool/csv.ts`): the cards matching search + LC + work area (all of them, not just
-   the 12 shown). Columns: Applicant name, Company name, EP manager, Email, Phone, LC, Start date,
+7. **CSV export** (`src/lib/pool/csv.ts`): **one row per application**, for the matching
+   applications of the people matching search + LC + work area (all of them, not just the 12
+   cards shown), in card order. The "Exported N applications" message counts rows. Columns: Applicant name, Company name, EP manager, Email, Phone, LC, Start date,
    End date, CV link, Opportunity field, LinkedIn, Programme, Applied on, Professional
    experiences, Languages. Several EP managers are joined with "; ". Experiences: one line per job
    inside the cell, "Title at Organisation (Type, Mar 2026 – Present)", **without descriptions**
@@ -133,7 +155,7 @@ and CSV export, fast on phones and laptops, using only data the sync job wrote t
    amber, "data may be out of date".
 9. **States**:
    - pool empty (0 rows): one message, "No applications in the pool right now";
-   - nothing matches: "No applications match" + "Clear filters";
+   - nothing matches: "No applicants match" + "Clear filters";
    - Supabase error: `src/app/error.tsx`, "Couldn't load the pool" + "Try again" (no error
      details shown to visitors);
    - no EP manager / LinkedIn / CV / work area / company: the texts in CLAUDE.md UI Spec.

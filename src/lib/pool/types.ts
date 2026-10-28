@@ -26,6 +26,21 @@ export interface PoolApplication {
   appliedAt: string;
 }
 
+/** One of a person's applications: only the fields that differ between their applications. */
+export type PersonApplication = Pick<
+  PoolApplication,
+  "applicationId" | "companyName" | "opportunityField" | "programme" | "startDate" | "endDate" | "appliedAt"
+>;
+
+/**
+ * One person = one card (user, 2026-10-28). What the server hands to the page: the person's
+ * details once, plus all their applications, newest first (at least one).
+ */
+export interface PoolPerson
+  extends Omit<PoolApplication, keyof PersonApplication> {
+  applications: PersonApplication[];
+}
+
 export interface PoolData {
   applications: PoolApplication[];
   /** `finished_at` of the newest successful sync, or null if there has never been one. */

@@ -10,6 +10,7 @@ import { currentSession } from "@/lib/auth/current";
 import { applicationsFor } from "@/lib/auth/entities";
 import { sessionGrants } from "@/lib/auth/session";
 import { getEntities, getPool } from "@/lib/db/read";
+import { groupByPerson } from "@/lib/pool/people";
 import { parseView, type View } from "@/lib/pool/view";
 
 export default function EntityPage({ params, searchParams }: PageProps<"/[entity]">) {
@@ -53,7 +54,7 @@ async function Gate({ slug, view }: { slug: string; view: View }) {
   const { applications, lastUpdated } = await getPool();
   return (
     <PoolApp
-      applications={applicationsFor(entity, applications)}
+      people={groupByPerson(applicationsFor(entity, applications))}
       lastUpdated={lastUpdated}
       entity={{ slug: entity.slug, name: entity.name, allLcs: entity.lcId === null }}
       initialView={view}

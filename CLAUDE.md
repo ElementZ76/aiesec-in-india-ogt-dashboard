@@ -10,7 +10,8 @@
 
 A public website, hosted on Vercel, showing **one India-wide pool** of AIESEC in India oGT
 (outgoing Global Talent) applications with status **"applied"**, filterable by local committee
-(LC). Each application is one card showing the spec fields. A sync job copies the data from
+(LC). Each applicant (person) is one card showing the spec fields; opening it lists all their
+applications (user, 2026-10-28). A sync job copies the data from
 EXPA into our database every 15 minutes; the website reads only that database.
 
 - **Live site:** https://aiesec-india-ogt.vercel.app/
@@ -69,8 +70,10 @@ Rejected:
 _v1 — fields come from `spec_file.txt` (the spec). EXPA paths verified by
 `scripts/expa-probe.mjs` on 2026-10-14 unless marked otherwise._
 
-**Unit of the pool = one application = one card.** A person who applied to 3 jobs appears as
-3 cards. Which applications are in the pool: see Invariant 6.
+**Unit of the pool = one application = one database row; one person = one card** (user,
+2026-10-28; was one card per application). A person who applied to 3 jobs is 3 rows and 1 card
+whose popup lists the 3 applications. The website server groups the rows by `person_id`. Which
+applications are in the pool: see Invariant 6.
 
 ### EXPA query (sync job only)
 
@@ -78,7 +81,7 @@ _v1 — fields come from `spec_file.txt` (the spec). EXPA paths verified by
 page, per_page)` → `data { ... }` + `paging { total_items total_pages }`.
 1585 = India. 8 = GTa, 9 = GTe. `open` is the API name for "Applied" in the EXPA UI.
 
-### Table `applications` (one row = one card)
+### Table `applications` (one row = one application)
 
 | Column | Type | Spec item | Source in EXPA |
 |---|---|---|---|
@@ -121,8 +124,9 @@ The website shows "Last updated" = `finished_at` of the latest `success` run.
 
 ### Computed values
 
-Statistics v1 (user-approved 2026-10-14; to be expanded later): total applications in the pool;
-count per LC; count per work area (sub-product); count of GTa vs GTe. Computed in the browser.
+Statistics v1 (user-approved 2026-10-14; to be expanded later): total applicants (people) and
+total applications in the pool (both since 2026-10-28); applications per LC; applications per
+work area (sub-product); GTa vs GTe applications. Computed in the browser.
 
 ### Data flow
 
@@ -136,11 +140,12 @@ Supabase Cron (every 15 min) → starts the sync job (GitHub Actions) → EXPA �
    (Invariant 7) can stop it before any write.
 2. **Website server:** on `/<entity>`, checks the login cookie; if it is valid, reads all
    `applications` rows and the latest successful `sync_runs` row from Supabase (cached for up to
-   5 minutes), keeps **only that entity's applications** (all of them for `/india`) and sends those
-   with the page. Other LCs' applications never reach the browser.
+   5 minutes), keeps **only that entity's applications** (all of them for `/india`), groups them
+   by person (`src/lib/pool/people.ts`) and sends those with the page. Other LCs' applications
+   never reach the browser.
 3. **Browser:** search, LC filter, statistics and CSV export all run on that list (rules in UI Spec).
 
-`PoolApplication` (what the server hands to the page; camelCase of the table columns):
+`PoolApplication` (one database row, read by the server; camelCase of the table columns):
 `{ applicationId, personId, fullName, email, phone|null, linkedinUrl|null, cvUrl|null, homeLcId,
 homeLc, epManagers: [{ name, email|null, phone|null }], professionalExperiences: [{ title|null,
 organisation|null, type|null, start|null, end|null, description|null }], languages: [{ name,
@@ -148,12 +153,17 @@ level|null }], companyName|null, opportunityField|null,
 programme: "GTa"|"GTe", startDate|null, endDate|null, appliedAt }` — start/end dates as `YYYY-MM-DD`
 strings; `appliedAt` as an ISO timestamp.
 
+`PoolPerson` (what the server hands to the page; one per card, ordered by newest application):
+the person fields of `PoolApplication` once (`personId` … `languages`) plus `applications: [{
+applicationId, companyName|null, opportunityField|null, programme, startDate|null, endDate|null,
+appliedAt }]`, newest first, at least one.
+
 ### Endpoint table
 
 | Method | Path | Purpose | Auth | Input | Output |
 |---|---|---|---|---|---|
 | GET | `/` | Entity list: pick your entity | none (public) | — | HTML, entity names only |
-| GET | `/<entity>` | Password box; after login, that entity's CV pool (cards, search, filters, stats, export, "Last updated") | login cookie `ogt_session` | optional `q`, `lc`, `area`, `page` (the view to open with) | HTML; `PoolApplication[]` of that entity only |
+| GET | `/<entity>` | Password box; after login, that entity's CV pool (cards, search, filters, stats, export, "Last updated") | login cookie `ogt_session` | optional `q`, `lc`, `area`, `page` (the view to open with) | HTML; `PoolPerson[]` of that entity only |
 | POST (server action) | `login` | Check the password, set the cookie (30 days), go to `/<entity>` | none | `slug`, `password` | cookie + redirect, or "Wrong password" |
 | POST (server action) | `logout` | Delete the cookie, go to `/` | none | — | redirect |
 
@@ -192,20 +202,27 @@ site is connected to the database.
   ("Last updated …" left; "Built by Praveen" → https://www.linkedin.com/in/praveen-pr190705/ right).
 - **Statistics** (user 2026-10-23): 2 cards to the right of the title, under Export CSV (below
   960 px wide: under the title; phones: side by side). On `/india`, a small label above them names
-  the LC they cover ("All LCs" or the chosen LC); an LC's page has none (its name is under the title). **Applications** (total + LC/work-area counts) and **GTa vs GTe** (small ring + both
-  counts). No "Statistics" heading and no navbar link. Top LC / Top work area cards and the LC
+  the LC they cover ("All LCs" or the chosen LC); an LC's page has none (its name is under the title). **Applicants** (number of people big, "903 applications" under it,
+  + LC/work-area counts) and **GTa vs GTe** (small ring + both counts, in applications). The
+  LC and work-area lists count applications (user, 2026-10-28). No "Statistics" heading and no navbar link. Top LC / Top work area cards and the LC
   rank were removed. On the Applications card, **"24 LCs ▾"** and **"8 work areas ▾"** open the
   full list (all LCs / all work areas): laptops and tablets — a panel drops down under the title
   row, one at a time (click the button again, ✕ or Esc closes); phones (≤ 640 px) — a bottom
   sheet. Clicking a row filters by that LC / work area, clicking it again clears it; on phones the
   sheet then closes. They follow the **LC filter** only, not the search box or the work-area
   filter (user, 2026-10-16).
-- **Cards:** one per application, **newest application first** (`applied_at`). A card is a
-  summary: name, LC, GTa/GTe badge, company, work area, start–end dates (+ weeks), a "Contact &
-  EP manager" hint, View CV ("CV not available" when missing), applied date. 3 / 2 / 1 columns
+- **Cards** (user, 2026-10-28: one per person): **newest application first** (the person's newest
+  `applied_at`). A card is a summary: name, LC, GTa/GTe badge (both when they applied to both),
+  the company box of their newest application that matches the search and filters (company, work
+  area, start–end dates + weeks), "+4 more applications" when they have more, a "Contact & EP
+  manager" hint ("Applications, contact & EP manager" with more than one), View CV ("CV not
+  available" when missing), applied date ("Last applied" with more than one). 3 / 2 / 1 columns
   (desktop / tablet / phone).
 - **Details popup** (user, 2026-10-16): tapping/clicking a card (or Tab + Enter) opens one popup
-  with everything: the summary, applicant email and phone (copy buttons), LinkedIn (**"Not
+  with everything: name, LC and badge(s); **Applications** — every application newest first, each
+  with company, work area, GTa/GTe, dates + weeks and applied date; while a search or filter leaves
+  some out, the matching ones come first under "Matches your filter (2 of 5)" and the rest under
+  "Other applications" (nothing hidden; user, 2026-10-28); applicant email and phone (copy buttons), LinkedIn (**"Not
   available" as text when missing**), EP manager(s) with name, email and phone written out and
   copy buttons ("No EP manager assigned" when none), languages (names only), professional
   experiences newest first with title, organisation, type, "Mar 2026 – Present" dates and the full
@@ -215,22 +232,25 @@ site is connected to the database.
   in and eases to a stop with **no bounce**, and slides out on close; no tap flash on cards.
 - **Paging** (user, 2026-10-28; replaces "Load more"): **12 cards per page**; below the cards
   "‹ Previous 1 … 4 [5] 6 … 79 Next ›"; phones (≤ 640 px) "‹ Page 5 of 79 ›". Count line
-  "Showing 13–24 of 945". A page change scrolls to the top of the cards. A new search or filter
+  "Showing 13–24 of 349 applicants". A page change scrolls to the top of the cards. A new search or filter
   goes back to page 1. Never render the whole pool at once.
 - **Address** (user, 2026-10-28): search, LC, work area and page live in the address
   (`?q=…&lc=…&area=…&page=…`, defaults left out), so refresh keeps the view, Back undoes a page or
   filter change, and links can be shared. Changed with the browser's history API: no reload, no
   new data download.
-- **Search:** name, email, company, work area, LC, EP manager name. "Clear" shows only when a
+- **Search:** name, email, company, work area, LC, EP manager name. A person is shown when at
+  least one of their applications matches the search and the work-area filter together (a hit on
+  name, email, LC or EP manager counts for all their applications). "Clear" shows only when a
   search or filter is active, and resets all three.
-- **Work-area filter** (user, 2026-10-16): dropdown "All work areas", options A–Z with counts within
-  the selected LC, "Not specified" last; labelled "Not specified (GTe)" while every application
+- **Work-area filter** (user, 2026-10-16): dropdown "All work areas", options A–Z with the number
+  of people (cards) within the selected LC; the LC dropdown also counts people, "Not specified" last; labelled "Not specified (GTe)" while every application
   without a work area is GTe. Combines with search and LC. Phones: search on its own row, LC and
   work area side by side below.
 - **Search bar on phones** (≤ 760 px wide; user, 2026-10-16): once it is stuck under the navbar,
   it slides away while scrolling down and comes back on scrolling up a little. It never hides
   while one of its fields has focus. Wider screens: always sticky.
-- **CSV export:** the applications matching the current search + LC + work-area filters, all spec
+- **CSV export:** one row per application (not per person): the applications matching the current
+  search + LC + work-area filters, in card order, all spec
   fields, plus professional experiences (one line per job, no descriptions: Excel's cell limit)
   and languages.
 - **Stale data:** if the last successful sync is more than 1 hour old, "Last updated" turns amber
@@ -247,7 +267,7 @@ site is connected to the database.
 |---|---|---|
 | Architecture | SOPs in Markdown: goals, inputs, logic, edge cases | `docs/sops/` (`sync.md`, `pool-page.md`) |
 | Navigation | Orchestration: decides what to fetch, write and show | `src/app/` (the page); `src/lib/sync/run.ts` (one sync run); `scripts/sync.ts` (sync entry point); `.github/workflows/sync.yml` (the job + hourly backup schedule); `supabase/scheduler.sql` (15-minute trigger) |
-| Tools | Deterministic, testable units | `src/lib/expa/` (read-only EXPA client, query, mapper); `src/lib/pool/` (dates, pool rules, search, LC filter, stats, CSV); `src/lib/sync/` (safety brake, delete diff); `src/lib/db/` (row types; `read.ts` = the website's cached read-only access; `sync-store.ts` = writes, sync job only); `src/lib/auth/` (login cookie, entity filter) |
+| Tools | Deterministic, testable units | `src/lib/expa/` (read-only EXPA client, query, mapper); `src/lib/pool/` (dates, pool rules, grouping by person, search, LC filter, stats, CSV); `src/lib/sync/` (safety brake, delete diff); `src/lib/db/` (row types; `read.ts` = the website's cached read-only access; `sync-store.ts` = writes, sync job only); `src/lib/auth/` (login cookie, entity filter) |
 | (UI pieces) | Visual components used by pages | `src/components/` |
 | (Database setup) | SQL that creates the tables and access rules; pasted into Supabase's SQL editor | `supabase/schema.sql` |
 | (Design reference) | Approved UI mockup with sample data (not used by the site) | `docs/design/ui-mockup.html` |
@@ -338,3 +358,4 @@ Tests live next to the code they test, as `*.test.ts`.
 | 2026-10-28 | UI Spec: one text line (`--inset`, 21 px inside the box edge) for all text, inside and outside boxes; stat-card padding 18/14 → 20 px; navbar left padding 28/20/16 → 21 px; the LC label above the stat cards removed on LC pages | User: margins inconsistent (marked on a phone screenshot); the label repeated the LC name |
 | 2026-10-28 | Stuck search bar's box keeps to the page margin (fields move in); "Contact & EP manager" line trimmed to its letters so the card's gaps look even. Added `docs/design/corner-lab.html` (corner shapes: now / round 30 / squircle 30) | User: the stuck box went past the margin; uneven spacing around the hint; wants to compare corner shapes before choosing |
 | 2026-10-28 | UI Spec: one corner for all big boxes — plain round 30 px (squircles removed; stat cards 26 → 30; navbar 30 instead of a full capsule, still a capsule on phones; stuck search bar 30 with 7 px padding) | User: navbar and cards had different corners; chose option A in the corner lab |
+| 2026-10-28 | **One card per person** (was one per application): the server groups rows by `person_id` into `PoolPerson` (new; endpoint now sends `PoolPerson[]`); card shows the newest matching application + "+N more"; popup lists all applications (matching ones first while filtering); stats: applicants big + applications, the rest in applications; dropdowns count people; CSV stays one row per application. Database and sync unchanged | User: condense one person's applications into one card. 2026-10-28: 903 applications = 349 people; 14 people have 10+ |

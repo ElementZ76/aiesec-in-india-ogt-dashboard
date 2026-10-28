@@ -3,9 +3,9 @@
 import { useCallback, useDeferredValue, useEffect, useMemo, useRef, useState } from "react";
 import { toCsv } from "@/lib/pool/csv";
 import { formatIndiaDateTime, isStale } from "@/lib/pool/format";
-import { filterPool, indexPool, lcOptions, workAreaOptions } from "@/lib/pool/search";
+import { filterPool, indexPool, lcOptions, workAreaOptions, type Match } from "@/lib/pool/search";
 import { computeStats } from "@/lib/pool/stats";
-import type { PoolApplication } from "@/lib/pool/types";
+import type { PoolPerson } from "@/lib/pool/types";
 import { PAGE_SIZE, pageCount, parseView, viewSearch, type View } from "@/lib/pool/view";
 import { AppCard, type Notify } from "./AppCard";
 import { DetailsDialog } from "./DetailsDialog";
@@ -15,7 +15,7 @@ import { NavBar } from "./NavBar";
 import { Pagination } from "./Pagination";
 import { StatsSection } from "./StatsSection";
 
-const plural = (n: number) => `application${n === 1 ? "" : "s"}`;
+const plural = (n: number, word = "application") => `${word}${n === 1 ? "" : "s"}`;
 
 function LastUpdated({ at }: { at: string | null }) {
   const now = useMinuteClock(); // null on the server, so the first render matches
@@ -53,8 +53,8 @@ export interface PageEntity {
   allLcs: boolean;
 }
 
-export function PoolApp({ applications, lastUpdated, entity, initialView }: {
-  applications: PoolApplication[];
+export function PoolApp({ people, lastUpdated, entity, initialView }: {
+  people: PoolPerson[]; // one card each, newest application first
   lastUpdated: string | null;
   entity: PageEntity;
   initialView: View; // from the address, e.g. ?q=priya&page=3
@@ -68,7 +68,7 @@ export function PoolApp({ applications, lastUpdated, entity, initialView }: {
   const addressMode = useRef<"push" | "replace" | null>(null); // how the next change is written to the address
   const [animate, setAnimate] = useState(true);
   const [toast, setToast] = useState({ id: 0, text: "", ok: true, show: false });
-  const [selected, setSelected] = useState<PoolApplication | null>(null); // card shown in the popup
+  const [selected, setSelected] = useState<Match | null>(null); // card shown in the popup
   const closeDetails = useCallback(() => setSelected(null), []);
   const controls = useRef<HTMLDivElement>(null);
   const listTop = useRef<HTMLElement>(null);
@@ -77,15 +77,15 @@ export function PoolApp({ applications, lastUpdated, entity, initialView }: {
 
   // Typing stays smooth: the input updates at once, the card list a moment later if needed.
   const deferredQuery = useDeferredValue(query);
-  const index = useMemo(() => indexPool(applications), [applications]);
-  const options = useMemo(() => lcOptions(applications), [applications]);
-  const lcList = useMemo(() => (lcId ? applications.filter((a) => a.homeLcId === lcId) : applications), [applications, lcId]);
+  const index = useMemo(() => indexPool(people), [people]);
+  const options = useMemo(() => lcOptions(people), [people]);
+  const lcList = useMemo(() => (lcId ? people.filter((p) => p.homeLcId === lcId) : people), [people, lcId]);
   const fieldOpts = useMemo(() => workAreaOptions(lcList, field), [lcList, field]);
   const matches = useMemo(
     () => filterPool(index, { query: deferredQuery, lcId, field }),
     [index, deferredQuery, lcId, field],
   );
-  const stats = useMemo(() => computeStats(applications, lcId), [applications, lcId]);
+  const stats = useMemo(() => computeStats(people, lcId), [people, lcId]);
   const lcName = options.find((o) => o.id === lcId)?.name ?? "";
   const pages = pageCount(matches.length);
   const current = Math.min(page, pages); // the address may ask for a page that no longer exists
@@ -184,12 +184,13 @@ export function PoolApp({ applications, lastUpdated, entity, initialView }: {
 
   function exportCsv() {
     const rows = filterPool(index, { query, lcId, field }); // exactly what the filters say right now
+    const count = rows.reduce((n, m) => n + m.matches.length, 0); // one line per matching application
     const blob = new Blob([toCsv(rows)], { type: "text/csv;charset=utf-8" });
     const url = URL.createObjectURL(blob);
     const a = Object.assign(document.createElement("a"), { href: url, download: `ogt-cv-pool-${entity.slug}.csv` });
     a.click();
     setTimeout(() => URL.revokeObjectURL(url), 1000);
-    notify(`Exported ${rows.length} ${plural(rows.length)}`);
+    notify(`Exported ${count} ${plural(count)}`);
   }
 
   // The search bar turns into solid glass once it sticks under the navbar.
@@ -264,7 +265,7 @@ export function PoolApp({ applications, lastUpdated, entity, initialView }: {
           />
         </div>
 
-        <section id="applications" aria-label="Applications" ref={listTop}>
+        <section id="applications" aria-label="Applicants" ref={listTop}>
           <div className="controls" ref={controls}>
             <div className="controls-inner">
               <label className="field search">
@@ -296,7 +297,7 @@ export function PoolApp({ applications, lastUpdated, entity, initialView }: {
                     <circle cx="12" cy="10" r="2.5" />
                   </svg>
                   <select value={lcId} onChange={(e) => chooseLc(e.target.value)}>
-                    <option value="">All LCs ({applications.length})</option>
+                    <option value="">All LCs ({people.length})</option>
                     {options.map((o) => (
                       <option key={o.id} value={o.id}>
                         {o.name} ({o.count})
@@ -340,15 +341,15 @@ export function PoolApp({ applications, lastUpdated, entity, initialView }: {
 
           <div className="count" aria-live="polite" ref={countLine} tabIndex={-1}>
             Showing <b>{visible.length > 1 ? `${first + 1}–${first + visible.length}` : visible.length ? first + 1 : 0}</b> of{" "}
-            <b>{matches.length}</b> {plural(matches.length)} · newest first
+            <b>{matches.length}</b> {plural(matches.length, "applicant")} · newest first
           </div>
 
           <div className="grid" key={`${lcId}|${field}`}>
             {visible.length ? (
-              visible.map((a, i) => <AppCard key={a.applicationId} app={a} index={i} animate={animate} onOpen={setSelected} />)
-            ) : applications.length ? (
+              visible.map((m, i) => <AppCard key={m.person.personId} match={m} index={i} animate={animate} onOpen={setSelected} />)
+            ) : people.length ? (
               <div className="empty glass">
-                <h3>No applications match</h3>
+                <h3>No applicants match</h3>
                 <p>Try a different search or LC.</p>
                 <button className="btn btn-primary" onClick={clearAll}>Clear filters</button>
               </div>
@@ -375,7 +376,7 @@ export function PoolApp({ applications, lastUpdated, entity, initialView }: {
           </span>
         </div>
       </footer>
-      <DetailsDialog app={selected} onClose={closeDetails} notify={notify} />
+      <DetailsDialog match={selected} onClose={closeDetails} notify={notify} />
       <Toast toast={toast} />
     </>
   );
