@@ -1,0 +1,745 @@
+<!doctype html>
+<!-- Type lab (2026-10-28): try font pairings, weights, a size scale and grey levels on a copy of the
+     pool page. Sample data only (made-up people). Not used by the site; open it in a browser.
+     Styles are ported from src/app/globals.css, with font sizes, weights and greys turned into
+     variables (--fs-*, --fw-*, --ff-*) that the panel on the left changes. -->
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Type Lab · oGT CV Pool</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<!-- One link per family: if Google rejects one request, only that font is missing. -->
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Lato:wght@400;700;900&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400..900&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400..900&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400..800&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Serif&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400..900&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Newsreader:opsz,wght@6..72,400..800&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,400..900&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Serif:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400..900&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Lora:wght@400..700&display=swap">
+<style>
+/* ---------- Tokens (same values as globals.css) ---------- */
+:root {
+  --aiesec: #037ef3; --gta: #0a8ea0; --gte: #f85a40; --btn: #0366d6; --btn-hover: #0257b8;
+  --pad-card: 20px; --r-card: 30px; --r-card-inner: calc(var(--r-card) - var(--pad-card));
+  --pad-tile: 18px; --r-tile: 26px; --r-tile-inner: calc(var(--r-tile) - var(--pad-tile));
+  --pill: 999px; --spring: cubic-bezier(.34, 1.56, .64, 1); --nav-h: 68px;
+
+  /* Type tokens: the panel's script overwrites these. Defaults = the live site today. */
+  --ff-head: "Lato", system-ui, sans-serif;
+  --ff-body: "Lato", system-ui, sans-serif;
+  --ff-num: var(--ff-body);
+  --fw-title: 900; --fw-name: 900; --fw-num: 900; --fw-label: 900; --fw-strong: 700;
+  --ls-title: -.02em; --ls-num: -.035em;
+  --head-scale: 1;
+  --fs-title: clamp(32px, 4.5vw, 44px); --fs-num: clamp(34px, 3.4vw, 44px);
+  --fs-name: 18px; --fs-subhead: 18px; --fs-body: 16px; --fs-row: 15px; --fs-area: 15px;
+  --fs-meta: 14px; --fs-small: 13px; --fs-label: 12px; --fs-legend: 17px; --fs-nav: 15px;
+}
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --bg: #000; --text: #f5f5f5; --muted: #a3a3a3; --faint: #8f8f8f;
+  --glass: rgba(255,255,255,.04); --glass-bar: rgba(18,18,18,.72); --glass-inset: rgba(255,255,255,.05);
+  --edge: rgba(255,255,255,.10); --rim-a: rgba(255,255,255,.28); --rim-b: rgba(255,255,255,.06);
+  --sheen: rgba(255,255,255,.04); --rim-top: rgba(255,255,255,.16); --panel-solid: #0e0e0e;
+  --shadow: 0 18px 40px -18px rgba(0,0,0,.7); --shadow-lift: 0 30px 60px -24px rgba(0,0,0,.8);
+  --chip-bg: linear-gradient(140deg, #fff, #cfcfcf); --chip-fg: #000;
+  --link: #8cc8ff; --active: rgba(3,126,243,.22);
+  --gta-bg: rgba(10,142,160,.24); --gta-text: #86e4f0; --gte-bg: rgba(248,90,64,.20); --gte-text: #ffb1a1;
+  --bar-track: rgba(255,255,255,.08); --focus: #8cc8ff; --ok: #4ade80; --warn: #fbbf24;
+}
+:root[data-theme="light"] {
+  color-scheme: light;
+  --bg: #f6f1e7; --text: #1c1915; --muted: #554f46; --faint: #696259;
+  --glass: rgba(255,252,245,.72); --glass-bar: rgba(255,252,245,.78); --glass-inset: rgba(255,252,245,.62);
+  --edge: rgba(60,45,20,.11); --rim-a: rgba(255,253,248,.95); --rim-b: rgba(255,253,248,.25);
+  --sheen: rgba(255,253,248,.45); --rim-top: rgba(255,253,248,.95); --panel-solid: #fbf8f1;
+  --shadow: 0 18px 40px -22px rgba(60,45,20,.24); --shadow-lift: 0 30px 60px -26px rgba(60,45,20,.32);
+  --chip-bg: linear-gradient(140deg, #3d3832, #1c1915); --chip-fg: #fffcf5;
+  --link: #0360c4; --active: rgba(3,126,243,.13);
+  --gta-bg: rgba(10,142,160,.14); --gta-text: #066c7a; --gte-bg: rgba(248,90,64,.14); --gte-text: #b3321c;
+  --bar-track: rgba(60,45,20,.08); --focus: #0366d6; --ok: #15803d; --warn: #92400e;
+}
+/* "Clear tiers" greys: three levels you can tell apart; each still passes 4.5:1 on the page. */
+:root[data-theme="dark"][data-greys="clear"] { --text: #ececec; --muted: #a8a8a8; --faint: #808080; }
+:root[data-theme="light"][data-greys="clear"] { --text: #1c1915; --muted: #4a443c; --faint: #6f675c; }
+
+/* ---------- Base ---------- */
+* { box-sizing: border-box; }
+html { background: var(--bg); }
+body {
+  margin: 0; color: var(--text); background: var(--bg);
+  font: var(--fs-body)/1.55 var(--ff-body); -webkit-font-smoothing: antialiased;
+}
+a { color: var(--link); text-decoration: none; }
+a:hover { text-decoration: underline; }
+:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+svg { flex: none; }
+.sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+
+/* ---------- Lab layout: settings panel left, preview right ---------- */
+.shell { display: grid; grid-template-columns: 300px minmax(0, 1fr); min-height: 100vh; }
+.lab {
+  position: sticky; top: 0; height: 100vh; overflow-y: auto; padding: 20px 18px 28px;
+  background: var(--panel-solid); border-right: 1px solid var(--edge);
+  /* The panel keeps one fixed font so only the preview changes. */
+  font: 14px/1.45 system-ui, -apple-system, "Segoe UI", sans-serif; font-weight: 400;
+}
+.lab h1 { margin: 0 0 4px; font-size: 18px; font-weight: 700; letter-spacing: 0; }
+.lab .intro { margin: 0 0 16px; color: var(--muted); }
+.lab fieldset { border: 0; border-top: 1px solid var(--edge); margin: 16px 0 0; padding: 12px 0 0; display: grid; gap: 10px; }
+.lab legend { padding: 0; font-size: 12px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); }
+.lab label { display: grid; gap: 4px; font-weight: 600; }
+.lab select {
+  font: inherit; font-weight: 400; color: var(--text); background: var(--bg); border: 1px solid var(--edge);
+  border-radius: 10px; padding: 8px 10px; min-height: 38px; width: 100%;
+}
+.lab select:disabled { opacity: .55; }
+.lab .hint { font-weight: 400; font-size: 13px; color: var(--muted); }
+.lab .note { margin: 6px 0 0; padding: 10px 12px; border-radius: 10px; background: var(--glass-inset); border: 1px solid var(--edge); color: var(--muted); }
+.lab .seg { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; padding: 3px; border-radius: 12px; background: var(--bg); border: 1px solid var(--edge); }
+.lab .seg button {
+  font: inherit; font-weight: 600; border: 0; border-radius: 9px; padding: 7px 6px; min-height: 34px;
+  background: transparent; color: var(--muted); cursor: pointer;
+}
+.lab .seg button[aria-pressed="true"] { background: var(--active); color: var(--text); box-shadow: inset 0 0 0 1px rgba(3,126,243,.35); }
+.contrast { display: grid; grid-template-columns: auto 1fr auto; gap: 4px 10px; align-items: center; font-variant-numeric: tabular-nums; }
+.contrast i { width: 14px; height: 14px; border-radius: 4px; border: 1px solid var(--edge); }
+.contrast .ok { color: var(--ok); font-weight: 600; }
+.contrast .bad { color: var(--warn); font-weight: 700; }
+.summary { margin: 0; padding: 10px 12px; border-radius: 10px; background: var(--bg); border: 1px solid var(--edge); white-space: pre-wrap; font: 12.5px/1.5 ui-monospace, Consolas, monospace; }
+.lab .copy-sum {
+  font: inherit; font-weight: 700; color: #fff; background: var(--btn); border: 0; border-radius: 10px;
+  padding: 9px 12px; min-height: 38px; cursor: pointer;
+}
+.lab .copy-sum:hover { background: var(--btn-hover); }
+
+/* ---------- Preview (ported from globals.css; sizes and weights via the type tokens) ---------- */
+.preview { min-width: 0; padding-bottom: 40px; }
+.wrap { max-width: 1240px; margin: 0 auto; padding: 0 16px; }
+.glass {
+  position: relative;
+  background: linear-gradient(180deg, var(--sheen), transparent 45%), var(--glass);
+  border: 1px solid var(--edge); box-shadow: inset 0 1px 0 var(--rim-a), var(--shadow);
+}
+@supports (corner-shape: squircle) {
+  :root { --r-card: 44px; --r-tile: 38px; }
+  .card, .tile, .job, .card-foot .btn, .chip, .avatar, .details-panel { corner-shape: squircle; }
+  .avatar { border-radius: 50%; }
+}
+
+/* Type roles: every text style in the preview is one of these. */
+.r-title { font-family: var(--ff-head); font-weight: var(--fw-title); font-size: calc(var(--fs-title) * var(--head-scale)); line-height: 1.04; letter-spacing: var(--ls-title); font-synthesis: none; }
+.r-num { font-family: var(--ff-num); font-weight: var(--fw-num); font-size: var(--fs-num); line-height: .95; letter-spacing: var(--ls-num); font-variant-numeric: tabular-nums lining-nums; font-synthesis: none; }
+.r-name { font-family: var(--ff-head); font-weight: var(--fw-name); font-size: calc(var(--fs-name) * var(--head-scale)); line-height: 1.25; font-synthesis: none; }
+.r-subhead { font-family: var(--ff-head); font-weight: var(--fw-name); font-size: calc(var(--fs-subhead) * var(--head-scale)); line-height: 1.25; font-synthesis: none; }
+.r-strong { font-weight: var(--fw-strong); }
+.r-meta { font-size: var(--fs-meta); color: var(--muted); }
+.r-small { font-size: var(--fs-small); color: var(--faint); }
+.r-label { font-size: var(--fs-label); font-weight: var(--fw-label); letter-spacing: .1em; text-transform: uppercase; color: var(--faint); }
+
+.btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+  border: 0; border-radius: var(--pill); padding: 10px 18px; cursor: pointer;
+  font: inherit; font-weight: var(--fw-strong); color: var(--text); text-decoration: none !important;
+  transition: transform .45s var(--spring), background-color .2s ease;
+}
+.btn:hover { transform: translateY(-1px) scale(1.03); }
+.btn-primary { color: #fff; background: var(--btn); box-shadow: inset 0 1px 0 rgba(255,255,255,.35), 0 8px 20px -10px rgba(3,102,214,.9); }
+.btn-primary:hover { background: var(--btn-hover); }
+.btn-glass { background: var(--glass-inset); border: 1px solid var(--edge); box-shadow: inset 0 1px 0 var(--rim-b); }
+.btn[disabled] { opacity: .55; cursor: not-allowed; transform: none; }
+
+/* Navbar (not sticky here) */
+.nav-shell { padding: 14px 16px 0; }
+.nav {
+  max-width: 1208px; height: var(--nav-h); margin: 0 auto; border-radius: var(--pill);
+  display: flex; align-items: center; gap: 14px; padding: 0 10px 0 28px;
+  background: linear-gradient(180deg, var(--sheen), transparent 60%), var(--glass-bar);
+  box-shadow: inset 0 1px 0 var(--rim-a), 0 20px 50px -20px rgba(0,0,0,.55); border: 1px solid var(--edge);
+}
+.logo { color: var(--text); white-space: nowrap; font-size: 18px; line-height: 1.1; }
+.divider { width: 1px; height: 28px; background: var(--edge); margin: 0 4px; }
+.links { display: flex; margin-left: auto; }
+.links a { padding: 9px 16px; border-radius: var(--pill); font-weight: var(--fw-strong); font-size: var(--fs-nav); color: var(--link); background: var(--active); text-decoration: none; }
+.nav-right { display: flex; align-items: center; gap: 8px; margin-left: 8px; }
+.theme { position: relative; display: inline-grid; grid-template-columns: 1fr 1fr; padding: 3px; border-radius: var(--pill); background: var(--glass-inset); border: 1px solid var(--edge); }
+.theme button { position: relative; z-index: 1; border: 0; background: transparent; color: var(--muted); width: 38px; height: 34px; border-radius: var(--pill); cursor: pointer; display: grid; place-items: center; }
+.theme button[aria-pressed="true"] { color: var(--text); }
+.theme .thumb { position: absolute; top: 3px; left: 3px; width: 38px; height: 34px; border-radius: var(--pill); background: linear-gradient(180deg, var(--rim-a), transparent 75%), var(--glass-inset); box-shadow: inset 0 0 0 1px var(--edge), 0 3px 10px rgba(0,0,0,.25); transition: transform .5s var(--spring); }
+:root[data-theme="dark"] .theme .thumb { transform: translateX(38px); }
+.nav .btn { padding: 11px 18px; }
+
+/* Hero + stats */
+.hero { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 620px); align-items: center; gap: 14px 32px; padding: 26px 0 0; }
+.hero h1 { margin: 0; }
+.hero h1 span { color: var(--link); }
+.hero-entity { margin: 8px 0 0; font-size: var(--fs-subhead); font-weight: var(--fw-strong); color: var(--muted); }
+.hero-stats { display: flex; flex-direction: column; align-items: flex-start; gap: 10px; min-width: 0; }
+.scope { font-size: var(--fs-small); color: var(--muted); padding: 3px 10px; border-radius: var(--pill); background: var(--glass-inset); border: 1px solid var(--edge); }
+.tiles { align-self: stretch; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
+.tile { border-radius: var(--r-tile); padding: var(--pad-tile); display: flex; flex-direction: column; gap: 10px; }
+.t-head { display: flex; align-items: center; gap: 10px; font-size: var(--fs-label); font-weight: var(--fw-label); letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+.chip { width: 32px; height: 32px; border-radius: var(--r-tile-inner); display: grid; place-items: center; color: var(--chip-fg); background: var(--chip-bg); box-shadow: inset 0 1px 0 rgba(255,255,255,.45), 0 6px 14px -6px rgba(0,0,0,.6); }
+.chip.duo { color: #fff; background: linear-gradient(140deg, #19b3c7 45%, #f85a40 55%); }
+.big { color: var(--text); }
+.t-foot { margin-top: auto; display: flex; flex-wrap: wrap; gap: 6px 8px; }
+.t-link { display: inline-flex; align-items: center; gap: 5px; min-height: 30px; padding: 3px 10px 3px 12px; font: inherit; font-size: var(--fs-meta); color: var(--muted); border-radius: var(--pill); background: var(--glass-inset); border: 1px solid var(--edge); cursor: pointer; }
+.t-link b { color: var(--text); font-weight: var(--fw-strong); }
+.t-link svg { color: var(--link); }
+.prog { display: flex; align-items: center; gap: 14px; flex: 1; }
+.ring-wrap { position: relative; width: 68px; height: 68px; flex: none; }
+.ring { width: 100%; height: 100%; transform: rotate(-90deg); }
+.ring circle { fill: none; stroke-width: 13; }
+.ring .r-gte { stroke: var(--gte); }
+.ring .r-gta { stroke: var(--gta); stroke-dasharray: 289; }
+.ring-center { position: absolute; inset: 0; display: grid; place-content: center; text-align: center; line-height: 1.1; }
+.ring-center b { font-family: var(--ff-num); font-size: 16px; font-weight: var(--fw-num); font-variant-numeric: tabular-nums; }
+.ring-center small { font-size: 12px; font-weight: var(--fw-strong); color: var(--muted); letter-spacing: .06em; }
+.legend { display: grid; gap: 6px; flex: 1; min-width: 0; font-size: var(--fs-meta); }
+.legend div { display: flex; align-items: center; gap: 8px; }
+.legend b { margin-left: auto; font-family: var(--ff-num); font-size: var(--fs-legend); font-weight: var(--fw-num); font-variant-numeric: tabular-nums; }
+.legend .gta b { color: var(--gta-text); }
+.legend .gte b { color: var(--gte-text); }
+.sw { width: 10px; height: 10px; border-radius: 3px; }
+
+/* Search bar */
+.controls { margin: 18px 0 0; }
+.controls-inner { display: flex; gap: 10px; flex-wrap: wrap; }
+.field { position: relative; display: flex; align-items: center; }
+.field svg { position: absolute; left: 15px; color: var(--faint); pointer-events: none; }
+.field input, .field select { width: 100%; font: inherit; color: var(--text); border-radius: var(--pill); border: 1px solid var(--edge); background: var(--glass-inset); padding: 12px 16px 12px 42px; box-shadow: inset 0 1px 0 var(--rim-b); appearance: none; }
+.field input::placeholder { color: var(--faint); }
+.field option { background: var(--bg); color: var(--text); }
+.search { flex: 1 1 320px; min-width: 0; }
+.lc, .area { flex: 0 1 250px; min-width: 0; }
+.count { color: var(--muted); font-size: var(--fs-row); margin: 12px 0 14px; }
+.count b { color: var(--text); font-weight: var(--fw-strong); }
+
+/* Cards */
+.grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 22px; }
+.card { border-radius: var(--r-card); padding: var(--pad-card); display: flex; flex-direction: column; gap: 16px; border-top-color: var(--rim-top); transition: transform .6s var(--spring), box-shadow .35s ease; }
+@media (hover: hover) { .card:hover { transform: translateY(-7px); box-shadow: inset 0 1px 0 var(--rim-a), var(--shadow-lift); border-color: rgba(3,126,243,.35); } }
+.card-top { display: flex; gap: 12px; align-items: center; }
+.avatar { width: 46px; height: 46px; border-radius: 14px; flex: none; display: grid; place-items: center; font-weight: var(--fw-label); font-size: 16px; color: #fff; letter-spacing: .02em; box-shadow: inset 0 1px 0 rgba(255,255,255,.4); }
+.avatar.GTa { background: linear-gradient(140deg, #19b3c7, #077786); }
+.avatar.GTe { background: linear-gradient(140deg, #ff7d63, #c9381f); }
+.who { min-width: 0; flex: 1; }
+.who h3 { margin: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.who .lcname { color: var(--muted); font-size: var(--fs-meta); }
+.badge { font-size: var(--fs-label); font-weight: var(--fw-label); padding: 4px 11px; border-radius: var(--pill); letter-spacing: .02em; }
+.badge.GTa { background: var(--gta-bg); color: var(--gta-text); }
+.badge.GTe { background: var(--gte-bg); color: var(--gte-text); }
+.job { border-radius: var(--r-card-inner); padding: 12px 14px; background: var(--glass-inset); border: 1px solid var(--edge); }
+.job .company { font-weight: var(--fw-strong); }
+.job .area { font-size: var(--fs-area); color: var(--muted); }
+.job .dates { display: flex; align-items: center; gap: 6px; margin-top: 6px; font-size: var(--fs-meta); color: var(--muted); }
+.job .weeks { margin-left: auto; font-size: var(--fs-label); font-weight: var(--fw-strong); padding: 2px 9px; border-radius: var(--pill); background: var(--bar-track); }
+.card-hint { display: flex; align-items: center; gap: 4px; font-size: var(--fs-meta); font-weight: var(--fw-strong); color: var(--link); }
+.card-foot { margin-top: auto; display: flex; align-items: center; gap: 8px 12px; flex-wrap: wrap; }
+.card-foot .btn { flex: 1 1 150px; border-radius: var(--r-card-inner); }
+.na { color: var(--faint); }
+
+/* Details popup, shown open in the page */
+.caption { margin: 40px 0 12px; font: 13px/1.4 system-ui, sans-serif; color: var(--muted); }
+.caption b { color: var(--text); }
+.details-panel { width: min(560px, 100%); display: flex; flex-direction: column; gap: 16px; border-radius: var(--r-card); padding: var(--pad-card); background: linear-gradient(180deg, var(--sheen), transparent 45%), var(--panel-solid); border: 1px solid var(--edge); box-shadow: inset 0 1px 0 var(--rim-a), var(--shadow-lift); }
+.details-panel .who h3 { white-space: normal; }
+.label { margin-bottom: 6px; }
+.row { display: flex; align-items: center; gap: 8px; font-size: var(--fs-row); min-width: 0; min-height: 40px; }
+.row > svg { color: var(--faint); }
+.row .val { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; flex: 1; min-width: 0; }
+.mname { font-weight: var(--fw-strong); font-size: var(--fs-row); padding-top: 4px; }
+.lang-list { margin: 0; font-size: var(--fs-row); }
+.exp-block { padding: 10px 0; }
+.exp-block + .exp-block { border-top: 1px dashed var(--edge); }
+.exp-title { font-weight: var(--fw-strong); font-size: var(--fs-row); }
+.exp-meta { font-size: var(--fs-meta); color: var(--muted); margin-top: 2px; }
+.exp-desc { margin: 6px 0 0; font-size: var(--fs-meta); line-height: 1.5; color: var(--muted); }
+
+/* Type scale specimen */
+.specimen { display: grid; gap: 0; border-top: 1px solid var(--edge); }
+.sp-row { display: grid; grid-template-columns: 200px minmax(0, 1fr); gap: 16px; align-items: baseline; padding: 14px 0; border-bottom: 1px solid var(--edge); }
+.sp-meta { font: 12.5px/1.4 ui-monospace, Consolas, monospace; color: var(--muted); }
+.sp-meta b { display: block; font: 600 13px/1.4 system-ui, sans-serif; color: var(--text); }
+.sp-sample { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+footer { display: flex; justify-content: space-between; gap: 8px 24px; flex-wrap: wrap; padding: 40px 0 0; font-size: var(--fs-meta); color: var(--muted); }
+footer a { font-weight: var(--fw-strong); }
+
+/* ---------- Smaller screens ---------- */
+@media (max-width: 1300px) { .grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 1180px) { .hero { grid-template-columns: minmax(0, 1fr); } .links, .divider { display: none; } .nav-right { margin-left: auto; } }
+@media (max-width: 900px) {
+  .shell { grid-template-columns: minmax(0, 1fr); }
+  .lab { position: static; height: auto; border-right: 0; border-bottom: 1px solid var(--edge); }
+  .lab .groups { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); column-gap: 20px; }
+}
+@media (max-width: 760px) { .nav { padding-left: 20px; } .nav-label { display: none; } .nav .btn { padding: 11px 13px; } .lc, .area { flex: 1 1 calc(50% - 5px); } }
+@media (max-width: 640px) {
+  .grid { grid-template-columns: minmax(0, 1fr); }
+  .tiles { gap: 10px; } .tile { --pad-tile: 14px; } .prog { flex-direction: column; align-items: flex-start; }
+  .sp-row { grid-template-columns: minmax(0, 1fr); gap: 4px; }
+}
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { transition-duration: .01ms !important; } }
+</style>
+</head>
+<body>
+<div class="shell">
+
+<aside class="lab" aria-label="Type settings">
+  <h1>Type lab</h1>
+  <p class="intro">A copy of the pool page with made-up people. Pick a combination, adjust it, then press <b>Copy summary</b> and paste it to Claude.</p>
+
+  <label>Combination
+    <select id="preset"></select>
+  </label>
+  <p class="note" id="presetNote"></p>
+
+  <div class="groups">
+    <fieldset>
+      <legend>Fonts</legend>
+      <label>Heading font <span class="hint">Title, names, popup heading</span>
+        <select id="head"></select>
+      </label>
+      <label>Heading weight
+        <select id="headW"></select>
+      </label>
+      <label>Heading size
+        <select id="headScale">
+          <option value="1">100%</option><option value="1.05">105%</option><option value="1.1">110%</option>
+          <option value="1.15">115%</option><option value="1.2">120%</option>
+        </select>
+      </label>
+      <label>Body font <span class="hint">Everything else</span>
+        <select id="body"></select>
+      </label>
+      <label>Numbers
+        <select id="num">
+          <option value="body">Body font</option><option value="head">Heading font</option>
+        </select>
+      </label>
+    </fieldset>
+
+    <fieldset>
+      <legend>Style</legend>
+      <div>
+        <div class="hint" style="margin-bottom:4px">Labels, badges, numbers</div>
+        <div class="seg" data-key="weights">
+          <button type="button" data-v="heavy">Heavy (now)</button><button type="button" data-v="calm">Calm</button>
+        </div>
+      </div>
+      <div>
+        <div class="hint" style="margin-bottom:4px">Font sizes</div>
+        <div class="seg" data-key="sizes">
+          <button type="button" data-v="current">9 sizes (now)</button><button type="button" data-v="scale">1.25 scale</button>
+        </div>
+      </div>
+      <div>
+        <div class="hint" style="margin-bottom:4px">Grey text levels</div>
+        <div class="seg" data-key="greys">
+          <button type="button" data-v="current">Current</button><button type="button" data-v="clear">Clear tiers</button>
+        </div>
+      </div>
+      <div>
+        <div class="hint" style="margin-bottom:4px">Theme</div>
+        <div class="seg" data-key="theme">
+          <button type="button" data-v="dark">Dark</button><button type="button" data-v="light">Light</button>
+        </div>
+      </div>
+    </fieldset>
+
+    <fieldset>
+      <legend>Contrast on the page</legend>
+      <div class="hint">Must be at least 4.5 : 1 (WCAG AA).</div>
+      <div class="contrast" id="contrast"></div>
+    </fieldset>
+
+    <fieldset>
+      <legend>Your choice</legend>
+      <pre class="summary" id="summary"></pre>
+      <button type="button" class="copy-sum" id="copySum">Copy summary</button>
+    </fieldset>
+  </div>
+</aside>
+
+<main class="preview">
+  <div class="nav-shell">
+    <nav class="nav blur" aria-label="Main (sample)">
+      <a class="logo r-strong" href="#">AIESEC in India</a>
+      <span class="divider" aria-hidden="true"></span>
+      <div class="links"><a href="#">Applications</a></div>
+      <div class="nav-right">
+        <div class="theme">
+          <span class="thumb" aria-hidden="true"></span>
+          <button type="button" data-t="light" aria-label="Light mode">
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+          </button>
+          <button type="button" data-t="dark" aria-label="Dark mode">
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
+          </button>
+        </div>
+        <button type="button" class="btn btn-primary">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12M7 10l5 5 5-5M5 21h14"/></svg>
+          <span class="nav-label">Export CSV</span>
+        </button>
+        <button type="button" class="btn btn-glass">Log out</button>
+      </div>
+    </nav>
+  </div>
+
+  <div class="wrap">
+    <section class="hero">
+      <div>
+        <h1 class="r-title">oGT <span>CV Pool</span></h1>
+        <p class="hero-entity">India (all LCs)</p>
+      </div>
+      <div class="hero-stats">
+        <span class="scope">All LCs</span>
+        <div class="tiles">
+          <div class="tile glass">
+            <div class="t-head">
+              <span class="chip"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M14 3v6h6M8 13h8M8 17h5"/></svg></span>
+              Applications
+            </div>
+            <div class="big r-num">945</div>
+            <div class="t-foot">
+              <button type="button" class="t-link"><b>24</b> LCs <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></button>
+              <button type="button" class="t-link"><b>8</b> work areas <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></button>
+            </div>
+          </div>
+          <div class="tile glass">
+            <div class="t-head">
+              <span class="chip duo"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-9-9v9z"/></svg></span>
+              GTa vs GTe
+            </div>
+            <div class="prog">
+              <div class="ring-wrap">
+                <svg class="ring" viewBox="0 0 120 120" aria-hidden="true"><circle class="r-gte" cx="60" cy="60" r="46"/><circle class="r-gta" cx="60" cy="60" r="46" style="stroke-dashoffset: 159"/></svg>
+                <div class="ring-center"><b>45%</b><small>GTa</small></div>
+              </div>
+              <div class="legend">
+                <div class="gta"><i class="sw" style="background: var(--gta)"></i>GTa<b>425</b></div>
+                <div class="gte"><i class="sw" style="background: var(--gte)"></i>GTe<b>520</b></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <div class="controls">
+      <div class="controls-inner">
+        <label class="field search"><span class="sr">Search</span>
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+          <input type="search" placeholder="Search name, email, company, work area, EP manager…">
+        </label>
+        <label class="field lc"><span class="sr">LC</span>
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s-7-6.2-7-12a7 7 0 0 1 14 0c0 5.8-7 12-7 12z"/><circle cx="12" cy="9" r="2.5"/></svg>
+          <select><option>All LCs (945)</option><option>Chennai (88)</option></select>
+        </label>
+        <label class="field area"><span class="sr">Work area</span>
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="7" width="18" height="13" rx="2"/><path d="M9 7V5a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2"/></svg>
+          <select><option>All work areas (945)</option><option>Marketing (212)</option></select>
+        </label>
+      </div>
+    </div>
+
+    <div class="count">Showing <b>12</b> of <b>945</b> applications · newest first</div>
+
+    <div class="grid" id="grid"></div>
+
+    <p class="caption"><b>Details popup</b> (shown open here; on the site it opens when you click a card)</p>
+    <div class="details-panel glass" id="details"></div>
+
+    <p class="caption"><b>Type scale</b>: every text style on the page, with its real size, weight and font</p>
+    <div class="specimen" id="specimen"></div>
+
+    <footer>
+      <span>Last updated 28 Oct 2026, 10:22 am</span>
+      <span>Built by <a href="#">Praveen</a></span>
+    </footer>
+  </div>
+</main>
+</div>
+
+<script>
+// ---------- Fonts on offer ----------
+// track = letter-spacing for big text (titles, numbers): tighter for sans, looser for serifs.
+// weights = what the font really has (no fake bold: font-synthesis is off for headings).
+const FONTS = {
+  "Lato":              { kind: "sans",  stack: '"Lato", system-ui, sans-serif',             weights: [400, 700, 900], track: -0.02 },
+  "Inter":             { kind: "sans",  stack: '"Inter", system-ui, sans-serif',            weights: [400, 500, 600, 700, 800, 900], track: -0.025 },
+  "Geist":             { kind: "sans",  stack: '"Geist", system-ui, sans-serif',            weights: [400, 500, 600, 700, 800, 900], track: -0.03 },
+  "Plus Jakarta Sans": { kind: "sans",  stack: '"Plus Jakarta Sans", system-ui, sans-serif', weights: [400, 500, 600, 700, 800], track: -0.025 },
+  "IBM Plex Sans":     { kind: "sans",  stack: '"IBM Plex Sans", system-ui, sans-serif',    weights: [400, 500, 600, 700], track: -0.015 },
+  "Instrument Serif":  { kind: "serif", stack: '"Instrument Serif", Georgia, serif',        weights: [400], track: -0.01 },
+  "Fraunces":          { kind: "serif", stack: '"Fraunces", Georgia, serif',                weights: [400, 500, 600, 700, 800, 900], track: -0.02 },
+  "Newsreader":        { kind: "serif", stack: '"Newsreader", Georgia, serif',              weights: [400, 500, 600, 700, 800], track: -0.015 },
+  "Source Serif 4":    { kind: "serif", stack: '"Source Serif 4", Georgia, serif',          weights: [400, 500, 600, 700, 800, 900], track: -0.01 },
+  "IBM Plex Serif":    { kind: "serif", stack: '"IBM Plex Serif", Georgia, serif',          weights: [400, 500, 600, 700], track: -0.01 },
+  "Playfair Display":  { kind: "serif", stack: '"Playfair Display", Georgia, serif',        weights: [400, 500, 600, 700, 800, 900], track: -0.005 },
+  "Lora":              { kind: "serif", stack: '"Lora", Georgia, serif',                    weights: [400, 500, 600, 700], track: -0.01 },
+};
+
+// ---------- Ready-made combinations ----------
+const PRESETS = [
+  { name: "Current site (Lato, heavy)", head: "Lato", headW: 900, headScale: 1, body: "Lato", num: "body", weights: "heavy", sizes: "current", greys: "current",
+    note: "What the live site looks like today." },
+  { name: "Lato, refined", head: "Lato", headW: 700, headScale: 1, body: "Lato", num: "body", weights: "calm", sizes: "scale", greys: "clear",
+    note: "Same font, calmer weights, a size scale and clear greys. The safe choice if Lato is AIESEC's brand font." },
+  { name: "Lato + Playfair Display", head: "Playfair Display", headW: 600, headScale: 1.05, body: "Lato", num: "body", weights: "calm", sizes: "scale", greys: "clear",
+    note: "Keeps Lato for all reading text; a classic high-contrast serif only for headings." },
+  { name: "Inter", head: "Inter", headW: 700, headScale: 1, body: "Inter", num: "body", weights: "calm", sizes: "scale", greys: "clear",
+    note: "One sans font made for screens. Very clear at small sizes; neutral, like most modern dashboards." },
+  { name: "Inter + Instrument Serif", head: "Instrument Serif", headW: 400, headScale: 1.2, body: "Inter", num: "head", weights: "calm", sizes: "scale", greys: "clear",
+    note: "Editorial look: an elegant display serif for headings and big numbers, Inter for everything you read. Instrument Serif has one weight only." },
+  { name: "Inter + Source Serif 4", head: "Source Serif 4", headW: 600, headScale: 1.05, body: "Inter", num: "body", weights: "calm", sizes: "scale", greys: "clear",
+    note: "A sturdy, readable serif for headings. Serious and calm; holds up even at card-name size." },
+  { name: "Geist + Newsreader", head: "Newsreader", headW: 500, headScale: 1.1, body: "Geist", num: "body", weights: "calm", sizes: "scale", greys: "clear",
+    note: "Modern tech sans with a soft newspaper serif. Feels like a magazine." },
+  { name: "Plus Jakarta Sans + Fraunces", head: "Fraunces", headW: 600, headScale: 1.05, body: "Plus Jakarta Sans", num: "body", weights: "calm", sizes: "scale", greys: "clear",
+    note: "Warmer and friendlier. Fraunces has more personality; check it still feels professional to you." },
+  { name: "IBM Plex Sans + Plex Serif", head: "IBM Plex Serif", headW: 600, headScale: 1.05, body: "IBM Plex Sans", num: "body", weights: "calm", sizes: "scale", greys: "clear",
+    note: "One family designed to work together. Corporate and orderly." },
+];
+
+// ---------- Size sets (px) ----------
+// current = the 9 sizes the site uses today. scale = each step about 1.25x the one below:
+// 12 · 14 · 16 · 20 · 25 · 32/40.
+const SIZES = {
+  current: { title: "clamp(32px, 4.5vw, 44px)", num: "clamp(34px, 3.4vw, 44px)", name: "18px", subhead: "18px", body: "16px",
+             row: "15px", area: "15px", meta: "14px", small: "13px", label: "12px", legend: "17px", nav: "15px" },
+  scale:   { title: "clamp(32px, 4vw, 40px)", num: "clamp(32px, 3.2vw, 40px)", name: "20px", subhead: "20px", body: "16px",
+             row: "16px", area: "14px", meta: "14px", small: "14px", label: "12px", legend: "20px", nav: "14px" },
+};
+const WEIGHTS = { heavy: { label: 900, num: 900, strong: 700 }, calm: { label: 700, num: 700, strong: 600 } };
+
+// ---------- Sample data (made-up people) ----------
+const APPS = [
+  { name: "Ananya Krishnan", lc: "Chennai", prog: "GTa", company: "Nordlicht Analytics GmbH", area: "Business Development", start: "5 Jan 2027", end: "30 Mar 2027", weeks: 12, applied: "27 Oct 2026", cv: true },
+  { name: "Rohan Mehta", lc: "Mumbai", prog: "GTe", company: "Escola Viva Institute", area: "Teaching", start: "12 Jan 2027", end: "21 Feb 2027", weeks: 6, applied: "26 Oct 2026", cv: true },
+  { name: "Sneha Venkataraman Iyer", lc: "Bangalore", prog: "GTa", company: "Kōyō Design Studio", area: "Marketing", start: "1 Feb 2027", end: "31 Jul 2027", weeks: 25, applied: "25 Oct 2026", cv: false },
+];
+const DETAILS = {
+  email: "ananya.k@example.com", phone: "+91 98765 43210",
+  managers: [{ name: "Karthik Subramanian", email: "karthik.s@example.com", phone: "+91 91234 56780" }],
+  languages: "English, Tamil, Hindi, German",
+  exps: [
+    { title: "Marketing Intern", org: "Bluepeak Ventures", type: "Internship", dates: "Jun 2026 – Present",
+      desc: "Ran the social media calendar for three product launches and wrote weekly reports on reach and sign-ups." },
+    { title: "Team Leader, Outgoing Exchange", org: "AIESEC in Chennai", type: "Volunteer", dates: "Feb 2025 – Jan 2026",
+      desc: "Led a team of six members; matched 40 people to exchanges abroad." },
+  ],
+};
+
+const ICON = {
+  cal: '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M16 3v4M8 3v4M3 11h18"/></svg>',
+  cv: '<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M14 3v6h6"/></svg>',
+  arrow: '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>',
+  chev: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m9 6 6 6-6 6"/></svg>',
+  mail: '<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/></svg>',
+  phone: '<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1.9.4 1.8.7 2.7a2 2 0 0 1-.5 2.1L8 9.8a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.4c.9.3 1.8.6 2.7.7a2 2 0 0 1 1.7 2z"/></svg>',
+  link: '<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.5.5l3-3a5 5 0 0 0-7-7l-1.7 1.7"/><path d="M14 11a5 5 0 0 0-7.5-.5l-3 3a5 5 0 0 0 7 7l1.7-1.7"/></svg>',
+};
+const initials = (n) => n.split(" ").filter(Boolean).slice(0, 2).map((w) => w[0]).join("").toUpperCase();
+
+function cardTop(a) {
+  return `<div class="card-top">
+    <div class="avatar ${a.prog}" aria-hidden="true">${initials(a.name)}</div>
+    <div class="who"><h3 class="r-name">${a.name}</h3><div class="lcname">${a.lc}</div></div>
+    <span class="badge ${a.prog}">${a.prog}</span>
+  </div>`;
+}
+function job(a) {
+  return `<div class="job">
+    <div class="company">${a.company}</div>
+    <div class="area">${a.area}</div>
+    <div class="dates">${ICON.cal}${a.start} – ${a.end}<span class="weeks">${a.weeks} weeks</span></div>
+  </div>`;
+}
+function foot(a) {
+  const cv = a.cv
+    ? `<a class="btn btn-primary" href="#">${ICON.cv} View CV ${ICON.arrow}</a>`
+    : `<button class="btn btn-glass" disabled>CV not available</button>`;
+  return `<div class="card-foot">${cv}<span class="r-small">Applied ${a.applied}</span></div>`;
+}
+document.getElementById("grid").innerHTML = APPS.map((a) => `<article class="card glass">
+  ${cardTop(a)}${job(a)}
+  <div class="card-hint">Contact &amp; EP manager ${ICON.chev}</div>
+  ${foot(a)}
+</article>`).join("");
+
+const d = DETAILS;
+document.getElementById("details").innerHTML = `${cardTop(APPS[0])}${job(APPS[0])}
+  <div><div class="label r-label">Applicant</div>
+    <div class="row">${ICON.mail}<a class="val" href="#">${d.email}</a></div>
+    <div class="row">${ICON.phone}<a class="val" href="#">${d.phone}</a></div>
+    <div class="row">${ICON.link}<span class="na">Not available</span></div>
+  </div>
+  <div><div class="label r-label">EP manager</div>
+    ${d.managers.map((m) => `<div class="mname">${m.name}</div>
+      <div class="row">${ICON.mail}<a class="val" href="#">${m.email}</a></div>
+      <div class="row">${ICON.phone}<a class="val" href="#">${m.phone}</a></div>`).join("")}
+  </div>
+  <div><div class="label r-label">Languages</div><p class="lang-list">${d.languages}</p></div>
+  <div><div class="label r-label">Professional experiences</div>
+    ${d.exps.map((e) => `<div class="exp-block">
+      <div class="exp-title">${e.title}</div>
+      <div class="exp-meta">${e.org} · ${e.type} · ${e.dates}</div>
+      <p class="exp-desc">${e.desc}</p></div>`).join("")}
+  </div>
+  ${foot(APPS[0])}`;
+
+// Specimen: one sample per text role; the caption is read from the real element on the page.
+const ROLES = [
+  ["Page title", ".hero h1", "oGT CV Pool"],
+  ["Big number", ".big", "945"],
+  ["Card name", ".who h3", "Ananya Krishnan"],
+  ["Entity line", ".hero-entity", "India (all LCs)"],
+  ["Body / company", ".job .company", "Nordlicht Analytics GmbH"],
+  ["Popup rows", ".row", "ananya.k@example.com"],
+  ["Secondary", ".job .dates", "5 Jan 2027 – 30 Mar 2027"],
+  ["Small (dates)", ".r-small", "Applied 27 Oct 2026"],
+  ["Label", ".r-label", "EP manager"],
+];
+const specimen = document.getElementById("specimen");
+function renderSpecimen() {
+  specimen.innerHTML = ROLES.map(([name, sel, text]) => {
+    const el = document.querySelector(sel);
+    const cs = getComputedStyle(el);
+    const family = cs.fontFamily.split(",")[0].replace(/"/g, "");
+    const style = `font-family:${cs.fontFamily};font-size:${cs.fontSize};font-weight:${cs.fontWeight};letter-spacing:${cs.letterSpacing};text-transform:${cs.textTransform};color:${cs.color};line-height:1.2`;
+    return `<div class="sp-row"><div class="sp-meta"><b>${name}</b>${Math.round(parseFloat(cs.fontSize))}px · ${cs.fontWeight} · ${family}</div>
+      <div class="sp-sample" style="${style}">${text}</div></div>`;
+  }).join("");
+}
+
+// ---------- Contrast (WCAG formula) ----------
+function lum(hex) {
+  const n = hex.replace("#", "");
+  const full = n.length === 3 ? n.split("").map((c) => c + c).join("") : n;
+  return [0, 2, 4].map((i) => parseInt(full.slice(i, i + 2), 16) / 255)
+    .map((c) => (c <= 0.03928 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4))
+    .reduce((s, c, i) => s + c * [0.2126, 0.7152, 0.0722][i], 0);
+}
+const ratio = (a, b) => { const [x, y] = [lum(a), lum(b)].sort((p, q) => q - p); return (x + 0.05) / (y + 0.05); };
+function renderContrast() {
+  const cs = getComputedStyle(document.documentElement);
+  const bg = cs.getPropertyValue("--bg").trim();
+  document.getElementById("contrast").innerHTML = ["text", "muted", "faint"].map((k) => {
+    const c = cs.getPropertyValue("--" + k).trim();
+    const r = ratio(c, bg);
+    return `<i style="background:${c}"></i><span>${k} <code>${c}</code></span><span class="${r >= 4.5 ? "ok" : "bad"}">${r.toFixed(1)} : 1</span>`;
+  }).join("");
+}
+
+// ---------- Settings ----------
+const $ = (id) => document.getElementById(id);
+const root = document.documentElement;
+let state = { ...PRESETS[0], preset: 0 };
+
+function fill(select, groups) {
+  select.innerHTML = groups.map(([label, names]) =>
+    `<optgroup label="${label}">${names.map((n) => `<option>${n}</option>`).join("")}</optgroup>`).join("");
+}
+const sans = Object.keys(FONTS).filter((f) => FONTS[f].kind === "sans");
+const serif = Object.keys(FONTS).filter((f) => FONTS[f].kind === "serif");
+fill($("head"), [["Serif", serif], ["Sans-serif", sans]]);
+fill($("body"), [["Sans-serif", sans], ["Serif (hard to read at small sizes)", serif]]);
+$("preset").innerHTML = PRESETS.map((p, i) => `<option value="${i}">${p.name}</option>`).join("") + `<option value="-1">Custom</option>`;
+
+function nearest(weights, w) { return weights.reduce((a, b) => (Math.abs(b - w) < Math.abs(a - w) ? b : a)); }
+
+function apply() {
+  const s = state, set = (k, v) => root.style.setProperty(k, v);
+  const head = FONTS[s.head], body = FONTS[s.body];
+  s.headW = nearest(head.weights, s.headW);
+
+  set("--ff-head", head.stack);
+  set("--ff-body", body.stack);
+  set("--ff-num", s.num === "head" ? head.stack : body.stack);
+  set("--fw-title", s.headW);
+  set("--fw-name", s.headW);
+  const w = WEIGHTS[s.weights];
+  set("--fw-label", w.label);
+  set("--fw-strong", w.strong);
+  // Numbers in the heading font use the heading weight (a serif at 900 looks clumsy, and
+  // Instrument Serif has only 400).
+  set("--fw-num", s.num === "head" ? s.headW : w.num);
+  set("--ls-title", head.track + "em");
+  set("--ls-num", (s.num === "head" ? head.track : body.track * 1.4) + "em");
+  set("--head-scale", s.headScale);
+  for (const [k, v] of Object.entries(SIZES[s.sizes])) set("--fs-" + k, v);
+  root.dataset.theme = s.theme || root.dataset.theme;
+  root.dataset.greys = s.greys;
+
+  // Panel controls
+  $("preset").value = String(s.preset);
+  $("presetNote").textContent = s.preset >= 0 ? PRESETS[s.preset].note : "Your own mix.";
+  $("head").value = s.head;
+  $("body").value = s.body;
+  $("num").value = s.num;
+  $("headScale").value = String(s.headScale);
+  $("headW").innerHTML = head.weights.map((x) => `<option>${x}</option>`).join("");
+  $("headW").value = String(s.headW);
+  $("headW").disabled = head.weights.length === 1;
+  document.querySelectorAll(".seg").forEach((seg) => {
+    const v = seg.dataset.key === "theme" ? root.dataset.theme : s[seg.dataset.key];
+    seg.querySelectorAll("button").forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.v === v)));
+  });
+  document.querySelectorAll(".theme button").forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.t === root.dataset.theme)));
+
+  $("summary").textContent = [
+    `Combination: ${s.preset >= 0 ? PRESETS[s.preset].name : "Custom"}`,
+    `Heading font: ${s.head}, weight ${s.headW}, size ${Math.round(s.headScale * 100)}%`,
+    `Body font: ${s.body}`,
+    `Numbers: ${s.num === "head" ? "heading font" : "body font"}`,
+    `Weights: ${s.weights === "heavy" ? "heavy (now)" : "calm"}`,
+    `Sizes: ${s.sizes === "scale" ? "1.25 scale" : "current 9 sizes"}`,
+    `Greys: ${s.greys === "clear" ? "clear tiers" : "current"}`,
+    `Viewed in: ${root.dataset.theme} mode`,
+  ].join("\n");
+
+  renderContrast();
+  // Fonts may still be loading; measure again once they are in.
+  document.fonts.ready.then(renderSpecimen);
+  renderSpecimen();
+  try { localStorage.setItem("type-lab", JSON.stringify({ ...state, theme: root.dataset.theme })); } catch {}
+}
+
+function custom(patch) { state = { ...state, ...patch, preset: -1 }; apply(); }
+
+$("preset").addEventListener("change", (e) => {
+  const i = Number(e.target.value);
+  if (i >= 0) { state = { ...PRESETS[i], preset: i, theme: root.dataset.theme }; apply(); }
+});
+$("head").addEventListener("change", (e) => custom({ head: e.target.value }));
+$("headW").addEventListener("change", (e) => custom({ headW: Number(e.target.value) }));
+$("headScale").addEventListener("change", (e) => custom({ headScale: Number(e.target.value) }));
+$("body").addEventListener("change", (e) => custom({ body: e.target.value }));
+$("num").addEventListener("change", (e) => custom({ num: e.target.value }));
+document.querySelectorAll(".seg").forEach((seg) => seg.addEventListener("click", (e) => {
+  const b = e.target.closest("button");
+  if (!b) return;
+  if (seg.dataset.key === "theme") { state.theme = b.dataset.v; apply(); }
+  else custom({ [seg.dataset.key]: b.dataset.v });
+}));
+document.querySelectorAll(".theme button").forEach((b) => b.addEventListener("click", () => { state.theme = b.dataset.t; apply(); }));
+$("copySum").addEventListener("click", async () => {
+  try { await navigator.clipboard.writeText($("summary").textContent); $("copySum").textContent = "Copied ✓"; }
+  catch { $("copySum").textContent = "Select the text above and copy it"; }
+  setTimeout(() => ($("copySum").textContent = "Copy summary"), 1600);
+});
+
+try { const saved = JSON.parse(localStorage.getItem("type-lab")); if (saved && FONTS[saved.head] && FONTS[saved.body]) state = saved; } catch {}
+apply();
+</script>
+</body>
+</html>

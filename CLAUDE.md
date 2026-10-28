@@ -168,7 +168,8 @@ site is connected to the database.
 
 - **Audience:** AIESEC members (EP managers, oGT team).
 - **Look:** **monochrome** (user, 2026-10-22) with Apple "Liquid Glass"-style glass panels; Lato
-  font (400/700/900); **dark mode by default** with a pure black background, no coloured glows;
+  (400/700) for text, **Playfair Display 600** for the page title and applicant names (user,
+  2026-10-28; chosen in `docs/design/type-lab.html`); calm weights, no 900; **dark mode by default** with a pure black background, no coloured glows;
   light mode is a warm (cream) white with warm near-black text; light/dark switch remembered per browser.
 - **Colours:** black, white and neutral greys. AIESEC blue `#037EF3` only as a slight accent (links,
   buttons, focus outline, active tab, list bars); white for the big statistic numbers and stat icons.
@@ -321,3 +322,4 @@ Tests live next to the code they test, as `*.test.ts`.
 | 2026-10-27 | Schema: `professional_experiences` + `languages` (jsonb) on `applications`; shown in the details popup and the CSV. Page data 642 → 1,913 KB (86 → 324 KB compressed): 885 cards are only 348 people, so each history repeats per application | User: add work experiences (labelled professional experiences) and languages to the EP details |
 | 2026-10-27 | **Logins per entity.** Table `entities` (`supabase/entities.sql`); `/` = entity list, `/<entity>` = password box then that entity's pool; signed 30-day cookie (`SESSION_SECRET`), Log out; Invariant 4 rewritten; endpoint table, data flow, UI Spec updated. Starting passwords chosen by the user, kept out of git | User: split the site per LC with a password each, plus one India login; admin changes passwords |
 | 2026-10-27 | Live URL → https://aiesec-india-ogt.vercel.app/ (Vercel domain renamed by the user). The old `aiesec-in-india-ogt-dashboard.vercel.app` now returns 404. The GitHub repo name is unchanged (`supabase/scheduler.sql` calls it by name) | User: rename the site to aiesec-india-ogt |
+| 2026-10-28 | UI Spec: fonts — Playfair Display 600 for the page/login title and applicant names (5% larger); Lato 400/700 for everything else (900 no longer used); clearer grey levels (dark: text `#ececec`, muted `#a8a8a8`, faint `#808080`; light: muted `#4a443c`, faint `#6f675c`). Added `docs/design/type-lab.html` | User picked the combination in the type lab: serif headings, calm weights, current sizes, clear greys |

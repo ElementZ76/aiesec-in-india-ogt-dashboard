@@ -89,7 +89,7 @@ Next.js website on Vercel  ──►  visitors' browsers (search, filter, stats,
 | Part | Technology |
 |---|---|
 | Website | [Next.js](https://nextjs.org) 16 (App Router), React 19, TypeScript |
-| Styling | Plain CSS, Lato font |
+| Styling | Plain CSS; Lato (text) and Playfair Display (headings) |
 | Database | [Supabase](https://supabase.com) (Postgres), free plan, Mumbai region |
 | Data source | EXPA GraphQL API (`gis-api.aiesec.org`), read-only |
 | Scheduled sync | GitHub Actions, started by Supabase Cron (pg_cron + pg_net) |
