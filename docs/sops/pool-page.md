@@ -104,8 +104,8 @@ laptops, using only data the sync job wrote to Supabase.
    dates) of their newest **matching** application, "+N more applications" when they have more,
    View CV and the applied date ("Last applied" = their newest application, with more than one).
    The whole card is one button that opens the popup (View CV keeps working on its own).
-   In the popup, **Applications** comes after the applicant's contacts and the EP managers (so
-   those stay on the first screen even for someone with 15 applications): every application newest first (company + badge, work
+   In the popup, **Applications** comes after the applicant's contacts, the EP managers and the
+   languages (so those stay on the first screen even for someone with 15 applications): every application newest first (company + badge, work
    area, dates + weeks, "Applied …"). While the search or filters leave some of the person's
    applications out, the matching ones come first under "Matches your filter (2 of 5)", the rest
    under "Other applications"; nothing is hidden. The popup is a native `<dialog>` opened with
@@ -118,7 +118,7 @@ laptops, using only data the sync job wrote to Supabase.
    (phones treat a tap as a hover that sticks). EP managers: name, then email and phone rows that exist;
    neither → "No contact details on EXPA".
    Below the EP managers: **Languages** (names only, comma-separated; EXPA's 0–4 level has no
-   label yet, so it is not shown) and **Professional experience(s)**, newest first: title,
+   label yet, so it is not shown); after the Applications: **Professional experience(s)**, newest first: title,
    organisation, type · "Mar 2026 – Present" (no end date = Present), then the full description
    with its line breaks kept. Either list empty → "Not available".
    12 cards per page (see 6a). Dates: plain dates shown as "15 Oct 2026"; "Applied" date in India time. Weeks =

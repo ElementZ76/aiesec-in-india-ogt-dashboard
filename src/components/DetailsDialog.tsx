@@ -111,8 +111,6 @@ export function DetailsDialog({ match, onClose, notify }: {
             )}
           </div>
 
-          <Applications match={shownMatch} />
-
           <div>
             <div className="label">Languages</div>
             {shown.languages.length ? (
@@ -121,6 +119,8 @@ export function DetailsDialog({ match, onClose, notify }: {
               <div className="row"><span className="na">Not available</span></div>
             )}
           </div>
+
+          <Applications match={shownMatch} />
 
           <div>
             <div className="label">Professional experience{shown.professionalExperiences.length > 1 ? "s" : ""}</div>
