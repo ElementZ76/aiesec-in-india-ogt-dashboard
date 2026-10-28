@@ -6,7 +6,7 @@ import type { PersonApplication, PoolPerson } from "./types";
 export const CSV_COLUMNS = [
   "Applicant name", "Company name", "EP manager", "Email", "Phone", "LC", "Start date", "End date",
   "CV link", "Opportunity field", "LinkedIn", "Programme", "Applied on", "Professional experiences",
-  "Languages",
+  "Languages", "Opportunity link",
 ] as const;
 
 /**
@@ -49,6 +49,7 @@ export function csvRow(p: PoolPerson, a: PersonApplication): string[] {
     a.appliedAt,
     experienceText(p),
     p.languages.map((l) => l.name).join(", "),
+    a.opportunityUrl ?? "",
   ];
 }
 

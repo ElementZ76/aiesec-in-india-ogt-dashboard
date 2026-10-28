@@ -31,6 +31,9 @@ alter table public.applications
   add column if not exists professional_experiences jsonb not null default '[]'::jsonb, -- [{ "title", "organisation", "type", "start", "end", "description" }]
   add column if not exists languages                jsonb not null default '[]'::jsonb; -- [{ "name", "level" }]
 
+-- Added 2026-10-28: EXPA opportunity id; the popup links to its public page on aiesec.org.
+alter table public.applications add column if not exists opportunity_id text;
+
 -- One row per sync run. The website reads only status + finished_at ("Last updated").
 create table if not exists public.sync_runs (
   id             bigint generated always as identity primary key,

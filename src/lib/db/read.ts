@@ -2,6 +2,7 @@
 import { cacheLife } from "next/cache";
 import { createClient } from "@supabase/supabase-js";
 import { safeUrl } from "@/lib/expa/mapper";
+import { opportunityUrl } from "@/lib/pool/format";
 import type { PoolApplication, PoolData } from "@/lib/pool/types";
 import { sortEntities, type Entity } from "@/lib/auth/entities";
 import type { ApplicationRow, EntityRow } from "./types";
@@ -9,7 +10,7 @@ import type { ApplicationRow, EntityRow } from "./types";
 const PAGE = 1000; // Supabase returns at most 1000 rows per request
 const COLUMNS =
   "application_id,person_id,full_name,email,phone,linkedin_url,cv_url,home_lc_id,home_lc," +
-  "ep_managers,professional_experiences,languages,company_name,opportunity_field,programme,start_date,end_date,applied_at";
+  "ep_managers,professional_experiences,languages,opportunity_id,company_name,opportunity_field,programme,start_date,end_date,applied_at";
 
 function client() {
   const url = process.env.SUPABASE_URL;
@@ -32,6 +33,7 @@ export function toPoolApplication(row: ApplicationRow): PoolApplication {
     epManagers: Array.isArray(row.ep_managers) ? row.ep_managers : [],
     professionalExperiences: Array.isArray(row.professional_experiences) ? row.professional_experiences : [],
     languages: Array.isArray(row.languages) ? row.languages : [],
+    opportunityUrl: opportunityUrl(row.opportunity_id, row.programme),
     companyName: row.company_name,
     opportunityField: row.opportunity_field,
     programme: row.programme,

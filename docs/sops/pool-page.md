@@ -106,7 +106,10 @@ laptops, using only data the sync job wrote to Supabase.
    The whole card is one button that opens the popup (View CV keeps working on its own).
    In the popup, **Applications** comes after the applicant's contacts, the EP managers and the
    languages (so those stay on the first screen even for someone with 15 applications): every application newest first (company + badge, work
-   area, dates + weeks, "Applied …"). While the search or filters leave some of the person's
+   area, dates + weeks, "Applied …"). The company name links to the opportunity's public page,
+   `https://aiesec.org/opportunity/global-talent/<id>` (GTe: `global-teacher`), in a new tab; the
+   server builds it (`opportunityUrl` in `format.ts`) only from an all-digit id, otherwise the name
+   is plain text. Not a link on the card: tapping the card opens the popup. While the search or filters leave some of the person's
    applications out, the matching ones come first under "Matches your filter (2 of 5)", the rest
    under "Other applications"; nothing is hidden. The popup is a native `<dialog>` opened with
    `showModal()` (focus moves into it, Esc closes, focus returns to the card); only the selected
@@ -143,7 +146,7 @@ laptops, using only data the sync job wrote to Supabase.
    applications of the people matching search + LC + work area (all of them, not just the 12
    cards shown), in card order. The "Exported N applications" message counts rows. Columns: Applicant name, Company name, EP manager, Email, Phone, LC, Start date,
    End date, CV link, Opportunity field, LinkedIn, Programme, Applied on, Professional
-   experiences, Languages. Several EP managers are joined with "; ". Experiences: one line per job
+   experiences, Languages, Opportunity link (empty when EXPA gave no id). Several EP managers are joined with "; ". Experiences: one line per job
    inside the cell, "Title at Organisation (Type, Mar 2026 – Present)", **without descriptions**
    (24 jobs × ~2,200 characters could pass Excel's 32,767-character cell limit). Languages joined
    with ", ". UTF-8 with a byte-order mark (so Excel shows Indian names correctly),

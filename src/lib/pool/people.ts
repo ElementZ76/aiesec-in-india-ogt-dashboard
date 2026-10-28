@@ -18,8 +18,8 @@ export function newestFirst(a: PersonApplication, b: PersonApplication): number 
 export function groupByPerson(apps: PoolApplication[]): PoolPerson[] {
   const byId = new Map<string, PoolPerson>();
   for (const a of [...apps].sort(newestFirst)) {
-    const { applicationId, companyName, opportunityField, programme, startDate, endDate, appliedAt, ...person } = a;
-    const job = { applicationId, companyName, opportunityField, programme, startDate, endDate, appliedAt };
+    const { applicationId, opportunityUrl, companyName, opportunityField, programme, startDate, endDate, appliedAt, ...person } = a;
+    const job = { applicationId, opportunityUrl, companyName, opportunityField, programme, startDate, endDate, appliedAt };
     const p = byId.get(a.personId);
     if (p) p.applications.push(job);
     else byId.set(a.personId, { ...person, applications: [job] });

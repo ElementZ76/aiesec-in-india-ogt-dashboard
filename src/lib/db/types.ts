@@ -40,6 +40,8 @@ export interface ApplicationRow {
   /** Newest start first. */
   professional_experiences: ProfessionalExperience[];
   languages: Language[];
+  /** EXPA opportunity id; the popup links to its public page on aiesec.org. */
+  opportunity_id: string | null;
   company_name: string | null;
   opportunity_field: string | null;
   programme: Programme;

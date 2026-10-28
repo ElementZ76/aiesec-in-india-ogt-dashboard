@@ -15,6 +15,8 @@ export interface PoolApplication {
   /** Newest start first. */
   professionalExperiences: ProfessionalExperience[];
   languages: Language[];
+  /** Public page of the opportunity on aiesec.org; null when EXPA gave no id. */
+  opportunityUrl: string | null;
   companyName: string | null;
   opportunityField: string | null;
   programme: Programme;
@@ -29,7 +31,7 @@ export interface PoolApplication {
 /** One of a person's applications: only the fields that differ between their applications. */
 export type PersonApplication = Pick<
   PoolApplication,
-  "applicationId" | "companyName" | "opportunityField" | "programme" | "startDate" | "endDate" | "appliedAt"
+  "applicationId" | "opportunityUrl" | "companyName" | "opportunityField" | "programme" | "startDate" | "endDate" | "appliedAt"
 >;
 
 /**

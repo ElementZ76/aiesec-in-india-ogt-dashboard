@@ -44,6 +44,8 @@ that passes the pool rules, one row each, and nothing else. Never damage good da
      "Not available"). This also blocks `javascript:` links.
    - Dates: a plain `YYYY-MM-DD` is kept; a timestamp is converted to its date in India time.
      Start/end: slot dates first, then the opportunity's earliest start / latest end.
+   - Opportunity id (`opportunity.id`) is stored as text, or null when missing; the website turns
+     it into the public aiesec.org link.
    - Professional experiences (`person.professional_experiences`): jobs with neither a title nor
      an organisation are dropped; type = `experience_level.name`; dates as above (EXPA stores the
      1st of a month at 00:00 UTC); description keeps its line breaks (3+ in a row → one blank

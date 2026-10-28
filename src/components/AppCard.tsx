@@ -76,13 +76,25 @@ export function CardTop({ person, titleId }: { person: PoolPerson; titleId?: str
   );
 }
 
-/** Company, work area and dates of one application. `full` (popup): also its programme and applied date. */
+/**
+ * Company, work area and dates of one application. `full` (popup): also its programme and applied
+ * date, and the company links to the opportunity's page on aiesec.org (not on the card, which
+ * opens the popup when tapped).
+ */
 export function JobBlock({ job, full = false }: { job: PersonApplication; full?: boolean }) {
   const weeks = weeksBetween(job.startDate, job.endDate);
+  const company = job.companyName ?? "Company not specified";
   return (
     <div className="job">
       <div className="job-head">
-        <div className="company">{job.companyName ?? "Company not specified"}</div>
+        {full && job.opportunityUrl ? (
+          <a className="company" href={job.opportunityUrl} target="_blank" rel="noopener noreferrer" aria-label={`${company}: opportunity page on aiesec.org (opens in a new tab)`}>
+            {company}
+            <Icon name="arrow" size={14} className="arrow" />
+          </a>
+        ) : (
+          <div className="company">{company}</div>
+        )}
         {full ? <span className={`badge ${job.programme}`}>{job.programme}</span> : null}
       </div>
       <div className="area">{job.opportunityField ?? <span className="na">Work area not specified</span>}</div>

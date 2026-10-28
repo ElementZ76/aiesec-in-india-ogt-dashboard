@@ -3,7 +3,7 @@ import { toPoolApplication } from "@/lib/db/read";
 import type { ApplicationRow } from "@/lib/db/types";
 import { CSV_COLUMNS, csvCell, experienceText, toCsv } from "./csv";
 import {
-  formatDate, formatIndiaDate, formatIndiaDateTime, formatMonthRange, initials, isStale, telHref, weeksBetween,
+  formatDate, formatIndiaDate, formatIndiaDateTime, formatMonthRange, initials, isStale, opportunityUrl, telHref, weeksBetween,
 } from "./format";
 import { groupByPerson, programmesOf } from "./people";
 import { NO_FIELD, filterPool, indexPool, isNarrowed, lcOptions, workAreaOptions, type Match } from "./search";
@@ -25,6 +25,7 @@ function app(over: Partial<PoolApplication> = {}): PoolApplication {
     epManagers: [{ name: "Neha Agarwal", email: "neha@aiesec.example", phone: null }],
     professionalExperiences: [],
     languages: [],
+    opportunityUrl: "https://aiesec.org/opportunity/global-talent/1340446",
     companyName: "Northwind Labs",
     opportunityField: "Marketing",
     programme: "GTa",
@@ -218,7 +219,7 @@ describe("csv", () => {
     expect(l[2]).toContain('"Neha Agarwal"');
     expect(l[2]).toContain(`"'+91 98765 43210"`);
     expect(l[2]).toContain('"Not available"'); // LinkedIn missing
-    expect(l[2].endsWith(',"",""')).toBe(true); // no experiences, no languages
+    expect(l[2].endsWith(',"","","https://aiesec.org/opportunity/global-talent/1340446"')).toBe(true); // no experiences, no languages
     expect(l[3].startsWith('"Rohan Mehta","Northwind Labs","",')).toBe(true); // no EP manager
   });
   it("writes only the applications that match", () => {
@@ -242,7 +243,7 @@ describe("toPoolApplication", () => {
   const row: ApplicationRow = {
     application_id: "1", person_id: "p1", full_name: "Priya", email: null, phone: null,
     linkedin_url: "javascript:alert(1)", cv_url: "https://example.com/cv.pdf", home_lc_id: "10",
-    home_lc: "Mumbai", ep_managers: [], professional_experiences: [], languages: [], company_name: null, opportunity_field: null, programme: "GTa",
+    home_lc: "Mumbai", ep_managers: [], professional_experiences: [], languages: [], opportunity_id: "1340446", company_name: null, opportunity_field: null, programme: "GTa",
     start_date: null, end_date: null, applied_at: "2026-10-01T10:00:00Z",
   };
   it("re-checks links and maps to camelCase", () => {
@@ -250,6 +251,13 @@ describe("toPoolApplication", () => {
     expect(a.linkedinUrl).toBeNull();
     expect(a.cvUrl).toBe("https://example.com/cv.pdf");
     expect(a).toMatchObject({ applicationId: "1", homeLc: "Mumbai", epManagers: [], appliedAt: "2026-10-01T10:00:00Z" });
+    expect(a.opportunityUrl).toBe("https://aiesec.org/opportunity/global-talent/1340446");
+  });
+  it("builds the opportunity link with the programme's word, and none without a valid id", () => {
+    expect(opportunityUrl("1338681", "GTa")).toBe("https://aiesec.org/opportunity/global-talent/1338681");
+    expect(opportunityUrl("1338681", "GTe")).toBe("https://aiesec.org/opportunity/global-teacher/1338681");
+    for (const bad of [null, "", "12a", "../1", "1/2"]) expect(opportunityUrl(bad, "GTa")).toBeNull();
+    expect(toPoolApplication({ ...row, opportunity_id: null }).opportunityUrl).toBeNull();
   });
   it("treats a non-list EP manager value as no managers", () => {
     expect(toPoolApplication({ ...row, ep_managers: null as unknown as [] }).epManagers).toEqual([]);

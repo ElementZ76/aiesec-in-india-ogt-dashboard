@@ -119,6 +119,7 @@ export function mapApplication(raw: RawApplication): MapResult {
       ep_managers: managers(raw),
       professional_experiences: experiences(raw),
       languages: languages(raw),
+      opportunity_id: opp?.id == null ? null : text(String(opp.id)),
       company_name: text(opp?.organisation?.name),
       opportunity_field: text(opp?.sub_product?.name),
       programme: programme as Programme,

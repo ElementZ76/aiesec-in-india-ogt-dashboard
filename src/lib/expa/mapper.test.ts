@@ -23,6 +23,7 @@ const raw = (over: Partial<RawApplication> = {}): RawApplication => ({
     person_profile: { languages: [{ constant_name: "English", level: 2 }, { constant_name: "Hindi", level: null }] },
   },
   opportunity: {
+    id: 1340446,
     programme: { short_name_display: "GTa" },
     organisation: { name: "Example Ltd" },
     sub_product: { name: "Marketing" },
@@ -52,6 +53,7 @@ describe("mapApplication", () => {
           { title: "Intern", organisation: "Old Co", type: "Internship", start: "2025-03-01", end: "2025-06-01", description: "Did things" },
         ],
         languages: [{ name: "English", level: 2 }, { name: "Hindi", level: null }],
+        opportunity_id: "1340446",
         company_name: "Example Ltd",
         opportunity_field: "Marketing",
         programme: "GTa",
@@ -78,13 +80,13 @@ describe("mapApplication", () => {
     const p = raw().person!;
     const m = mapApplication(raw({
       person: { ...p, full_name: "  ", email: null, linkedin_url: null, cv_url: "", contact_detail: null, managers: null },
-      opportunity: { ...raw().opportunity!, organisation: null, sub_product: null },
+      opportunity: { ...raw().opportunity!, id: null, organisation: null, sub_product: null },
     }));
     expect(m.ok).toBe(true);
     if (!m.ok) return;
     expect(m.row).toMatchObject({
       full_name: NAME_FALLBACK, email: null, phone: null, linkedin_url: null, cv_url: null,
-      ep_managers: [], company_name: null, opportunity_field: null,
+      ep_managers: [], opportunity_id: null, company_name: null, opportunity_field: null,
     });
   });
 

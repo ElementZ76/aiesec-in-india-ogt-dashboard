@@ -38,6 +38,7 @@ export interface RawApplication {
     person_profile: { languages: { constant_name: string | null; level: number | null }[] | null } | null;
   } | null;
   opportunity: {
+    id: string | number | null;
     programme: { short_name_display: string | null } | null;
     organisation: { name: string | null } | null;
     sub_product: { name: string | null } | null;
@@ -61,6 +62,7 @@ export const APPLICATIONS_QUERY = `query PoolApplications($filters: ApplicationF
         person_profile { languages { constant_name level } }
       }
       opportunity {
+        id
         programme { short_name_display }
         organisation { name }
         sub_product { name }

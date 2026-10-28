@@ -97,6 +97,7 @@ page, per_page)` → `data { ... }` + `paging { total_items total_pages }`.
 | ep_managers | jsonb: list of `{ name, email, phone }` | ep manager | `person.managers { full_name email contact_detail { phone } }`; can be empty or several |
 | professional_experiences | jsonb: list of `{ title, organisation, type, start, end, description }` | professional experiences (user, 2026-10-27) | `person.professional_experiences { title organisation_name experience_level { name } start_date end_date description }`; newest first; no `end` = "Present" (verified 2026-10-27: 876/885 have one) |
 | languages | jsonb: list of `{ name, level }` | languages (user, 2026-10-27) | `person.person_profile.languages { constant_name level }`; `level` is 0–4 with no label on EXPA, so only names are shown. **Not** `person.top_languages` (EXPA HTTP 500) |
+| opportunity_id | text, null | — (link to the opportunity; user, 2026-10-28) | `opportunity.id` (verified 2026-10-28: 20/20 in a sample). The server turns it into `https://aiesec.org/opportunity/global-talent/<id>` (GTe: `global-teacher`) |
 | company_name | text, null | company name | `opportunity.organisation.name` |
 | opportunity_field | text, null | opportunity field (the job's work area) | `opportunity.sub_product.name` |
 | programme | text, `GTa` or `GTe` | — (stats only) | `opportunity.programme.short_name_display` |
@@ -149,13 +150,13 @@ Supabase Cron (every 15 min) → starts the sync job (GitHub Actions) → EXPA �
 `{ applicationId, personId, fullName, email, phone|null, linkedinUrl|null, cvUrl|null, homeLcId,
 homeLc, epManagers: [{ name, email|null, phone|null }], professionalExperiences: [{ title|null,
 organisation|null, type|null, start|null, end|null, description|null }], languages: [{ name,
-level|null }], companyName|null, opportunityField|null,
+level|null }], opportunityUrl|null, companyName|null, opportunityField|null,
 programme: "GTa"|"GTe", startDate|null, endDate|null, appliedAt }` — start/end dates as `YYYY-MM-DD`
 strings; `appliedAt` as an ISO timestamp.
 
 `PoolPerson` (what the server hands to the page; one per card, ordered by newest application):
 the person fields of `PoolApplication` once (`personId` … `languages`) plus `applications: [{
-applicationId, companyName|null, opportunityField|null, programme, startDate|null, endDate|null,
+applicationId, opportunityUrl|null, companyName|null, opportunityField|null, programme, startDate|null, endDate|null,
 appliedAt }]`, newest first, at least one.
 
 ### Endpoint table
@@ -224,7 +225,8 @@ site is connected to the database.
   written out and copy buttons ("No EP manager assigned" when none); languages (names only);
   **Applications** (after the contacts and languages, so those stay on the first screen; user,
   2026-10-28) — every application newest first, each with company, work area, GTa/GTe, dates +
-  weeks and applied date; while a search or filter leaves some out, the matching ones come first
+  weeks and applied date; the company name links to the opportunity's public page on aiesec.org
+  (new tab; plain text when EXPA gave no id; popup only, not on the card; user, 2026-10-28); while a search or filter leaves some out, the matching ones come first
   under "Matches your filter (2 of 5)" and the rest under "Other applications" (nothing hidden); professional
   experiences newest first with title, organisation, type, "Mar 2026 – Present" dates and the full
   description ("Not available" when a list is empty; user, 2026-10-27), View CV. Closes with ✕, Esc, a tap outside,
@@ -252,8 +254,8 @@ site is connected to the database.
   while one of its fields has focus. Wider screens: always sticky.
 - **CSV export:** one row per application (not per person): the applications matching the current
   search + LC + work-area filters, in card order, all spec
-  fields, plus professional experiences (one line per job, no descriptions: Excel's cell limit)
-  and languages.
+  fields, plus professional experiences (one line per job, no descriptions: Excel's cell limit),
+  languages and the opportunity link (last column).
 - **Stale data:** if the last successful sync is more than 1 hour old, "Last updated" turns amber
   and says the data may be out of date.
 - **Performance rules (measured 2026-10-15):** background blur only on the navbar; no masks or
@@ -360,3 +362,4 @@ Tests live next to the code they test, as `*.test.ts`.
 | 2026-10-28 | Stuck search bar's box keeps to the page margin (fields move in); "Contact & EP manager" line trimmed to its letters so the card's gaps look even. Added `docs/design/corner-lab.html` (corner shapes: now / round 30 / squircle 30) | User: the stuck box went past the margin; uneven spacing around the hint; wants to compare corner shapes before choosing |
 | 2026-10-28 | UI Spec: one corner for all big boxes — plain round 30 px (squircles removed; stat cards 26 → 30; navbar 30 instead of a full capsule, still a capsule on phones; stuck search bar 30 with 7 px padding) | User: navbar and cards had different corners; chose option A in the corner lab |
 | 2026-10-28 | **One card per person** (was one per application): the server groups rows by `person_id` into `PoolPerson` (new; endpoint now sends `PoolPerson[]`); card shows the newest matching application + "+N more"; popup lists all applications (matching ones first while filtering); stats: applicants big + applications, the rest in applications; dropdowns count people; CSV stays one row per application. Database and sync unchanged | User: condense one person's applications into one card. 2026-10-28: 903 applications = 349 people; 14 people have 10+ |
+| 2026-10-28 | Schema: `opportunity_id` on `applications` (EXPA `opportunity.id`); `opportunityUrl` in `PoolApplication`/`PoolPerson` applications. Popup: company name links to the public aiesec.org opportunity page; CSV: "Opportunity link" column | User: link each application to its opportunity; chose the public page, popup only, no job title, link in the CSV |

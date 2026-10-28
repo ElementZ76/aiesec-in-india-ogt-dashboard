@@ -1,5 +1,6 @@
 // Display formatting. Hand-written (not toLocaleDateString) so the server and every browser
 // produce exactly the same text, whatever their locale or time zone.
+import type { Programme } from "@/lib/db/types";
 
 const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 const IST_OFFSET_MS = 5.5 * 60 * 60 * 1000; // India has no daylight saving time
@@ -76,6 +77,15 @@ export function initials(name: string): string {
 /** `tel:` link without spaces: "+91 98765 43210" → "tel:+919876543210". */
 export function telHref(phone: string): string {
   return `tel:${phone.replace(/[^\d+]/g, "")}`;
+}
+
+/**
+ * The opportunity's public page: "https://aiesec.org/opportunity/global-talent/1340446"
+ * (GTe: global-teacher). Only an all-digit id makes a link (checked 2026-10-28).
+ */
+export function opportunityUrl(id: string | null, programme: Programme): string | null {
+  if (!id || !/^\d+$/.test(id)) return null;
+  return `https://aiesec.org/opportunity/${programme === "GTe" ? "global-teacher" : "global-talent"}/${id}`;
 }
 
 export const STALE_AFTER_MS = 60 * 60 * 1000;

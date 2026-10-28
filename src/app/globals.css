@@ -400,6 +400,8 @@ button.bar-row:active { transform: scale(.97); }
 .job-head { display: flex; align-items: flex-start; gap: 8px; }
 .job-head .company { flex: 1; min-width: 0; }
 .job-head .badge { margin-top: 1px; }
+/* Popup only: the company links to the opportunity's page on aiesec.org (2026-10-28). */
+.job-head a.company .arrow { display: inline; margin-left: 4px; vertical-align: -1px; }
 .job .applied { display: block; margin-top: 4px; }
 .job-list { display: grid; gap: 10px; }
 
@@ -586,6 +588,7 @@ footer .stale { color: var(--warn); font-weight: 700; }
   .nav .btn-primary, .nav .btn-glass, .card-foot .btn { min-height: 44px; min-width: 44px; }
   .pager-num { min-width: 44px; height: 44px; }
   button.bar-row, .t-link { min-height: 44px; }
+  .job-head a.company { padding-block: 10px; margin-block: -10px; }   /* 44px to tap, same layout */
   .logo { min-height: 44px; }
   .row .val { padding: 12px 0; }
   footer a { padding: 12px 0; }
