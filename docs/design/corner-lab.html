@@ -1,0 +1,230 @@
+<!doctype html>
+<!-- Corner lab (2026-10-28): compare corner shapes for the big boxes (navbar, stuck search bar, stat
+     cards, application cards) at phone width. Sample data only (made-up person). Not used by the
+     site; open it in a browser. Styles are ported from src/app/globals.css; each column sets the
+     corner variables (--r-*, --shape) differently. -->
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Corner Lab · oGT CV Pool</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Lato:wght@400;700&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600&display=swap">
+<style>
+:root {
+  --aiesec: #037ef3; --gta: #0a8ea0; --gte: #f85a40; --btn: #0366d6;
+  --pill: 999px; --inset: 21px;
+  --font-text: Lato, system-ui, sans-serif; --font-head: "Playfair Display", Georgia, serif;
+}
+:root[data-theme="dark"] {
+  color-scheme: dark; --bg: #000; --text: #ececec; --muted: #a8a8a8; --faint: #808080;
+  --glass: rgba(255,255,255,.04); --glass-bar: rgba(18,18,18,.92); --glass-inset: rgba(255,255,255,.05);
+  --edge: rgba(255,255,255,.10); --rim-a: rgba(255,255,255,.28); --rim-b: rgba(255,255,255,.06);
+  --sheen: rgba(255,255,255,.04); --panel-solid: #0e0e0e; --link: #8cc8ff;
+  --chip-bg: linear-gradient(140deg, #fff, #cfcfcf); --chip-fg: #000;
+  --gta-bg: rgba(10,142,160,.24); --gta-text: #86e4f0; --gte-text: #ffb1a1; --bar-track: rgba(255,255,255,.08);
+  --shadow: 0 18px 40px -18px rgba(0,0,0,.7);
+}
+:root[data-theme="light"] {
+  color-scheme: light; --bg: #f6f1e7; --text: #1c1915; --muted: #4a443c; --faint: #6f675c;
+  --glass: rgba(255,252,245,.72); --glass-bar: rgba(255,252,245,.92); --glass-inset: rgba(255,252,245,.62);
+  --edge: rgba(60,45,20,.11); --rim-a: rgba(255,253,248,.95); --rim-b: rgba(255,253,248,.25);
+  --sheen: rgba(255,253,248,.45); --panel-solid: #fbf8f1; --link: #0360c4;
+  --chip-bg: linear-gradient(140deg, #3d3832, #1c1915); --chip-fg: #fffcf5;
+  --gta-bg: rgba(10,142,160,.14); --gta-text: #066c7a; --gte-text: #b3321c; --bar-track: rgba(60,45,20,.08);
+  --shadow: 0 18px 40px -22px rgba(60,45,20,.24);
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--text); font: 16px/1.55 var(--font-text); -webkit-font-smoothing: antialiased; }
+
+/* ---------- Lab chrome ---------- */
+.lab-head { max-width: 1180px; margin: 0 auto; padding: 20px 16px 8px; }
+.lab-head h1 { margin: 0 0 4px; font: 600 28px/1.1 var(--font-head); }
+.lab-head p { margin: 0 0 12px; color: var(--muted); font-size: 15px; max-width: 760px; }
+.lab-bar { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.seg { display: inline-flex; padding: 3px; gap: 2px; border-radius: var(--pill); background: var(--glass-inset); border: 1px solid var(--edge); }
+.seg button { font: inherit; font-weight: 700; font-size: 14px; color: var(--muted); background: none; border: 0; border-radius: var(--pill); padding: 8px 14px; min-height: 40px; cursor: pointer; }
+.seg button[aria-pressed="true"] { color: var(--link); background: rgba(3,126,243,.2); }
+.warn { margin-top: 10px; color: #fbbf24; font-weight: 700; font-size: 14px; }
+.cols { max-width: 1180px; margin: 0 auto; padding: 8px 0 40px; display: flex; gap: 20px; justify-content: center; flex-wrap: wrap; }
+.col { width: 360px; flex: none; }
+.col > h2 { margin: 12px 16px 2px; font-size: 16px; }
+.col > .what { margin: 0 16px 6px; font-size: 13px; color: var(--muted); min-height: 40px; }
+.phone { position: relative; border-top: 1px dashed var(--edge); border-bottom: 1px dashed var(--edge); padding: 10px 0 18px; }
+.phone::before, .phone::after { content: ""; position: absolute; top: 0; bottom: 0; width: 0; border-left: 1px dashed rgba(248,90,64,.55); }
+.phone::before { left: 16px; } .phone::after { right: 16px; }   /* the page margin */
+@media (max-width: 760px) {
+  .col { width: 100%; }
+  .cols[data-show="now"] .col:not(.v-now), .cols[data-show="round"] .col:not(.v-round), .cols[data-show="squircle"] .col:not(.v-squircle) { display: none; }
+}
+@media (min-width: 761px) { .only-phone { display: none; } }
+
+/* ---------- The three variants: corner variables ---------- */
+.v-now { --r-nav: var(--pill); --r-panel: 33px; --pad-panel: 10px; --panel-out: 11px;
+         --r-tile: 38px; --r-card: 44px; --shape: squircle; --nav-shape: round; --panel-shape: round; --pad-tile: 20px; }
+.v-round { --r-nav: 30px; --r-panel: 30px; --pad-panel: 7px; --panel-out: 0px;
+           --r-tile: 30px; --r-card: 30px; --shape: round; --nav-shape: round; --panel-shape: round; --pad-tile: 20px; }
+.v-squircle { --r-nav: 30px; --r-panel: 30px; --pad-panel: 7px; --panel-out: 0px;
+              --r-tile: 30px; --r-card: 30px; --shape: squircle; --nav-shape: squircle; --panel-shape: squircle; --pad-tile: 20px; }
+@supports not (corner-shape: squircle) { .v-now { --r-tile: 26px; --r-card: 30px; } }   /* the site's fallback */
+.col { --pad-card: 20px; --r-card-inner: calc(var(--r-card) - var(--pad-card)); --r-tile-inner: calc(var(--r-tile) - var(--pad-tile)); }
+
+/* ---------- Ported page pieces ---------- */
+.m { padding: 0 16px; }
+.nav { height: 60px; border-radius: var(--r-nav); corner-shape: var(--nav-shape); display: flex; align-items: center; gap: 8px; padding: 0 10px 0 var(--inset);
+  background: linear-gradient(180deg, var(--sheen), transparent 60%), var(--glass-bar); box-shadow: inset 0 1px 0 var(--rim-a), 0 20px 50px -20px rgba(0,0,0,.55); }
+.logo { font-weight: 700; font-size: 16px; white-space: nowrap; margin-right: auto; }
+.theme { display: inline-grid; grid-template-columns: 1fr 1fr; padding: 3px; border-radius: var(--pill); background: var(--glass-inset); border: 1px solid var(--edge); }
+.theme span { width: 34px; height: 34px; display: grid; place-items: center; border-radius: var(--pill); color: var(--muted); }
+.theme span.on { background: var(--glass-inset); box-shadow: inset 0 0 0 1px var(--edge); color: var(--text); }
+.ibtn { width: 42px; height: 42px; border-radius: 50%; display: grid; place-items: center; flex: none; }
+.ibtn.primary { background: var(--btn); color: #fff; }
+.ibtn.glass { background: var(--glass-inset); border: 1px solid var(--edge); }
+
+.controls { margin: 10px calc(-1 * var(--panel-out)) 0; padding: var(--pad-panel); border-radius: var(--r-panel); corner-shape: var(--panel-shape);
+  background: var(--panel-solid); border: 1px solid var(--edge); box-shadow: inset 0 1px 0 var(--rim-b), 0 16px 40px -20px rgba(0,0,0,.6);
+  display: grid; gap: 8px; }
+.field { position: relative; display: flex; align-items: center; }
+.field svg { position: absolute; left: var(--inset); color: var(--faint); }
+.field div { width: 100%; border-radius: var(--pill); border: 1px solid var(--edge); background: var(--glass-inset); padding: 11px 16px 11px calc(var(--inset) + 25px); color: var(--faint); box-shadow: inset 0 1px 0 var(--rim-b); }
+.field.sel div { color: var(--text); }
+.field .chev { left: auto; right: 13px; }
+
+.glass { position: relative; background: linear-gradient(180deg, var(--sheen), transparent 45%), var(--glass); border: 1px solid var(--edge); box-shadow: inset 0 1px 0 var(--rim-a), var(--shadow); }
+.title { margin: 22px 0 0; padding-left: var(--inset); font: 600 36px/1.04 var(--font-head); }
+.title span { color: var(--link); }
+.entity { margin: 8px 0 14px; padding-left: var(--inset); font-size: 18px; font-weight: 700; color: var(--muted); }
+.tiles { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.tile { border-radius: var(--r-tile); corner-shape: var(--shape); padding: var(--pad-tile); display: flex; flex-direction: column; gap: 8px; overflow: hidden; }
+.t-head { display: flex; align-items: center; gap: 8px; font-size: 12px; font-weight: 700; letter-spacing: .03em; text-transform: uppercase; color: var(--muted); }
+.chip { width: 28px; height: 28px; border-radius: var(--r-tile-inner); corner-shape: var(--shape); display: grid; place-items: center; background: var(--chip-bg); color: var(--chip-fg); flex: none; }
+.chip.duo { color: #fff; background: linear-gradient(140deg, #19b3c7 45%, #f85a40 55%); }
+.big { font-size: 34px; font-weight: 700; line-height: .95; letter-spacing: -.035em; }
+.big small { font-size: .42em; letter-spacing: 0; }
+.t-link { display: inline-flex; align-items: center; gap: 4px; min-height: 30px; padding: 3px 8px 3px 10px; font-size: 13px; color: var(--muted); white-space: nowrap; border-radius: var(--pill); background: var(--glass-inset); border: 1px solid var(--edge); align-self: flex-start; }
+.t-link b { color: var(--text); }
+.split { height: 6px; border-radius: 3px; background: var(--gte); overflow: hidden; }
+.split i { display: block; height: 100%; width: 86%; background: var(--gta); }
+.t-foot { font-size: 14px; color: var(--muted); }
+.t-foot b.a { color: var(--gta-text); } .t-foot b.e { color: var(--gte-text); }
+
+.count { color: var(--muted); font-size: 15px; margin: 14px 0; padding-left: var(--inset); }
+.count b { color: var(--text); }
+.card { border-radius: var(--r-card); corner-shape: var(--shape); padding: var(--pad-card); display: flex; flex-direction: column; gap: 16px; }
+.card-top { display: flex; gap: 12px; align-items: center; }
+.avatar { width: 46px; height: 46px; border-radius: 14px; display: grid; place-items: center; font-weight: 700; color: #fff; background: linear-gradient(140deg, #19b3c7, #077786); flex: none; }
+.v-now .avatar, .v-squircle .avatar { corner-shape: squircle; border-radius: 50%; }
+.who { flex: 1; min-width: 0; }
+.who h3 { margin: 0; font: 600 19px/1.25 var(--font-head); }
+.who div { color: var(--muted); font-size: 14px; }
+.badge { font-size: 12px; font-weight: 700; padding: 4px 11px; border-radius: var(--pill); background: var(--gta-bg); color: var(--gta-text); }
+.job { border-radius: var(--r-card-inner); corner-shape: var(--shape); padding: 12px 14px; background: var(--glass-inset); border: 1px solid var(--edge); }
+.job .co { font-weight: 700; }
+.job .ar { font-size: 15px; color: var(--muted); }
+.job .dates { display: flex; align-items: center; gap: 6px; margin-top: 6px; font-size: 14px; color: var(--muted); }
+.job .weeks { margin-left: auto; font-size: 12px; font-weight: 700; padding: 2px 9px; border-radius: var(--pill); background: var(--bar-track); }
+.hint { display: flex; align-items: center; gap: 4px; font-size: 14px; font-weight: 700; color: var(--link); }
+/* Fix 3 (columns A and B): the hint line hugs its letters, so the gaps above and below look like 16px. */
+.v-round .hint, .v-squircle .hint { line-height: 1; text-box: trim-both cap alphabetic; }
+.v-round .hint svg, .v-squircle .hint svg { margin-block: -2px; }
+.foot { display: flex; align-items: center; gap: 12px; }
+.cv { flex: 1; display: flex; align-items: center; justify-content: center; gap: 8px; min-height: 44px; border-radius: var(--r-card-inner); corner-shape: var(--shape); background: var(--btn); color: #fff; font-weight: 700; }
+.applied { font-size: 13px; color: var(--faint); white-space: nowrap; }
+</style>
+</head>
+<body>
+<div class="lab-head">
+  <h1>Corner Lab</h1>
+  <p>Same phone screen, three corner shapes. The dashed orange lines are the page margin. <b>Now</b> = the live site. <b>A</b> and <b>B</b> also include the two approved fixes: the search box stays inside the margin, and the spacing around "Contact &amp; EP manager" is even.</p>
+  <div class="lab-bar">
+    <div class="seg" role="group" aria-label="Theme">
+      <button data-theme="dark" aria-pressed="true">Dark</button>
+      <button data-theme="light" aria-pressed="false">Light</button>
+    </div>
+    <div class="seg only-phone" role="group" aria-label="Show">
+      <button data-show="now" aria-pressed="false">Now</button>
+      <button data-show="round" aria-pressed="true">A: round</button>
+      <button data-show="squircle" aria-pressed="false">B: squircle</button>
+    </div>
+  </div>
+  <p class="warn" id="nosq" hidden>This browser can't draw squircle corners, so B and "Now" look like plain round corners here. Open this page in Chrome 139 or newer (your phone's Chrome can).</p>
+</div>
+
+<div class="cols" id="cols" data-show="round"></div>
+
+<template id="screen">
+  <div class="phone">
+    <div class="m">
+      <div class="nav">
+        <span class="logo">AIESEC in India</span>
+        <span class="theme"><span>☀</span><span class="on">☾</span></span>
+        <span class="ibtn primary">⤓</span>
+        <span class="ibtn glass">⇥</span>
+      </div>
+      <div class="controls">
+        <div class="field"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg><div>Search</div></div>
+        <div class="field sel"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="7" width="18" height="13" rx="2"/><path d="M9 7V5a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2"/></svg><div>All work areas (91)</div><svg class="chev" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="m6 9 6 6 6-6"/></svg></div>
+      </div>
+      <h3 class="title">oGT <span>CV Pool</span></h3>
+      <div class="entity">Bengaluru</div>
+      <div class="tiles">
+        <div class="tile glass">
+          <div class="t-head"><span class="chip">▤</span>Applications</div>
+          <div class="big">91</div>
+          <span class="t-link"><b>8</b>&nbsp;work areas ▾</span>
+        </div>
+        <div class="tile glass">
+          <div class="t-head"><span class="chip duo">◔</span>GTa vs GTe</div>
+          <div class="big">86%<small> GTa</small></div>
+          <div class="split"><i></i></div>
+          <div class="t-foot"><b class="a">78</b> GTa · <b class="e">13</b> GTe</div>
+        </div>
+      </div>
+      <div class="count">Showing <b>1–12</b> of <b>91</b> applications · newest first</div>
+      <div class="card glass">
+        <div class="card-top">
+          <div class="avatar">AS</div>
+          <div class="who"><h3>Asha Sharma</h3><div>Bengaluru</div></div>
+          <span class="badge">GTa</span>
+        </div>
+        <div class="job">
+          <div class="co">Example Analytics Pvt Ltd</div>
+          <div class="ar">Engineering</div>
+          <div class="dates">📅 1 Dec 2026 – 1 May 2027 <span class="weeks">22 weeks</span></div>
+        </div>
+        <div class="hint">Contact &amp; EP manager <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="m9 6 6 6-6 6"/></svg></div>
+        <div class="foot"><span class="cv">View CV ↗</span><span class="applied">Applied 27 Oct 2026</span></div>
+      </div>
+    </div>
+  </div>
+</template>
+
+<script>
+const variants = [
+  ["now", "Now (live site)", "Navbar: capsule. Search box: 33px round, sticks out past the margin. Stat cards 38px and cards 44px squircle."],
+  ["round", "A: round 30", "Every big box: plain round corners, 30px. Navbar stays a capsule. Inner boxes 10px."],
+  ["squircle", "B: squircle 30", "Every big box: smooth squircle corners, 30px. Navbar becomes a rounded rectangle. Inner boxes 10px."],
+];
+const cols = document.getElementById("cols");
+const tpl = document.getElementById("screen");
+for (const [key, name, what] of variants) {
+  const col = document.createElement("section");
+  col.className = `col v-${key}`;
+  col.innerHTML = `<h2>${name}</h2><p class="what">${what}</p>`;
+  col.append(tpl.content.cloneNode(true));
+  cols.append(col);
+}
+document.querySelectorAll("[data-theme]").forEach((b) => b.addEventListener("click", () => {
+  document.documentElement.dataset.theme = b.dataset.theme;
+  document.querySelectorAll("button[data-theme]").forEach((x) => x.setAttribute("aria-pressed", x === b));
+}));
+document.querySelectorAll("[data-show]").forEach((b) => b.addEventListener("click", () => {
+  cols.dataset.show = b.dataset.show;
+  document.querySelectorAll("button[data-show]").forEach((x) => x.setAttribute("aria-pressed", x === b));
+}));
+if (!CSS.supports("corner-shape", "squircle")) document.getElementById("nosq").hidden = false;
+</script>
+</body>
+</html>
